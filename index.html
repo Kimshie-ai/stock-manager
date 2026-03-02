@@ -342,19 +342,33 @@
             try {
                 const docFile = document.getElementById('fileDoc').files[0], snFile = document.getElementById('fileSN').files[0];
                 const docUrl = await uploadFile(docFile, 'doc'), snUrl = await uploadFile(snFile, 'sn');
-                const payload = { name: document.getElementById('itemName').value, sn: document.getElementById('itemSN').value, location: document.getElementById('itemLocation').value, status: document.getElementById('itemStatus').value };
+                
+                const newName = document.getElementById('itemName').value;
+                const newSN = document.getElementById('itemSN').value;
+                const newLocation = document.getElementById('itemLocation').value;
+                const newStatus = document.getElementById('itemStatus').value;
+
+                const payload = { name: newName, sn: newSN, location: newLocation, status: newStatus };
                 if (docUrl) payload.doc_photo_url = docUrl; if (snUrl) payload.sn_photo_url = snUrl;
                 
                 if (editingId) { 
                     const oldItem = stockItems.find(i => i.id === editingId);
                     const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId); 
                     if (error) throw error; 
-                    await addLog('EDIT', `Update ${oldItem.name} (SN: ${oldItem.sn})`);
+
+                    let changes = [];
+                    if (oldItem.name !== newName) changes.push(`Nama: ${oldItem.name} -> ${newName}`);
+                    if (oldItem.location !== newLocation) changes.push(`Lokasi: ${oldItem.location} -> ${newLocation}`);
+                    if (oldItem.status !== newStatus) changes.push(`Status: ${oldItem.status} -> ${newStatus}`);
+                    if (oldItem.sn !== newSN) changes.push(`SN: ${oldItem.sn} -> ${newSN}`);
+                    
+                    const changeDetails = changes.length > 0 ? ` (${changes.join(', ')})` : '';
+                    await addLog('EDIT', `Update barang: ${oldItem.name}${changeDetails}`);
                     editingId = null; 
                 } else { 
                     const { error } = await _supabase.from('stock_items').insert([payload]); 
                     if (error) throw error; 
-                    await addLog('ADD', `Tambah barang: ${payload.name} (SN: ${payload.sn})`);
+                    await addLog('ADD', `Tambah barang: ${newName} (SN: ${newSN}) di ${newLocation}`);
                 }
                 await fetchFromSupabase(); toggleModal();
             } catch (err) { alert('Gagal simpan: ' + err.message); }
@@ -386,19 +400,26 @@
 
         async function fetchLogs() {
             const list = document.getElementById('logList');
-            const { data, error } = await _supabase.from('stock_logs').select('*').order('created_at', { ascending: false }).limit(20);
-            if (error) { list.innerHTML = `<div class="text-red-500 text-xs">Gagal memuat log: ${error.message}</div>`; return; }
-            if (!data || data.length === 0) { list.innerHTML = `<div class="text-slate-400 text-xs italic text-center py-4">Belum ada aktivitas tercatat</div>`; return; }
-            list.innerHTML = data.map(log => `
-                <div class="p-3 bg-slate-50 dark:bg-dark-bg rounded-lg border border-slate-100 dark:border-dark-border">
-                    <div class="flex justify-between items-start mb-1">
-                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 uppercase tracking-tighter">${log.action}</span>
-                        <span class="text-[9px] text-slate-400 font-mono">${new Date(log.created_at).toLocaleString('id-ID')}</span>
+            const { data, error } = await _supabase.from('stock_logs').select('*').order('created_at', { ascending: false }).limit(30);
+            if (error) { list.innerHTML = `<div class="text-red-500 text-xs text-center py-4">Gagal memuat log: ${error.message}</div>`; return; }
+            if (!data || data.length === 0) { list.innerHTML = `<div class="text-slate-400 text-xs italic text-center py-8">Belum ada aktivitas tercatat</div>`; return; }
+            list.innerHTML = data.map(log => {
+                let actionColor = 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400';
+                if (log.action === 'DELETE') actionColor = 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400';
+                if (log.action === 'EDIT') actionColor = 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400';
+                if (log.action === 'ADD') actionColor = 'bg-emerald-100 text-emerald-600 dark:bg-emerald-900/30 dark:text-emerald-400';
+
+                return `
+                    <div class="p-3 bg-slate-50 dark:bg-dark-bg rounded-lg border border-slate-100 dark:border-dark-border">
+                        <div class="flex justify-between items-start mb-1">
+                            <span class="text-[10px] font-bold px-2 py-0.5 rounded ${actionColor} uppercase tracking-tighter">${log.action}</span>
+                            <span class="text-[9px] text-slate-400 font-mono">${new Date(log.created_at).toLocaleString('id-ID')}</span>
+                        </div>
+                        <p class="text-xs text-slate-700 dark:text-dark-text font-medium leading-relaxed">${log.details}</p>
+                        <div class="text-[8px] text-slate-400 mt-1 uppercase tracking-widest">${log.user_email}</div>
                     </div>
-                    <p class="text-xs text-slate-700 dark:text-dark-text font-medium">${log.details}</p>
-                    <div class="text-[8px] text-slate-400 mt-1 uppercase tracking-widest">${log.user_email}</div>
-                </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         function toggleLogModal() {
