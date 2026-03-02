@@ -100,9 +100,10 @@
                 <div><p class="text-xs text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider">Total Lokasi</p><p id="statTotalLocations" class="text-2xl font-black text-slate-800 dark:text-white">0</p></div>
             </div>
             <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
-                <button onclick="toggleLogModal()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group">
+                <button id="logBtn" onclick="toggleLogModal()" class="hidden w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group">
                     <i class="fa-solid fa-clock-rotate-left text-xl group-hover:rotate-[-45deg] transition-transform"></i><span class="font-bold">Histori Pergerakan</span>
                 </button>
+                <div id="logPrompt" class="w-full text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2"><i class="fa-solid fa-lock"></i><span>Login Admin untuk Log</span></div>
             </div>
             <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
                 <button onclick="exportToCSV()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group"><i class="fa-solid fa-file-export text-xl group-hover:scale-110 transition"></i><span class="font-bold">Export CSV</span></button>
@@ -272,17 +273,23 @@
         function updateUIForAuth(user) {
             currentUser = user;
             const loginBtn = document.getElementById('loginBtn'), userProfile = document.getElementById('userProfile'), userEmail = document.getElementById('userEmail'), addBtn = document.getElementById('addBtn'), loginPrompt = document.getElementById('loginPrompt');
+            const logBtn = document.getElementById('logBtn'), logPrompt = document.getElementById('logPrompt');
+            
             if (user) { 
                 if(loginBtn) loginBtn.classList.add('hidden'); 
                 if(userProfile) userProfile.classList.remove('hidden'); 
                 if(userEmail) userEmail.innerText = user.email; 
                 if(addBtn) addBtn.classList.remove('hidden'); 
                 if(loginPrompt) loginPrompt.classList.add('hidden'); 
+                if(logBtn) logBtn.classList.remove('hidden');
+                if(logPrompt) logPrompt.classList.add('hidden');
             } else { 
                 if(loginBtn) loginBtn.classList.remove('hidden'); 
                 if(userProfile) userProfile.classList.add('hidden'); 
                 if(addBtn) addBtn.classList.add('hidden'); 
                 if(loginPrompt) loginPrompt.classList.remove('hidden'); 
+                if(logBtn) logBtn.classList.add('hidden');
+                if(logPrompt) logPrompt.classList.remove('hidden');
             }
             renderTable();
         }
