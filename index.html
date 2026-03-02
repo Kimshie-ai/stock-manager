@@ -12,6 +12,10 @@
         .bg-paper-gradient { background: linear-gradient(135deg, #0056B3 0%, #002D5E 100%); }
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
+        .status-badge-tersedia { background-color: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
+        .status-badge-dipakai { background-color: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
+        .status-badge-rusak { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
+        .status-badge-hilang { background-color: #fef3c7; color: #d97706; border: 1px solid #fef3c7; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -127,7 +131,7 @@
 
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-between items-center text-xs text-slate-500">
                 <span id="itemCount">Menampilkan 0 barang</span>
-                <span class="italic">Kimshie Auto-Save System v1.0</span>
+                <span class="italic">Kimshie Auto-Save System v1.1</span>
             </div>
         </div>
     </main>
@@ -149,16 +153,27 @@
                 <!-- Body -->
                 <form id="addItemForm" onsubmit="handleFormSubmit(event)">
                     <div class="mb-4">
-                        <label class="block text-slate-600 text-xs font-bold mb-2 uppercase">Nama Barang</label>
+                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Nama Barang</label>
                         <input type="text" id="itemName" required placeholder="Contoh: Monitor Dell 27 inch" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-slate-600 text-xs font-bold mb-2 uppercase">Nomor Seri (SN)</label>
+                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Nomor Seri (SN)</label>
                         <input type="text" id="itemSN" required placeholder="Contoh: SN-ABC-12345" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
                     </div>
-                    <div class="mb-6">
-                        <label class="block text-slate-600 text-xs font-bold mb-2 uppercase">Lokasi Penyimpanan</label>
-                        <input type="text" id="itemLocation" required placeholder="Contoh: Gudang B, Rak 4" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
+                    <div class="mb-6 grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Lokasi</label>
+                            <input type="text" id="itemLocation" required placeholder="Gudang B, Rak 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm">
+                        </div>
+                        <div>
+                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Status</label>
+                            <select id="itemStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
+                                <option value="Tersedia">Tersedia</option>
+                                <option value="Dipakai">Dipakai</option>
+                                <option value="Rusak">Rusak</option>
+                                <option value="Hilang">Hilang</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Footer -->
@@ -197,6 +212,7 @@
 
         function saveToStorage() {
             localStorage.setItem('kimshie_stock_data', JSON.stringify(stockItems));
+            updateStats();
         }
 
         // 3. Render Tabel
@@ -211,24 +227,25 @@
                 emptyState.classList.remove('hidden');
             } else {
                 emptyState.classList.add('hidden');
-                data.forEach((item, index) => {
+                data.forEach((item) => {
+                    const statusClass = `status-badge-${item.status.toLowerCase()}`;
                     const row = `
-                        <tr class="hover:bg-slate-50 transition animate-fade-in group">
+                        <tr class="hover:bg-slate-50 transition animate-fade-in group text-sm">
                             <td class="px-6 py-4">
                                 <div class="font-bold text-slate-900 group-hover:text-blue-600 transition">${item.name}</div>
                             </td>
-                            <td class="px-6 py-4 font-mono text-xs text-slate-500 tracking-wider bg-slate-50 rounded-md border border-slate-100">${item.sn}</td>
+                            <td class="px-6 py-4 font-mono text-xs text-slate-500 tracking-wider">${item.sn}</td>
                             <td class="px-6 py-4">
                                 <span class="flex items-center space-x-2 text-slate-600">
                                     <i class="fa-solid fa-location-dot text-blue-500 text-[10px]"></i>
-                                    <span class="text-sm">${item.location}</span>
+                                    <span>${item.location}</span>
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-600 border border-emerald-100 uppercase tracking-widest">Tersedia</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status}</span>
                             </td>
                             <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end items-center space-x-2 opacity-0 group-hover:opacity-100 transition">
+                                <div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition">
                                     <button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2">
                                         <i class="fa-solid fa-pen-to-square"></i>
                                     </button>
@@ -257,6 +274,7 @@
             document.getElementById('itemName').value = item.name;
             document.getElementById('itemSN').value = item.sn;
             document.getElementById('itemLocation').value = item.location;
+            document.getElementById('itemStatus').value = item.status || 'Tersedia';
             
             // Change modal title and button text
             document.querySelector('#modal p.text-xl').innerText = 'Edit Barang';
@@ -271,10 +289,11 @@
             const name = document.getElementById('itemName').value;
             const sn = document.getElementById('itemSN').value;
             const location = document.getElementById('itemLocation').value;
+            const status = document.getElementById('itemStatus').value;
 
             if (editingId) {
                 const index = stockItems.findIndex(i => i.id === editingId);
-                stockItems[index] = { ...stockItems[index], name, sn, location };
+                stockItems[index] = { ...stockItems[index], name, sn, location, status };
                 editingId = null;
                 // Reset UI
                 document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru';
@@ -285,6 +304,7 @@
                     name,
                     sn,
                     location,
+                    status,
                     dateAdded: new Date().toISOString()
                 };
                 stockItems.push(newItem);
@@ -309,9 +329,13 @@
 
         // 5. Dashboard & Export Functions
         function updateStats() {
-            document.getElementById('statTotalItems').innerText = stockItems.length;
-            const uniqueLocations = new Set(stockItems.map(item => item.location.trim().toLowerCase())).size;
-            document.getElementById('statTotalLocations').innerText = uniqueLocations;
+            const statTotalItems = document.getElementById('statTotalItems');
+            const statTotalLocations = document.getElementById('statTotalLocations');
+            if(statTotalItems) statTotalItems.innerText = stockItems.length;
+            if(statTotalLocations) {
+                const uniqueLocations = new Set(stockItems.map(item => item.location.trim().toLowerCase())).size;
+                statTotalLocations.innerText = uniqueLocations;
+            }
         }
 
         function exportToCSV() {
@@ -320,13 +344,13 @@
                 return;
             }
 
-            const headers = ['ID', 'Nama Barang', 'Kode SN', 'Lokasi', 'Tanggal Masuk'];
+            const headers = ['Nama Barang', 'Kode SN', 'Lokasi', 'Status', 'Tanggal Masuk'];
             const rows = stockItems.map(item => [
-                item.id,
-                item.name,
-                item.sn,
-                item.location,
-                item.dateAdded
+                `"${item.name}"`,
+                `"${item.sn}"`,
+                `"${item.location}"`,
+                `"${item.status}"`,
+                `"${item.dateAdded}"`
             ]);
 
             let csvContent = "data:text/csv;charset=utf-8," 
@@ -336,7 +360,7 @@
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `Data_Stok_TuanMuda_${new Date().toLocaleDateString()}.csv`);
+            link.setAttribute("download", `Data_Stok_TuanMuda_${new Date().toLocaleDateString().replace(/\//g,'-')}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -346,22 +370,18 @@
         function handleSearch(value) {
             const searchTerm = value.toLowerCase();
             const suggestionsEl = document.getElementById('searchSuggestions');
-            const filterLoc = document.getElementById('filterLocation').value;
             
             if (searchTerm.length < 1) {
                 suggestionsEl.classList.add('hidden');
-                // Use standard filtering if no search text
                 filterItems(); 
                 return;
             }
 
-            // Find related items (Search suggestions are just by text)
             const filtered = stockItems.filter(item => 
                 item.name.toLowerCase().includes(searchTerm) || 
                 item.sn.toLowerCase().includes(searchTerm)
             );
 
-            // Populate suggestions
             suggestionsEl.innerHTML = '';
             if (filtered.length > 0) {
                 filtered.forEach(item => {
@@ -371,7 +391,7 @@
                         e.stopPropagation();
                         document.getElementById('searchInput').value = item.name;
                         suggestionsEl.classList.add('hidden');
-                        renderTable([item]); // Show only the selected one
+                        renderTable([item]);
                     };
                     div.innerHTML = `
                         <div class="flex justify-between items-center">
@@ -388,8 +408,6 @@
                 suggestionsEl.innerHTML = '<div class="px-4 py-4 text-slate-400 text-xs text-center italic">Barang tidak ditemukan</div>';
             }
             suggestionsEl.classList.remove('hidden');
-
-            // Also filter the table below simultaneously
             filterItems();
         }
 
@@ -407,17 +425,17 @@
             renderTable(filtered);
         }
 
-        // Close suggestions when clicking outside
         document.addEventListener('click', function(e) {
             const suggestionsEl = document.getElementById('searchSuggestions');
             const searchInput = document.getElementById('searchInput');
-            if (!searchInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
+            if (suggestionsEl && searchInput && !searchInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
                 suggestionsEl.classList.add('hidden');
             }
         });
 
         function updateLocationFilter() {
             const filterDropdown = document.getElementById('filterLocation');
+            if(!filterDropdown) return;
             const locations = [...new Set(stockItems.map(item => item.location))];
             
             filterDropdown.innerHTML = '<option value="">Semua Lokasi</option>';
@@ -429,10 +447,20 @@
             });
         }
 
-        // 6. UI Helpers (Modal)
+        // 7. UI Helpers (Modal)
         function toggleModal() {
             const body = document.querySelector('body');
             const modal = document.querySelector('#modal');
+            if (modal.classList.contains('opacity-0')) {
+                // If opening and not editing, reset form
+                if (!editingId) {
+                    document.getElementById('addItemForm').reset();
+                    document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru';
+                    document.querySelector('#addItemForm button[type="submit"]').innerText = 'Simpan Barang';
+                }
+            } else {
+                editingId = null;
+            }
             modal.classList.toggle('opacity-0');
             modal.classList.toggle('pointer-events-none');
             body.classList.toggle('modal-active');
