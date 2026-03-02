@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistem Manajemen Stok - Kimshie Stock Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
@@ -32,9 +33,9 @@
                     <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2">PRO</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div id="connectionStatus" class="flex items-center space-x-1 text-[10px] text-green-600 font-semibold uppercase tracking-wider">
-                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                        <span>Local Storage Active</span>
+                    <div id="connectionStatus" class="flex items-center space-x-1 text-[10px] text-blue-600 font-semibold uppercase tracking-wider">
+                        <span id="statusDot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
+                        <span id="statusText">Connecting...</span>
                     </div>
                 </div>
             </div>
@@ -45,7 +46,7 @@
     <header class="bg-paper-gradient py-10 text-white shadow-inner">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-extrabold mb-1 tracking-tight">Manajemen Stok Barang</h1>
-            <p class="text-blue-100 opacity-80 text-sm max-w-2xl font-light">Sistem penyimpanan cerdas Tuan Muda. Data tersimpan otomatis di browser ini. 📂✨</p>
+            <p class="text-blue-100 opacity-80 text-sm max-w-2xl font-light">Sistem penyimpanan cerdas Tuan Muda. Data tersimpan di Cloud Supabase. 📂☁️✨</p>
         </div>
     </header>
 
@@ -86,11 +87,7 @@
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
                     <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari nama barang atau kode SN..." autocomplete="off" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all">
-                    
-                    <!-- Suggestion Popup -->
-                    <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto">
-                        <!-- Suggestions will be injected here -->
-                    </div>
+                    <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto"></div>
                 </div>
                 <div>
                     <select id="filterLocation" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none appearance-none cursor-pointer">
@@ -134,7 +131,7 @@
             
             <div id="emptyState" class="hidden py-12 flex flex-col items-center justify-center text-slate-400">
                 <i class="fa-solid fa-box-open text-5xl mb-4 opacity-20"></i>
-                <p>Belum ada data barang. Silakan tambah barang baru!</p>
+                <p>Belum ada data barang atau sedang memuat...</p>
             </div>
 
             <!-- Pagination Footer -->
@@ -152,9 +149,7 @@
                     </div>
                 </div>
                 
-                <div id="paginationControls" class="flex items-center space-x-2">
-                    <!-- Pagination buttons injected here -->
-                </div>
+                <div id="paginationControls" class="flex items-center space-x-2"></div>
             </div>
         </div>
     </main>
@@ -196,7 +191,7 @@
                     </div>
                     <div class="flex justify-end pt-2 space-x-3">
                         <button type="button" onclick="toggleModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition font-semibold">Batal</button>
-                        <button type="submit" class="px-6 py-2 bg-[#0056B3] text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg">Simpan Barang</button>
+                        <button type="submit" id="submitBtn" class="px-6 py-2 bg-[#0056B3] text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg">Simpan Barang</button>
                     </div>
                 </form>
             </div>
@@ -208,27 +203,53 @@
     </footer>
 
     <script>
+        // --- KONFIGURASI SUPABASE TUAN MUDA ---
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         // --- LOGIKA UTAMA KIMSHIE ---
         let stockItems = [];
         let currentPage = 1;
         let itemsPerPage = 10;
-        let sortKey = 'dateAdded';
-        let sortOrder = 'desc'; // 'asc' or 'desc'
+        let sortKey = 'created_at';
+        let sortOrder = 'desc';
 
         window.onload = () => {
-            loadFromStorage();
-            renderTable();
-            updateLocationFilter();
+            initSupabase();
         };
 
-        function loadFromStorage() {
-            const savedData = localStorage.getItem('kimshie_stock_data');
-            if (savedData) stockItems = JSON.parse(savedData);
+        async function initSupabase() {
+            updateStatus('Connecting...', 'yellow');
+            try {
+                await fetchFromSupabase();
+                updateStatus('Cloud Storage Active', 'green');
+            } catch (err) {
+                console.error(err);
+                updateStatus('Cloud Connection Error', 'red');
+                // Fallback to local storage if needed, but here we prioritize cloud
+                alert("Waduh Tuan Muda, Kimshie kesulitan konek ke Supabase. Pastikan tabel 'stock_items' sudah dibuat ya!");
+            }
         }
 
-        function saveToStorage() {
-            localStorage.setItem('kimshie_stock_data', JSON.stringify(stockItems));
-            updateStats();
+        function updateStatus(text, color) {
+            const dot = document.getElementById('statusDot');
+            const txt = document.getElementById('statusText');
+            txt.innerText = text;
+            dot.className = `w-2 h-2 rounded-full animate-pulse bg-${color}-500`;
+            if(color === 'green') dot.classList.remove('animate-pulse');
+        }
+
+        async function fetchFromSupabase() {
+            const { data, error } = await _supabase
+                .from('stock_items')
+                .select('*')
+                .order(sortKey, { ascending: sortOrder === 'asc' });
+
+            if (error) throw error;
+            stockItems = data || [];
+            renderTable();
+            updateLocationFilter();
         }
 
         function updateStats() {
@@ -273,10 +294,8 @@
             const emptyState = document.getElementById('emptyState');
             const itemCount = document.getElementById('itemCount');
             
-            // If filtering/searching, reset to page 1
             const baseData = dataToRender || getFilteredData();
             
-            // Apply Sorting
             const sortedData = [...baseData].sort((a, b) => {
                 let valA = (a[sortKey] || '').toString().toLowerCase();
                 let valB = (b[sortKey] || '').toString().toLowerCase();
@@ -285,7 +304,6 @@
                 return 0;
             });
 
-            // Apply Pagination
             const totalItems = sortedData.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
@@ -321,7 +339,7 @@
                         </tr>`;
                 });
             }
-            itemCount.innerText = `Menampilkan ${Math.min(startIndex + 1, totalItems)} - ${Math.min(startIndex + itemsPerPage, totalItems)} dari ${totalItems} barang`;
+            itemCount.innerText = `Menampilkan ${totalItems > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + itemsPerPage, totalItems)} dari ${totalItems} barang`;
             renderPagination(totalPages);
             updateStats();
         }
@@ -330,7 +348,6 @@
             const container = document.getElementById('paginationControls');
             container.innerHTML = '';
             if (totalPages <= 1) return;
-
             const createBtn = (label, targetPage, active = false, disabled = false) => {
                 const btn = document.createElement('button');
                 btn.innerText = label;
@@ -339,26 +356,16 @@
                 btn.className = `px-3 py-1 rounded border transition text-xs font-bold ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`;
                 return btn;
             };
-
             container.appendChild(createBtn('«', currentPage - 1, false, currentPage === 1));
             for (let i = 1; i <= totalPages; i++) {
                 if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
                     container.appendChild(createBtn(i, i, i === currentPage));
-                } else if (i === currentPage - 2 || i === currentPage + 2) {
-                    const span = document.createElement('span');
-                    span.innerText = '...';
-                    span.className = 'px-1 text-slate-400';
-                    container.appendChild(span);
                 }
             }
             container.appendChild(createBtn('»', currentPage + 1, false, currentPage === totalPages));
         }
 
-        function changeItemsPerPage(val) {
-            itemsPerPage = parseInt(val);
-            currentPage = 1;
-            renderTable();
-        }
+        function changeItemsPerPage(val) { itemsPerPage = parseInt(val); currentPage = 1; renderTable(); }
 
         function getFilteredData() {
             const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
@@ -380,35 +387,47 @@
             document.getElementById('itemLocation').value = item.location;
             document.getElementById('itemStatus').value = item.status || 'Tersedia';
             document.querySelector('#modal p.text-xl').innerText = 'Edit Barang';
-            document.querySelector('#addItemForm button[type="submit"]').innerText = 'Simpan Perubahan';
+            document.querySelector('#submitBtn').innerText = 'Simpan Perubahan';
             toggleModal();
         }
 
-        function handleFormSubmit(e) {
+        async function handleFormSubmit(e) {
             e.preventDefault();
-            const name = document.getElementById('itemName').value;
-            const sn = document.getElementById('itemSN').value;
-            const location = document.getElementById('itemLocation').value;
-            const status = document.getElementById('itemStatus').value;
-            if (editingId) {
-                const index = stockItems.findIndex(i => i.id === editingId);
-                stockItems[index] = { ...stockItems[index], name, sn, location, status };
-                editingId = null;
-            } else {
-                stockItems.push({ id: Date.now().toString(), name, sn, location, status, dateAdded: new Date().toISOString() });
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = 'Menyimpan...';
+
+            const payload = {
+                name: document.getElementById('itemName').value,
+                sn: document.getElementById('itemSN').value,
+                location: document.getElementById('itemLocation').value,
+                status: document.getElementById('itemStatus').value
+            };
+
+            try {
+                if (editingId) {
+                    const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId);
+                    if (error) throw error;
+                    editingId = null;
+                } else {
+                    const { error } = await _supabase.from('stock_items').insert([payload]);
+                    if (error) throw error;
+                }
+                await fetchFromSupabase();
+                toggleModal();
+            } catch (err) {
+                alert('Gagal menyimpan ke cloud: ' + err.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = 'Simpan Barang';
             }
-            saveToStorage();
-            renderTable();
-            updateLocationFilter();
-            toggleModal();
         }
 
-        function deleteItem(id) {
-            if (confirm('Tuan Muda, apakah yakin ingin menghapus barang ini?')) {
-                stockItems = stockItems.filter(item => item.id !== id);
-                saveToStorage();
-                renderTable();
-                updateLocationFilter();
+        async function deleteItem(id) {
+            if (confirm('Tuan Muda, apakah yakin ingin menghapus barang ini dari cloud?')) {
+                const { error } = await _supabase.from('stock_items').delete().eq('id', id);
+                if (error) alert('Gagal menghapus: ' + error.message);
+                else await fetchFromSupabase();
             }
         }
 
@@ -417,7 +436,6 @@
             const suggestionsEl = document.getElementById('searchSuggestions');
             if (searchTerm.length < 1) {
                 suggestionsEl.classList.add('hidden');
-                currentPage = 1;
                 renderTable(); 
                 return;
             }
@@ -426,36 +444,29 @@
             if (filtered.length > 0) {
                 filtered.slice(0, 5).forEach(item => {
                     const div = document.createElement('div');
-                    div.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition';
-                    div.onclick = (e) => {
-                        e.stopPropagation();
+                    div.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition text-xs';
+                    div.onclick = () => {
                         document.getElementById('searchInput').value = item.name;
                         suggestionsEl.classList.add('hidden');
-                        currentPage = 1;
-                        renderTable();
+                        renderTable([item]);
                     };
-                    div.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800 text-sm">${item.name}</div><div class="text-[10px] text-slate-400 font-mono uppercase">${item.sn}</div></div><div class="text-[9px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded uppercase font-bold tracking-widest">${item.location}</div></div>`;
+                    div.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800">${item.name}</div><div class="text-[9px] text-slate-400 font-mono">${item.sn}</div></div><div class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold">${item.location}</div></div>`;
                     suggestionsEl.appendChild(div);
                 });
-            } else {
-                suggestionsEl.innerHTML = '<div class="px-4 py-4 text-slate-400 text-xs text-center italic">Barang tidak ditemukan</div>';
+                suggestionsEl.classList.remove('hidden');
             }
-            suggestionsEl.classList.remove('hidden');
-            currentPage = 1;
-            renderTable();
+            filterItems();
         }
 
         function filterItems() { currentPage = 1; renderTable(); }
 
         document.addEventListener('click', (e) => {
-            const suggestionsEl = document.getElementById('searchSuggestions');
-            const searchInput = document.getElementById('searchInput');
-            if (suggestionsEl && !searchInput.contains(e.target) && !suggestionsEl.contains(e.target)) suggestionsEl.classList.add('hidden');
+            const sug = document.getElementById('searchSuggestions');
+            if (sug && !document.getElementById('searchInput').contains(e.target) && !sug.contains(e.target)) sug.classList.add('hidden');
         });
 
         function updateLocationFilter() {
             const filterDropdown = document.getElementById('filterLocation');
-            if(!filterDropdown) return;
             const locations = [...new Set(stockItems.map(item => item.location))].filter(l => l);
             filterDropdown.innerHTML = '<option value="">Semua Lokasi</option>';
             locations.forEach(loc => {
@@ -467,11 +478,11 @@
         function exportToCSV() {
             if (stockItems.length === 0) { alert('Data kosong! 🌸'); return; }
             const headers = ['Nama Barang', 'Kode SN', 'Lokasi', 'Status', 'Tanggal'];
-            const rows = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.dateAdded}"`]);
+            const rows = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.created_at}"`]);
             const csv = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(r => r.join(",")).join("\n");
             const link = document.createElement("a");
             link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `Stok_Kimshie_${new Date().toISOString().slice(0,10)}.csv`);
+            link.setAttribute("download", `Stok_Cloud_Kimshie_${new Date().toISOString().slice(0,10)}.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
@@ -482,9 +493,7 @@
             if (modal.classList.contains('opacity-0') && !editingId) {
                 document.getElementById('addItemForm').reset();
                 document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru';
-                document.querySelector('#addItemForm button[type="submit"]').innerText = 'Simpan Barang';
-            } else if (!modal.classList.contains('opacity-0')) {
-                editingId = null;
+                document.querySelector('#submitBtn').innerText = 'Simpan Barang';
             }
             modal.classList.toggle('opacity-0');
             modal.classList.toggle('pointer-events-none');
