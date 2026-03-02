@@ -51,7 +51,12 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="filterItems()" placeholder="Cari nama barang atau kode SN..." class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all">
+                    <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari nama barang atau kode SN..." autocomplete="off" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all">
+                    
+                    <!-- Suggestion Popup -->
+                    <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto">
+                        <!-- Suggestions will be injected here -->
+                    </div>
                 </div>
                 <div>
                     <select id="filterLocation" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none appearance-none cursor-pointer">
@@ -237,6 +242,56 @@
         }
 
         // 5. Search & Filter
+        function handleSearch(value) {
+            const searchTerm = value.toLowerCase();
+            const suggestionsEl = document.getElementById('searchSuggestions');
+            const filterLoc = document.getElementById('filterLocation').value;
+            
+            if (searchTerm.length < 1) {
+                suggestionsEl.classList.add('hidden');
+                // Use standard filtering if no search text
+                filterItems(); 
+                return;
+            }
+
+            // Find related items (Search suggestions are just by text)
+            const filtered = stockItems.filter(item => 
+                item.name.toLowerCase().includes(searchTerm) || 
+                item.sn.toLowerCase().includes(searchTerm)
+            );
+
+            // Populate suggestions
+            suggestionsEl.innerHTML = '';
+            if (filtered.length > 0) {
+                filtered.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition';
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        document.getElementById('searchInput').value = item.name;
+                        suggestionsEl.classList.add('hidden');
+                        renderTable([item]); // Show only the selected one
+                    };
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <div class="font-semibold text-slate-800 text-sm">${item.name}</div>
+                                <div class="text-[10px] text-slate-400 font-mono tracking-tighter uppercase">${item.sn}</div>
+                            </div>
+                            <div class="text-[9px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded uppercase font-bold tracking-widest">${item.location}</div>
+                        </div>
+                    `;
+                    suggestionsEl.appendChild(div);
+                });
+            } else {
+                suggestionsEl.innerHTML = '<div class="px-4 py-4 text-slate-400 text-xs text-center italic">Barang tidak ditemukan</div>';
+            }
+            suggestionsEl.classList.remove('hidden');
+
+            // Also filter the table below simultaneously
+            filterItems();
+        }
+
         function filterItems() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
             const filterLoc = document.getElementById('filterLocation').value;
@@ -250,6 +305,15 @@
             
             renderTable(filtered);
         }
+
+        // Close suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            const suggestionsEl = document.getElementById('searchSuggestions');
+            const searchInput = document.getElementById('searchInput');
+            if (!searchInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
+                suggestionsEl.classList.add('hidden');
+            }
+        });
 
         function updateLocationFilter() {
             const filterDropdown = document.getElementById('filterLocation');
