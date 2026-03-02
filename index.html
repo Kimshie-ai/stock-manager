@@ -19,6 +19,7 @@
         .status-badge-hilang { background-color: #fef3c7; color: #d97706; border: 1px solid #fef3c7; }
         th.sortable { cursor: pointer; transition: background-color 0.2s; }
         th.sortable:hover { background-color: #f1f5f9; }
+        .hidden-auth { display: none !important; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -33,9 +34,18 @@
                     <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2">PRO</span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div id="connectionStatus" class="flex items-center space-x-1 text-[10px] text-blue-600 font-semibold uppercase tracking-wider">
+                    <div id="connectionStatus" class="flex items-center space-x-1 text-[10px] text-blue-600 font-semibold uppercase tracking-wider mr-4">
                         <span id="statusDot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
                         <span id="statusText">Connecting...</span>
+                    </div>
+                    
+                    <!-- Auth Section -->
+                    <div id="authSection">
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="text-xs font-bold text-slate-600 hover:text-blue-600 transition uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-lg">Login Admin</button>
+                        <div id="userProfile" class="hidden flex items-center space-x-3">
+                            <span id="userEmail" class="text-[10px] text-slate-400 font-medium"></span>
+                            <button onclick="handleLogout()" class="text-xs font-bold text-red-500 hover:text-red-700 transition uppercase tracking-widest">Logout</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -95,10 +105,14 @@
                     </select>
                 </div>
                 <div>
-                    <button onclick="toggleModal()" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
+                    <button id="addBtn" onclick="toggleModal()" class="hidden-auth w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
                         <i class="fa-solid fa-plus"></i>
                         <span>Tambah Barang</span>
                     </button>
+                    <div id="loginPrompt" class="w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2">
+                        <i class="fa-solid fa-lock"></i>
+                        <span>Login untuk Menambah Data</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,7 +168,7 @@
         </div>
     </main>
 
-    <!-- Modal Form -->
+    <!-- Modal Form (Tambah/Edit) -->
     <div id="modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[100]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
         <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
@@ -198,46 +212,142 @@
         </div>
     </div>
 
+    <!-- Auth Modal (Login) -->
+    <div id="authModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[110]">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
+        <div class="modal-container bg-white w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
+            <div class="modal-content py-8 px-8">
+                <div class="text-center mb-8">
+                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fa-solid fa-user-shield text-xl"></i>
+                    </div>
+                    <h2 class="text-xl font-black text-slate-800">Login Admin</h2>
+                    <p class="text-xs text-slate-400 mt-1">Masukkan akun Supabase Tuan Muda</p>
+                </div>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="mb-4">
+                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Email</label>
+                        <input type="email" id="loginEmail" required placeholder="tuanmuda@email.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Password</label>
+                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
+                    </div>
+                    <button type="submit" id="authSubmitBtn" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95 mb-4">Masuk Sekarang</button>
+                    <button type="button" onclick="toggleAuthModal()" class="w-full text-slate-400 text-xs font-semibold hover:text-slate-600 transition">Batal</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <footer class="bg-white py-8 border-t border-slate-200 text-center text-slate-400 text-[10px] tracking-widest uppercase">
         &copy; 2026 Kimshie Stock Manager. Dirancang khusus untuk Tuan Muda yang Berbahagia. ✨
     </footer>
 
     <script>
-        // --- KONFIGURASI SUPABASE TUAN MUDA ---
+        // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- LOGIKA UTAMA KIMSHIE ---
+        // --- LOGIKA UTAMA ---
         let stockItems = [];
         let currentPage = 1;
         let itemsPerPage = 10;
         let sortKey = 'created_at';
         let sortOrder = 'desc';
+        let currentUser = null;
 
         window.onload = () => {
+            checkAuth();
             initSupabase();
         };
 
+        // --- AUTH LOGIC ---
+        async function checkAuth() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            updateUIForAuth(session?.user || null);
+            
+            _supabase.auth.onAuthStateChange((_event, session) => {
+                updateUIForAuth(session?.user || null);
+            });
+        }
+
+        function updateUIForAuth(user) {
+            currentUser = user;
+            const loginBtn = document.getElementById('loginBtn');
+            const userProfile = document.getElementById('userProfile');
+            const userEmail = document.getElementById('userEmail');
+            const addBtn = document.getElementById('addBtn');
+            const loginPrompt = document.getElementById('loginPrompt');
+
+            if (user) {
+                loginBtn.classList.add('hidden');
+                userProfile.classList.remove('hidden');
+                userEmail.innerText = user.email;
+                addBtn.classList.remove('hidden-auth');
+                loginPrompt.classList.add('hidden');
+            } else {
+                loginBtn.classList.remove('hidden');
+                userProfile.classList.add('hidden');
+                addBtn.classList.add('hidden-auth');
+                loginPrompt.classList.remove('hidden');
+            }
+            renderTable(); // Re-render to show/hide action buttons in rows
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('authSubmitBtn');
+            
+            btn.disabled = true;
+            btn.innerText = 'Autentikasi...';
+
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+
+            if (error) {
+                alert('Gagal Login: ' + error.message);
+            } else {
+                toggleAuthModal();
+            }
+            btn.disabled = false;
+            btn.innerText = 'Masuk Sekarang';
+        }
+
+        async function handleLogout() {
+            if (confirm('Tuan Muda ingin keluar dari sesi Admin?')) {
+                await _supabase.auth.signOut();
+            }
+        }
+
+        function toggleAuthModal() {
+            const modal = document.querySelector('#authModal');
+            modal.classList.toggle('opacity-0');
+            modal.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+        }
+
+        // --- DATA LOGIC ---
         async function initSupabase() {
             updateStatus('Connecting...', 'yellow');
             try {
                 await fetchFromSupabase();
                 updateStatus('Cloud Storage Active', 'green');
             } catch (err) {
-                console.error(err);
                 updateStatus('Cloud Connection Error', 'red');
-                // Fallback to local storage if needed, but here we prioritize cloud
-                alert("Waduh Tuan Muda, Kimshie kesulitan konek ke Supabase. Pastikan tabel 'stock_items' sudah dibuat ya!");
             }
         }
 
         function updateStatus(text, color) {
             const dot = document.getElementById('statusDot');
             const txt = document.getElementById('statusText');
-            txt.innerText = text;
-            dot.className = `w-2 h-2 rounded-full animate-pulse bg-${color}-500`;
-            if(color === 'green') dot.classList.remove('animate-pulse');
+            if (txt) txt.innerText = text;
+            if (dot) {
+                dot.className = `w-2 h-2 rounded-full animate-pulse bg-${color}-500`;
+                if(color === 'green') dot.classList.remove('animate-pulse');
+            }
         }
 
         async function fetchFromSupabase() {
@@ -252,48 +362,10 @@
             updateLocationFilter();
         }
 
-        function updateStats() {
-            const statTotalItems = document.getElementById('statTotalItems');
-            const statTotalLocations = document.getElementById('statTotalLocations');
-            if(statTotalItems) statTotalItems.innerText = stockItems.length;
-            if(statTotalLocations) {
-                const uniqueLocations = new Set(stockItems.map(item => (item.location || '').trim().toLowerCase())).size;
-                statTotalLocations.innerText = uniqueLocations;
-            }
-        }
-
-        function handleSort(key) {
-            if (sortKey === key) {
-                sortOrder = sortOrder === 'asc' ? 'desc' : 'asc';
-            } else {
-                sortKey = key;
-                sortOrder = 'asc';
-            }
-            updateSortIcons();
-            renderTable();
-        }
-
-        function updateSortIcons() {
-            const keys = ['name', 'sn', 'location', 'status'];
-            keys.forEach(k => {
-                const icon = document.getElementById(`sortIcon-${k}`);
-                if (k === sortKey) {
-                    icon.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>';
-                    icon.classList.remove('opacity-30');
-                    icon.classList.add('text-blue-600', 'opacity-100');
-                } else {
-                    icon.innerHTML = 'Sort';
-                    icon.classList.add('opacity-30');
-                    icon.classList.remove('text-blue-600', 'opacity-100');
-                }
-            });
-        }
-
         function renderTable(dataToRender = null) {
             const tableBody = document.getElementById('tableBody');
             const emptyState = document.getElementById('emptyState');
             const itemCount = document.getElementById('itemCount');
-            
             const baseData = dataToRender || getFilteredData();
             
             const sortedData = [...baseData].sort((a, b) => {
@@ -307,8 +379,7 @@
             const totalItems = sortedData.length;
             const totalPages = Math.ceil(totalItems / itemsPerPage);
             if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-            if (currentPage < 1) currentPage = 1;
-
+            
             const startIndex = (currentPage - 1) * itemsPerPage;
             const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
 
@@ -319,6 +390,13 @@
                 emptyState.classList.add('hidden');
                 paginatedData.forEach((item) => {
                     const statusClass = `status-badge-${(item.status || 'Tersedia').toLowerCase()}`;
+                    const actionButtons = currentUser ? `
+                        <div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition">
+                            <button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button>
+                            <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button>
+                        </div>
+                    ` : `<div class="text-[8px] text-slate-300 uppercase font-bold tracking-widest italic">View Only</div>`;
+
                     tableBody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition animate-fade-in group text-sm">
                             <td class="px-6 py-4 font-bold text-slate-900 group-hover:text-blue-600 transition">${item.name}</td>
@@ -330,12 +408,7 @@
                             <td class="px-6 py-4">
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status || 'Tersedia'}</span>
                             </td>
-                            <td class="px-6 py-4 text-right">
-                                <div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition">
-                                    <button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button>
-                                    <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button>
-                                </div>
-                            </td>
+                            <td class="px-6 py-4 text-right">${actionButtons}</td>
                         </tr>`;
                 });
             }
@@ -344,55 +417,12 @@
             updateStats();
         }
 
-        function renderPagination(totalPages) {
-            const container = document.getElementById('paginationControls');
-            container.innerHTML = '';
-            if (totalPages <= 1) return;
-            const createBtn = (label, targetPage, active = false, disabled = false) => {
-                const btn = document.createElement('button');
-                btn.innerText = label;
-                btn.disabled = disabled;
-                btn.onclick = () => { currentPage = targetPage; renderTable(); };
-                btn.className = `px-3 py-1 rounded border transition text-xs font-bold ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`;
-                return btn;
-            };
-            container.appendChild(createBtn('«', currentPage - 1, false, currentPage === 1));
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    container.appendChild(createBtn(i, i, i === currentPage));
-                }
-            }
-            container.appendChild(createBtn('»', currentPage + 1, false, currentPage === totalPages));
-        }
-
-        function changeItemsPerPage(val) { itemsPerPage = parseInt(val); currentPage = 1; renderTable(); }
-
-        function getFilteredData() {
-            const searchTerm = (document.getElementById('searchInput').value || '').toLowerCase();
-            const filterLoc = document.getElementById('filterLocation').value;
-            return stockItems.filter(item => {
-                const matchesSearch = (item.name || '').toLowerCase().includes(searchTerm) || (item.sn || '').toLowerCase().includes(searchTerm);
-                const matchesLoc = filterLoc === "" || item.location === filterLoc;
-                return matchesSearch && matchesLoc;
-            });
-        }
-
+        // --- CRUD ACTIONS ---
         let editingId = null;
-        function editItem(id) {
-            const item = stockItems.find(i => i.id === id);
-            if (!item) return;
-            editingId = id;
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemSN').value = item.sn;
-            document.getElementById('itemLocation').value = item.location;
-            document.getElementById('itemStatus').value = item.status || 'Tersedia';
-            document.querySelector('#modal p.text-xl').innerText = 'Edit Barang';
-            document.querySelector('#submitBtn').innerText = 'Simpan Perubahan';
-            toggleModal();
-        }
-
         async function handleFormSubmit(e) {
             e.preventDefault();
+            if (!currentUser) return alert('Tuan Muda harus login dulu ya! 🔒');
+
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = 'Menyimpan...';
@@ -416,7 +446,7 @@
                 await fetchFromSupabase();
                 toggleModal();
             } catch (err) {
-                alert('Gagal menyimpan ke cloud: ' + err.message);
+                alert('Gagal menyimpan: ' + err.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = 'Simpan Barang';
@@ -424,32 +454,60 @@
         }
 
         async function deleteItem(id) {
-            if (confirm('Tuan Muda, apakah yakin ingin menghapus barang ini dari cloud?')) {
+            if (!currentUser) return;
+            if (confirm('Tuan Muda, apakah yakin ingin menghapus barang ini?')) {
                 const { error } = await _supabase.from('stock_items').delete().eq('id', id);
                 if (error) alert('Gagal menghapus: ' + error.message);
                 else await fetchFromSupabase();
             }
         }
 
+        function editItem(id) {
+            const item = stockItems.find(i => i.id === id);
+            if (!item) return;
+            editingId = id;
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemSN').value = item.sn;
+            document.getElementById('itemLocation').value = item.location;
+            document.getElementById('itemStatus').value = item.status || 'Tersedia';
+            document.querySelector('#modal p.text-xl').innerText = 'Edit Barang';
+            document.querySelector('#submitBtn').innerText = 'Simpan Perubahan';
+            toggleModal();
+        }
+
+        // --- UI HELPERS & OTHERS ---
+        function renderPagination(totalPages) {
+            const container = document.getElementById('paginationControls');
+            container.innerHTML = '';
+            if (totalPages <= 1) return;
+            const createBtn = (label, targetPage, active = false, disabled = false) => {
+                const btn = document.createElement('button');
+                btn.innerText = label;
+                btn.disabled = disabled;
+                btn.onclick = () => { currentPage = targetPage; renderTable(); };
+                btn.className = `px-3 py-1 rounded border transition text-xs font-bold ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`;
+                return btn;
+            };
+            container.appendChild(createBtn('«', currentPage - 1, false, currentPage === 1));
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    container.appendChild(createBtn(i, i, i === currentPage));
+                }
+            }
+            container.appendChild(createBtn('»', currentPage + 1, false, currentPage === totalPages));
+        }
+
         function handleSearch(value) {
             const searchTerm = value.toLowerCase();
             const suggestionsEl = document.getElementById('searchSuggestions');
-            if (searchTerm.length < 1) {
-                suggestionsEl.classList.add('hidden');
-                renderTable(); 
-                return;
-            }
+            if (searchTerm.length < 1) { suggestionsEl.classList.add('hidden'); renderTable(); return; }
             const filtered = stockItems.filter(item => (item.name || '').toLowerCase().includes(searchTerm) || (item.sn || '').toLowerCase().includes(searchTerm));
             suggestionsEl.innerHTML = '';
             if (filtered.length > 0) {
                 filtered.slice(0, 5).forEach(item => {
                     const div = document.createElement('div');
                     div.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition text-xs';
-                    div.onclick = () => {
-                        document.getElementById('searchInput').value = item.name;
-                        suggestionsEl.classList.add('hidden');
-                        renderTable([item]);
-                    };
+                    div.onclick = () => { document.getElementById('searchInput').value = item.name; suggestionsEl.classList.add('hidden'); renderTable([item]); };
                     div.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800">${item.name}</div><div class="text-[9px] text-slate-400 font-mono">${item.sn}</div></div><div class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold">${item.location}</div></div>`;
                     suggestionsEl.appendChild(div);
                 });
@@ -459,46 +517,14 @@
         }
 
         function filterItems() { currentPage = 1; renderTable(); }
-
-        document.addEventListener('click', (e) => {
-            const sug = document.getElementById('searchSuggestions');
-            if (sug && !document.getElementById('searchInput').contains(e.target) && !sug.contains(e.target)) sug.classList.add('hidden');
-        });
-
-        function updateLocationFilter() {
-            const filterDropdown = document.getElementById('filterLocation');
-            const locations = [...new Set(stockItems.map(item => item.location))].filter(l => l);
-            filterDropdown.innerHTML = '<option value="">Semua Lokasi</option>';
-            locations.forEach(loc => {
-                const opt = document.createElement('option');
-                opt.value = loc; opt.text = loc; filterDropdown.appendChild(opt);
-            });
-        }
-
-        function exportToCSV() {
-            if (stockItems.length === 0) { alert('Data kosong! 🌸'); return; }
-            const headers = ['Nama Barang', 'Kode SN', 'Lokasi', 'Status', 'Tanggal'];
-            const rows = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.created_at}"`]);
-            const csv = "data:text/csv;charset=utf-8," + headers.join(",") + "\n" + rows.map(r => r.join(",")).join("\n");
-            const link = document.createElement("a");
-            link.setAttribute("href", encodeURI(csv));
-            link.setAttribute("download", `Stok_Cloud_Kimshie_${new Date().toISOString().slice(0,10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        }
-
-        function toggleModal() {
-            const modal = document.querySelector('#modal');
-            if (modal.classList.contains('opacity-0') && !editingId) {
-                document.getElementById('addItemForm').reset();
-                document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru';
-                document.querySelector('#submitBtn').innerText = 'Simpan Barang';
-            }
-            modal.classList.toggle('opacity-0');
-            modal.classList.toggle('pointer-events-none');
-            document.body.classList.toggle('modal-active');
-        }
+        function handleSort(key) { if (sortKey === key) { sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; } else { sortKey = key; sortOrder = 'asc'; } updateSortIcons(); renderTable(); }
+        function updateSortIcons() { ['name', 'sn', 'location', 'status'].forEach(k => { const icon = document.getElementById(`sortIcon-${k}`); if (k === sortKey) { icon.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>'; icon.classList.remove('opacity-30'); icon.classList.add('text-blue-600', 'opacity-100'); } else { icon.innerHTML = 'Sort'; icon.classList.add('opacity-30'); icon.classList.remove('text-blue-600', 'opacity-100'); } }); }
+        function updateStats() { const sTI = document.getElementById('statTotalItems'); const sTL = document.getElementById('statTotalLocations'); if(sTI) sTI.innerText = stockItems.length; if(sTL) sTL.innerText = new Set(stockItems.map(item => (item.location || '').trim().toLowerCase())).size; }
+        function changeItemsPerPage(val) { itemsPerPage = parseInt(val); currentPage = 1; renderTable(); }
+        function getFilteredData() { const s = (document.getElementById('searchInput').value || '').toLowerCase(); const l = document.getElementById('filterLocation').value; return stockItems.filter(i => ((i.name || '').toLowerCase().includes(s) || (i.sn || '').toLowerCase().includes(s)) && (l === "" || i.location === l)); }
+        function updateLocationFilter() { const fD = document.getElementById('filterLocation'); if(!fD) return; const locs = [...new Set(stockItems.map(i => i.location))].filter(l => l); fD.innerHTML = '<option value="">Semua Lokasi</option>'; locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.text = l; fD.appendChild(o); }); }
+        function exportToCSV() { if (stockItems.length === 0) return alert('Data kosong!'); const h = ['Nama', 'SN', 'Lokasi', 'Status', 'Tanggal']; const r = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.created_at}"`]); const csv = "data:text/csv;charset=utf-8," + h.join(",") + "\n" + r.map(r => r.join(",")).join("\n"); const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `Stok_Cloud.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
+        function toggleModal() { const modal = document.querySelector('#modal'); if (modal.classList.contains('opacity-0') && !editingId) { document.getElementById('addItemForm').reset(); document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru'; document.querySelector('#submitBtn').innerText = 'Simpan Barang'; } modal.classList.toggle('opacity-0'); modal.classList.toggle('pointer-events-none'); document.body.classList.toggle('modal-active'); }
     </script>
 </body>
 </html>
