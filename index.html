@@ -7,9 +7,27 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0F172A',
+                            paper: '#1E293B',
+                            border: '#334155',
+                            text: '#F1F5F9',
+                            muted: '#94A3B8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
+        body { font-family: 'Inter', sans-serif; transition: background-color 0.3s, color 0.3s; }
         .bg-paper-gradient { background: linear-gradient(135deg, #0056B3 0%, #002D5E 100%); }
         .modal { transition: opacity 0.25s ease; }
         body.modal-active { overflow-x: hidden; overflow-y: visible !important; }
@@ -17,33 +35,45 @@
         .status-badge-dipakai { background-color: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
         .status-badge-rusak { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
         .status-badge-hilang { background-color: #fef3c7; color: #d97706; border: 1px solid #fef3c7; }
+        
+        /* Dark Mode Status Badges */
+        .dark .status-badge-tersedia { background-color: #064e3b; color: #6ee7b7; border-color: #065f46; }
+        .dark .status-badge-dipakai { background-color: #1e3a8a; color: #93c5fd; border-color: #1e40af; }
+        .dark .status-badge-rusak { background-color: #7f1d1d; color: #fca5a5; border-color: #991b1b; }
+        .dark .status-badge-hilang { background-color: #78350f; color: #fcd34d; border-color: #92400e; }
+
         th.sortable { cursor: pointer; transition: background-color 0.2s; }
         th.sortable:hover { background-color: #f1f5f9; }
-        .hidden-auth { display: none !important; }
+        .dark th.sortable:hover { background-color: #334155; }
         .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #e2e8f0; }
+        .dark .img-preview { border-color: #334155; }
     </style>
 </head>
-<body class="text-slate-800">
+<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text">
 
     <!-- Navbar -->
-    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white dark:bg-dark-paper border-b border-slate-200 dark:border-dark-border sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center space-x-2">
                     <div class="w-8 h-8 bg-[#0056B3] rounded-lg flex items-center justify-center text-white font-bold">K</div>
-                    <span class="text-xl font-bold tracking-tight text-slate-900">Kimshie<span class="text-blue-600">Stock</span></span>
-                    <span class="bg-blue-100 text-blue-700 text-[10px] px-2 py-0.5 rounded-full font-bold ml-2">PRO</span>
+                    <span class="text-xl font-bold tracking-tight text-slate-900 dark:text-white">Kimshie<span class="text-blue-600">Stock</span></span>
                 </div>
                 <div class="flex items-center space-x-4">
-                    <div id="connectionStatus" class="flex items-center space-x-1 text-[10px] text-blue-600 font-semibold uppercase tracking-wider mr-4">
+                    <!-- Dark Mode Toggle -->
+                    <button onclick="toggleDarkMode()" class="p-2 rounded-lg bg-slate-100 dark:bg-dark-border text-slate-600 dark:text-dark-muted hover:text-blue-600 transition">
+                        <i id="darkIcon" class="fa-solid fa-moon"></i>
+                    </button>
+
+                    <div id="connectionStatus" class="hidden md:flex items-center space-x-1 text-[10px] text-blue-600 font-semibold uppercase tracking-wider mr-4">
                         <span id="statusDot" class="w-2 h-2 bg-yellow-500 rounded-full animate-pulse"></span>
                         <span id="statusText">Connecting...</span>
                     </div>
                     
-                    <div id="authSection">
-                        <button id="loginBtn" onclick="toggleAuthModal()" class="text-xs font-bold text-slate-600 hover:text-blue-600 transition uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-lg">Login Admin</button>
+                    <div id="authSection" class="flex items-center space-x-2">
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="text-xs font-bold text-slate-600 dark:text-dark-muted hover:text-blue-600 transition uppercase tracking-widest border border-slate-200 dark:border-dark-border px-3 py-1.5 rounded-lg">Login Admin</button>
                         <div id="userProfile" class="hidden flex items-center space-x-3">
-                            <span id="userEmail" class="text-[10px] text-slate-400 font-medium"></span>
+                            <span id="userEmail" class="hidden lg:inline text-[10px] text-slate-400 font-medium"></span>
                             <button onclick="handleLogout()" class="text-xs font-bold text-red-500 hover:text-red-700 transition uppercase tracking-widest">Logout</button>
                         </div>
                     </div>
@@ -60,29 +90,34 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-12">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
-                <div><p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Barang</p><p id="statTotalItems" class="text-2xl font-black text-slate-800">0</p></div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
+                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
+                <div><p class="text-xs text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider">Total Barang</p><p id="statTotalItems" class="text-2xl font-black text-slate-800 dark:text-white">0</p></div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600"><i class="fa-solid fa-map-location-dot text-xl"></i></div>
-                <div><p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Lokasi</p><p id="statTotalLocations" class="text-2xl font-black text-slate-800">0</p></div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
+                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400"><i class="fa-solid fa-map-location-dot text-xl"></i></div>
+                <div><p class="text-xs text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider">Total Lokasi</p><p id="statTotalLocations" class="text-2xl font-black text-slate-800 dark:text-white">0</p></div>
             </div>
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <button onclick="exportToCSV()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 transition group"><i class="fa-solid fa-file-export text-xl group-hover:scale-110 transition"></i><span class="font-bold">Export Data (CSV)</span></button>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
+                <button onclick="toggleLogModal()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group">
+                    <i class="fa-solid fa-clock-rotate-left text-xl group-hover:rotate-[-45deg] transition-transform"></i><span class="font-bold">Histori Pergerakan</span>
+                </button>
+            </div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
+                <button onclick="exportToCSV()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group"><i class="fa-solid fa-file-export text-xl group-hover:scale-110 transition"></i><span class="font-bold">Export CSV</span></button>
             </div>
         </div>
         
-        <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-8">
+        <div class="bg-white dark:bg-dark-paper rounded-xl shadow-md border border-slate-200 dark:border-dark-border p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-2 relative">
                     <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari nama barang atau kode SN..." autocomplete="off" class="w-full pl-10 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all">
-                    <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto"></div>
+                    <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari barang atau SN..." autocomplete="off" class="w-full pl-10 pr-4 py-3 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all dark:text-white">
+                    <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-dark-paper border border-slate-200 dark:border-dark-border rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto"></div>
                 </div>
                 <div>
-                    <select id="filterLocation" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg outline-none appearance-none cursor-pointer">
+                    <select id="filterLocation" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none appearance-none cursor-pointer dark:text-white">
                         <option value="">Semua Lokasi</option>
                     </select>
                 </div>
@@ -90,29 +125,29 @@
                     <button id="addBtn" onclick="toggleModal()" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
                         <i class="fa-solid fa-plus"></i><span>Tambah Barang</span>
                     </button>
-                    <div id="loginPrompt" class="hidden w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2"><i class="fa-solid fa-lock"></i><span>Login untuk Menambah Data</span></div>
+                    <div id="loginPrompt" class="hidden w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 dark:border-dark-border text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2"><i class="fa-solid fa-lock"></i><span>Login Admin untuk Edit</span></div>
                 </div>
             </div>
         </div>
 
-        <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+        <div class="bg-white dark:bg-dark-paper rounded-xl shadow-lg border border-slate-200 dark:border-dark-border overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left" id="stockTable">
-                    <thead class="bg-slate-50 border-b border-slate-200">
+                    <thead class="bg-slate-50 dark:bg-dark-bg border-b border-slate-200 dark:border-dark-border">
                         <tr>
-                            <th onclick="handleSort('name')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Barang <span id="sortIcon-name" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Foto Bukti</th>
-                            <th onclick="handleSort('sn')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Kode SN <span id="sortIcon-sn" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
-                            <th onclick="handleSort('location')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokasi <span id="sortIcon-location" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
-                            <th onclick="handleSort('status')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status <span id="sortIcon-status" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
-                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+                            <th onclick="handleSort('name')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider">Nama Barang <span id="sortIcon-name" class="ml-1 opacity-30 italic text-[8px]">Sort</span></th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider">Foto Bukti</th>
+                            <th onclick="handleSort('sn')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider">Kode SN <span id="sortIcon-sn" class="ml-1 opacity-30 italic text-[8px]">Sort</span></th>
+                            <th onclick="handleSort('location')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider">Lokasi <span id="sortIcon-location" class="ml-1 opacity-30 italic text-[8px]">Sort</span></th>
+                            <th onclick="handleSort('status')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider">Status <span id="sortIcon-status" class="ml-1 opacity-30 italic text-[8px]">Sort</span></th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 dark:text-dark-muted uppercase tracking-wider text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200" id="tableBody"></tbody>
+                    <tbody class="divide-y divide-slate-200 dark:divide-dark-border" id="tableBody"></tbody>
                 </table>
             </div>
             <div id="emptyState" class="hidden py-12 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-box-open text-5xl mb-4 opacity-20"></i><p>Belum ada data barang atau sedang memuat...</p></div>
-            <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 space-y-4 md:space-y-0">
+            <div class="bg-slate-50 dark:bg-dark-bg px-6 py-4 border-t border-slate-200 dark:border-dark-border flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 dark:text-dark-muted space-y-4 md:space-y-0">
                 <div class="flex items-center space-x-4"><span id="itemCount">Menampilkan 0 barang</span>
                     <div class="flex items-center space-x-2"><label for="itemsPerPageSelect">Per halaman:</label><select id="itemsPerPageSelect" onchange="changeItemsPerPage(this.value)" class="bg-transparent border-none outline-none font-bold text-blue-600 cursor-pointer"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div>
                 </div>
@@ -121,33 +156,34 @@
         </div>
     </main>
 
+    <!-- Modal Form (Tambah/Edit) -->
     <div id="modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[100]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50" onclick="toggleModal()"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
+        <div class="modal-container bg-white dark:bg-dark-paper w-11/12 md:max-w-lg mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
             <div class="modal-content py-6 text-left px-6">
-                <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-6">
-                    <p class="text-xl font-bold text-slate-800">Tambah Barang Baru</p>
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-dark-border mb-6">
+                    <p class="text-xl font-bold text-slate-800 dark:text-white">Tambah Barang Baru</p>
                     <div onclick="toggleModal()" class="modal-close cursor-pointer z-50 text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-xl"></i></div>
                 </div>
                 <form id="addItemForm" onsubmit="handleFormSubmit(event)">
                     <div class="mb-4">
-                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Nama Barang</label>
-                        <input type="text" id="itemName" required placeholder="Contoh: Monitor Dell 27 inch" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
+                        <label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Nama Barang</label>
+                        <input type="text" id="itemName" required placeholder="Contoh: Monitor Dell 27 inch" class="w-full px-4 py-2 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 dark:text-white">
                     </div>
                     <div class="mb-4">
-                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Nomor Seri (SN)</label>
-                        <input type="text" id="itemSN" required placeholder="Contoh: SN-ABC-12345" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
+                        <label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Nomor Seri (SN)</label>
+                        <input type="text" id="itemSN" required placeholder="Contoh: SN-ABC-12345" class="w-full px-4 py-2 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 dark:text-white">
                     </div>
                     <div class="mb-4 grid grid-cols-2 gap-4">
-                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Lokasi</label><input type="text" id="itemLocation" required placeholder="Gudang B, Rak 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"></div>
-                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Status</label><select id="itemStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer"><option value="Tersedia">Tersedia</option><option value="Dipakai">Dipakai</option><option value="Rusak">Rusak</option><option value="Hilang">Hilang</option></select></div>
+                        <div><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Lokasi</label><input type="text" id="itemLocation" required placeholder="Gudang B" class="w-full px-3 py-2 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 text-sm dark:text-white"></div>
+                        <div><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Status</label><select id="itemStatus" class="w-full px-3 py-2 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer dark:text-white"><option value="Tersedia">Tersedia</option><option value="Dipakai">Dipakai</option><option value="Rusak">Rusak</option><option value="Hilang">Hilang</option></select></div>
                     </div>
-                    <div class="mb-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
-                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto Dokumen</label><input type="file" id="fileDoc" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"></div>
-                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto SN</label><input type="file" id="fileSN" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"></div>
+                    <div class="mb-6 grid grid-cols-2 gap-4 border-t border-slate-100 dark:border-dark-border pt-4">
+                        <div><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto Dokumen</label><input type="file" id="fileDoc" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"></div>
+                        <div><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto SN</label><input type="file" id="fileSN" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"></div>
                     </div>
                     <div class="flex justify-end pt-2 space-x-3">
-                        <button type="button" onclick="toggleModal()" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition font-semibold">Batal</button>
+                        <button type="button" onclick="toggleModal()" class="px-4 py-2 bg-slate-100 dark:bg-dark-border text-slate-600 dark:text-dark-text rounded-lg hover:bg-slate-200 transition font-semibold">Batal</button>
                         <button type="submit" id="submitBtn" class="px-6 py-2 bg-[#0056B3] text-white rounded-lg hover:bg-blue-700 transition font-semibold shadow-lg">Simpan Barang</button>
                     </div>
                 </form>
@@ -155,14 +191,31 @@
         </div>
     </div>
 
+    <!-- Modal Histori (Logs) -->
+    <div id="logModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[100]">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50" onclick="toggleLogModal()"></div>
+        <div class="modal-container bg-white dark:bg-dark-paper w-11/12 md:max-w-2xl mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto max-h-[80vh]">
+            <div class="modal-content py-6 text-left px-6">
+                <div class="flex justify-between items-center pb-3 border-b border-slate-100 dark:border-dark-border mb-4">
+                    <p class="text-xl font-bold text-slate-800 dark:text-white">Histori Pergerakan Barang</p>
+                    <div onclick="toggleLogModal()" class="cursor-pointer text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-xl"></i></div>
+                </div>
+                <div id="logList" class="space-y-3">
+                    <div class="text-center py-8 text-slate-400 italic text-sm">Memuat histori...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Auth Modal -->
     <div id="authModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[110]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50" onclick="toggleAuthModal()"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
+        <div class="modal-container bg-white dark:bg-dark-paper w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
             <div class="modal-content py-8 px-8">
-                <div class="text-center mb-8"><div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-user-shield text-xl"></i></div><h2 class="text-xl font-black text-slate-800">Login Admin</h2><p class="text-xs text-slate-400 mt-1">Masukkan akun Supabase Tuan Muda</p></div>
+                <div class="text-center mb-8"><div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-user-shield text-xl"></i></div><h2 class="text-xl font-black text-slate-800 dark:text-white">Login Admin</h2><p class="text-xs text-slate-400 mt-1">Masukkan akun Supabase Tuan Muda</p></div>
                 <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="mb-4"><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Email</label><input type="email" id="loginEmail" required placeholder="tuanmuda@email.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></div>
-                    <div class="mb-8"><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Password</label><input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></div>
+                    <div class="mb-4"><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Email</label><input type="email" id="loginEmail" required placeholder="tuanmuda@email.com" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 dark:text-white"></div>
+                    <div class="mb-8"><label class="block text-slate-600 dark:text-dark-muted text-[10px] font-bold mb-1 uppercase tracking-wider">Password</label><input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none focus:border-blue-500 dark:text-white"></div>
                     <button type="submit" id="authSubmitBtn" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95 mb-4">Masuk Sekarang</button>
                     <button type="button" onclick="toggleAuthModal()" class="w-full text-slate-400 text-xs font-semibold hover:text-slate-600 transition text-center">Batal</button>
                 </form>
@@ -170,6 +223,7 @@
         </div>
     </div>
 
+    <!-- Image Viewer Modal -->
     <div id="imageModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[120]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-90" onclick="closeImageModal()"></div>
         <div class="z-[130] max-w-4xl w-full p-4 relative">
@@ -178,7 +232,7 @@
         </div>
     </div>
 
-    <footer class="bg-white py-8 border-t border-slate-200 text-center text-slate-400 text-[10px] tracking-widest uppercase">&copy; 2026 Kimshie Stock Manager. ✨</footer>
+    <footer class="bg-white dark:bg-dark-bg py-8 border-t border-slate-200 dark:border-dark-border text-center text-slate-400 text-[10px] tracking-widest uppercase">&copy; 2026 Kimshie Stock Manager. ✨</footer>
 
     <script>
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
@@ -187,7 +241,25 @@
 
         let stockItems = [], currentPage = 1, itemsPerPage = 10, sortKey = 'created_at', sortOrder = 'desc', currentUser = null, editingId = null;
 
-        window.onload = () => { checkAuth(); initSupabase(); };
+        window.onload = () => { 
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                updateDarkIcon(true);
+            }
+            checkAuth(); 
+            initSupabase(); 
+        };
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            updateDarkIcon(isDark);
+        }
+
+        function updateDarkIcon(isDark) {
+            const icon = document.getElementById('darkIcon');
+            icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
 
         async function checkAuth() {
             try {
@@ -220,11 +292,20 @@
             const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value, btn = document.getElementById('authSubmitBtn');
             btn.disabled = true; btn.innerText = 'Autentikasi...';
             const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) alert('Gagal Login: ' + error.message); else toggleAuthModal();
+            if (error) alert('Gagal Login: ' + error.message); else {
+                await addLog('LOGIN', `Admin ${email} masuk ke sistem`);
+                toggleAuthModal();
+            }
             btn.disabled = false; btn.innerText = 'Masuk Sekarang';
         }
 
-        async function handleLogout() { if (confirm('Keluar dari sesi Admin?')) await _supabase.auth.signOut(); }
+        async function handleLogout() { 
+            if (confirm('Keluar dari sesi Admin?')) {
+                await addLog('LOGOUT', `Admin ${currentUser.email} keluar`);
+                await _supabase.auth.signOut(); 
+            }
+        }
+        
         function toggleAuthModal() { const m = document.querySelector('#authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); document.body.classList.toggle('modal-active'); }
 
         async function initSupabase() { updateStatus('Connecting...', 'yellow'); try { await fetchFromSupabase(); updateStatus('Cloud Storage Active', 'green'); } catch (err) { updateStatus('Cloud Connection Error', 'red'); } }
@@ -244,9 +325,9 @@
                 emptyState.classList.add('hidden');
                 paginatedData.forEach((item) => {
                     const statusClass = `status-badge-${(item.status || 'Tersedia').toLowerCase()}`;
-                    const photoHtml = `<div class="flex space-x-1">${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="img-preview" onclick="openImageModal('${item.doc_photo_url}')">` : `<div class="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[8px] text-slate-300 italic">No Doc</div>`}${item.sn_photo_url ? `<img src="${item.sn_photo_url}" class="img-preview" onclick="openImageModal('${item.sn_photo_url}')">` : `<div class="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[8px] text-slate-300 italic">No SN</div>`}</div>`;
-                    const actionButtons = currentUser ? `<div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button></div>` : `<div class="text-[8px] text-slate-300 uppercase font-bold tracking-widest italic text-right">View Only</div>`;
-                    tableBody.innerHTML += `<tr class="hover:bg-slate-50 transition group text-sm"><td class="px-6 py-4 font-bold text-slate-900 group-hover:text-blue-600 transition">${item.name}</td><td class="px-6 py-4">${photoHtml}</td><td class="px-6 py-4 font-mono text-xs text-slate-500 tracking-wider">${item.sn}</td><td class="px-6 py-4 flex items-center space-x-2 text-slate-600"><i class="fa-solid fa-location-dot text-blue-500 text-[10px]"></i><span>${item.location}</span></td><td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td><td class="px-6 py-4 text-right">${actionButtons}</td></tr>`;
+                    const photoHtml = `<div class="flex space-x-1">${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="img-preview" onclick="openImageModal('${item.doc_photo_url}')">` : `<div class="w-10 h-10 bg-slate-100 dark:bg-dark-border flex items-center justify-center rounded text-[8px] text-slate-300 italic">No Doc</div>`}${item.sn_photo_url ? `<img src="${item.sn_photo_url}" class="img-preview" onclick="openImageModal('${item.sn_photo_url}')">` : `<div class="w-10 h-10 bg-slate-100 dark:bg-dark-border flex items-center justify-center rounded text-[8px] text-slate-300 italic">No SN</div>`}</div>`;
+                    const actionButtons = currentUser ? `<div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onclick="editItem('${item.id}')" class="text-slate-300 dark:text-dark-muted hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${item.id}')" class="text-slate-300 dark:text-dark-muted hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button></div>` : `<div class="text-[8px] text-slate-300 uppercase font-bold tracking-widest italic text-right">View Only</div>`;
+                    tableBody.innerHTML += `<tr class="hover:bg-slate-50 dark:hover:bg-dark-paper transition group text-sm"><td class="px-6 py-4 font-bold text-slate-900 dark:text-white group-hover:text-blue-600 transition">${item.name}</td><td class="px-6 py-4">${photoHtml}</td><td class="px-6 py-4 font-mono text-xs text-slate-500 dark:text-dark-muted tracking-wider">${item.sn}</td><td class="px-6 py-4 flex items-center space-x-2 text-slate-600 dark:text-dark-muted"><i class="fa-solid fa-location-dot text-blue-500 text-[10px]"></i><span>${item.location}</span></td><td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td><td class="px-6 py-4 text-right">${actionButtons}</td></tr>`;
                 });
             }
             itemCount.innerText = `Menampilkan ${totalItems > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + itemsPerPage, totalItems)} dari ${totalItems} barang`;
@@ -263,19 +344,76 @@
                 const docUrl = await uploadFile(docFile, 'doc'), snUrl = await uploadFile(snFile, 'sn');
                 const payload = { name: document.getElementById('itemName').value, sn: document.getElementById('itemSN').value, location: document.getElementById('itemLocation').value, status: document.getElementById('itemStatus').value };
                 if (docUrl) payload.doc_photo_url = docUrl; if (snUrl) payload.sn_photo_url = snUrl;
-                if (editingId) { const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId); if (error) throw error; editingId = null; }
-                else { const { error } = await _supabase.from('stock_items').insert([payload]); if (error) throw error; }
+                
+                if (editingId) { 
+                    const oldItem = stockItems.find(i => i.id === editingId);
+                    const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId); 
+                    if (error) throw error; 
+                    await addLog('EDIT', `Update ${oldItem.name} (SN: ${oldItem.sn})`);
+                    editingId = null; 
+                } else { 
+                    const { error } = await _supabase.from('stock_items').insert([payload]); 
+                    if (error) throw error; 
+                    await addLog('ADD', `Tambah barang: ${payload.name} (SN: ${payload.sn})`);
+                }
                 await fetchFromSupabase(); toggleModal();
             } catch (err) { alert('Gagal simpan: ' + err.message); }
             finally { submitBtn.disabled = false; submitBtn.innerText = 'Simpan Barang'; }
         }
 
-        async function deleteItem(id) { if (!currentUser) return; if (confirm('Hapus barang ini?')) { const { error } = await _supabase.from('stock_items').delete().eq('id', id); if (error) alert('Gagal: ' + error.message); else await fetchFromSupabase(); } }
+        async function deleteItem(id) { 
+            if (!currentUser) return; 
+            const item = stockItems.find(i => i.id === id);
+            if (confirm(`Hapus barang ${item.name}?`)) { 
+                const { error } = await _supabase.from('stock_items').delete().eq('id', id); 
+                if (error) alert('Gagal: ' + error.message); 
+                else {
+                    await addLog('DELETE', `Hapus barang: ${item.name} (SN: ${item.sn})`);
+                    await fetchFromSupabase(); 
+                }
+            } 
+        }
+
+        async function addLog(action, details) {
+            try {
+                await _supabase.from('stock_logs').insert([{
+                    action: action,
+                    details: details,
+                    user_email: currentUser ? currentUser.email : 'System'
+                }]);
+            } catch (e) { console.error('Log Error:', e); }
+        }
+
+        async function fetchLogs() {
+            const list = document.getElementById('logList');
+            const { data, error } = await _supabase.from('stock_logs').select('*').order('created_at', { ascending: false }).limit(20);
+            if (error) { list.innerHTML = `<div class="text-red-500 text-xs">Gagal memuat log: ${error.message}</div>`; return; }
+            if (!data || data.length === 0) { list.innerHTML = `<div class="text-slate-400 text-xs italic text-center py-4">Belum ada aktivitas tercatat</div>`; return; }
+            list.innerHTML = data.map(log => `
+                <div class="p-3 bg-slate-50 dark:bg-dark-bg rounded-lg border border-slate-100 dark:border-dark-border">
+                    <div class="flex justify-between items-start mb-1">
+                        <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 uppercase tracking-tighter">${log.action}</span>
+                        <span class="text-[9px] text-slate-400 font-mono">${new Date(log.created_at).toLocaleString('id-ID')}</span>
+                    </div>
+                    <p class="text-xs text-slate-700 dark:text-dark-text font-medium">${log.details}</p>
+                    <div class="text-[8px] text-slate-400 mt-1 uppercase tracking-widest">${log.user_email}</div>
+                </div>
+            `).join('');
+        }
+
+        function toggleLogModal() {
+            const m = document.getElementById('logModal');
+            const isOpening = m.classList.contains('opacity-0');
+            m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none');
+            document.body.classList.toggle('modal-active');
+            if (isOpening) fetchLogs();
+        }
+
         function editItem(id) { const item = stockItems.find(i => i.id === id); if (!item) return; editingId = id; document.getElementById('itemName').value = item.name; document.getElementById('itemSN').value = item.sn; document.getElementById('itemLocation').value = item.location; document.getElementById('itemStatus').value = item.status || 'Tersedia'; document.querySelector('#modal p.text-xl').innerText = 'Edit Barang'; document.querySelector('#submitBtn').innerText = 'Simpan Perubahan'; toggleModal(); }
         function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); document.body.classList.add('modal-active'); }
         function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('modal-active'); }
-        function renderPagination(tP) { const c = document.getElementById('paginationControls'); c.innerHTML = ''; if (tP <= 1) return; const crB = (l, t, a = false, d = false) => { const b = document.createElement('button'); b.innerText = l; b.disabled = d; b.onclick = () => { currentPage = t; renderTable(); }; b.className = `px-3 py-1 rounded border transition text-xs font-bold ${a ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${d ? 'opacity-30 cursor-not-allowed' : ''}`; return b; }; c.appendChild(crB('«', currentPage - 1, false, currentPage === 1)); for (let i = 1; i <= tP; i++) if (i === 1 || i === tP || (i >= currentPage - 1 && i <= currentPage + 1)) c.appendChild(crB(i, i, i === currentPage)); c.appendChild(crB('»', currentPage + 1, false, currentPage === tP)); }
-        function handleSearch(v) { const sT = v.toLowerCase(), sE = document.getElementById('searchSuggestions'); if (sT.length < 1) { sE.classList.add('hidden'); renderTable(); return; } const f = stockItems.filter(i => (i.name || '').toLowerCase().includes(sT) || (i.sn || '').toLowerCase().includes(sT)); sE.innerHTML = ''; if (f.length > 0) { f.slice(0, 5).forEach(i => { const d = document.createElement('div'); d.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition text-xs'; d.onclick = () => { document.getElementById('searchInput').value = i.name; sE.classList.add('hidden'); renderTable([i]); }; d.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800">${i.name}</div><div class="text-[9px] text-slate-400 font-mono">${i.sn}</div></div><div class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold">${i.location}</div></div>`; sE.appendChild(d); }); sE.classList.remove('hidden'); } filterItems(); }
+        function renderPagination(tP) { const c = document.getElementById('paginationControls'); c.innerHTML = ''; if (tP <= 1) return; const crB = (l, t, a = false, d = false) => { const b = document.createElement('button'); b.innerText = l; b.disabled = d; b.onclick = () => { currentPage = t; renderTable(); }; b.className = `px-3 py-1 rounded border transition text-xs font-bold ${a ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-dark-paper text-slate-600 dark:text-dark-text border-slate-200 dark:border-dark-border hover:bg-slate-50'} ${d ? 'opacity-30 cursor-not-allowed' : ''}`; return b; }; c.appendChild(crB('«', currentPage - 1, false, currentPage === 1)); for (let i = 1; i <= tP; i++) if (i === 1 || i === tP || (i >= currentPage - 1 && i <= currentPage + 1)) c.appendChild(crB(i, i, i === currentPage)); c.appendChild(crB('»', currentPage + 1, false, currentPage === tP)); }
+        function handleSearch(v) { const sT = v.toLowerCase(), sE = document.getElementById('searchSuggestions'); if (sT.length < 1) { sE.classList.add('hidden'); renderTable(); return; } const f = stockItems.filter(i => (i.name || '').toLowerCase().includes(sT) || (i.sn || '').toLowerCase().includes(sT)); sE.innerHTML = ''; if (f.length > 0) { f.slice(0, 5).forEach(i => { const d = document.createElement('div'); d.className = 'px-4 py-3 hover:bg-slate-50 dark:hover:bg-dark-bg cursor-pointer border-b border-slate-100 dark:border-dark-border last:border-0 transition text-xs'; d.onclick = () => { document.getElementById('searchInput').value = i.name; sE.classList.add('hidden'); renderTable([i]); }; d.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800 dark:text-white">${i.name}</div><div class="text-[9px] text-slate-400 font-mono">${i.sn}</div></div><div class="text-[8px] bg-blue-50 dark:bg-blue-900/30 text-blue-500 px-2 py-0.5 rounded font-bold">${i.location}</div></div>`; sE.appendChild(d); }); sE.classList.remove('hidden'); } filterItems(); }
         function filterItems() { currentPage = 1; renderTable(); }
         function handleSort(k) { if (sortKey === k) sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; else { sortKey = k; sortOrder = 'asc'; } updateSortIcons(); renderTable(); }
         function updateSortIcons() { ['name', 'sn', 'location', 'status'].forEach(k => { const ic = document.getElementById(`sortIcon-${k}`); if (ic) { if (k === sortKey) { ic.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>'; ic.classList.remove('opacity-30'); ic.classList.add('text-blue-600', 'opacity-100'); } else { ic.innerHTML = 'Sort'; ic.classList.add('opacity-30'); ic.classList.remove('text-blue-600', 'opacity-100'); } } }); }
