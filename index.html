@@ -20,6 +20,7 @@
         th.sortable { cursor: pointer; transition: background-color 0.2s; }
         th.sortable:hover { background-color: #f1f5f9; }
         .hidden-auth { display: none !important; }
+        .img-preview { width: 40px; height: 40px; object-fit: cover; border-radius: 4px; cursor: pointer; border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -39,7 +40,6 @@
                         <span id="statusText">Connecting...</span>
                     </div>
                     
-                    <!-- Auth Section -->
                     <div id="authSection">
                         <button id="loginBtn" onclick="toggleAuthModal()" class="text-xs font-bold text-slate-600 hover:text-blue-600 transition uppercase tracking-widest border border-slate-200 px-3 py-1.5 rounded-lg">Login Admin</button>
                         <div id="userProfile" class="hidden flex items-center space-x-3">
@@ -52,7 +52,6 @@
         </div>
     </nav>
 
-    <!-- Header Section -->
     <header class="bg-paper-gradient py-10 text-white shadow-inner">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl font-extrabold mb-1 tracking-tight">Manajemen Stok Barang</h1>
@@ -60,38 +59,22 @@
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-12">
-        
         <!-- Summary Cards -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600">
-                    <i class="fa-solid fa-boxes-stacked text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Barang</p>
-                    <p id="statTotalItems" class="text-2xl font-black text-slate-800">0</p>
-                </div>
+                <div class="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
+                <div><p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Barang</p><p id="statTotalItems" class="text-2xl font-black text-slate-800">0</p></div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600">
-                    <i class="fa-solid fa-map-location-dot text-xl"></i>
-                </div>
-                <div>
-                    <p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Lokasi</p>
-                    <p id="statTotalLocations" class="text-2xl font-black text-slate-800">0</p>
-                </div>
+                <div class="w-12 h-12 bg-indigo-50 rounded-full flex items-center justify-center text-indigo-600"><i class="fa-solid fa-map-location-dot text-xl"></i></div>
+                <div><p class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Lokasi</p><p id="statTotalLocations" class="text-2xl font-black text-slate-800">0</p></div>
             </div>
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex items-center space-x-4">
-                <button onclick="exportToCSV()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 transition group">
-                    <i class="fa-solid fa-file-export text-xl group-hover:scale-110 transition"></i>
-                    <span class="font-bold">Export Data (CSV)</span>
-                </button>
+                <button onclick="exportToCSV()" class="w-full h-full flex items-center justify-center space-x-2 text-slate-600 hover:text-blue-600 transition group"><i class="fa-solid fa-file-export text-xl group-hover:scale-110 transition"></i><span class="font-bold">Export Data (CSV)</span></button>
             </div>
         </div>
         
-        <!-- Action Bar -->
         <div class="bg-white rounded-xl shadow-md border border-slate-200 p-6 mb-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="md:col-span-2 relative">
@@ -106,63 +89,34 @@
                 </div>
                 <div>
                     <button id="addBtn" onclick="toggleModal()" class="hidden-auth w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
-                        <i class="fa-solid fa-plus"></i>
-                        <span>Tambah Barang</span>
+                        <i class="fa-solid fa-plus"></i><span>Tambah Barang</span>
                     </button>
-                    <div id="loginPrompt" class="w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2">
-                        <i class="fa-solid fa-lock"></i>
-                        <span>Login untuk Menambah Data</span>
-                    </div>
+                    <div id="loginPrompt" class="w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2"><i class="fa-solid fa-lock"></i><span>Login untuk Menambah Data</span></div>
                 </div>
             </div>
         </div>
 
-        <!-- Inventory Table Card -->
         <div class="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left" id="stockTable">
                     <thead class="bg-slate-50 border-b border-slate-200">
                         <tr>
-                            <th onclick="handleSort('name')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Nama Barang <span id="sortIcon-name" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span>
-                            </th>
-                            <th onclick="handleSort('sn')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Kode SN <span id="sortIcon-sn" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span>
-                            </th>
-                            <th onclick="handleSort('location')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Lokasi <span id="sortIcon-location" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span>
-                            </th>
-                            <th onclick="handleSort('status')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                                Status <span id="sortIcon-status" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span>
-                            </th>
+                            <th onclick="handleSort('name')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Nama Barang <span id="sortIcon-name" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
+                            <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Foto Bukti</th>
+                            <th onclick="handleSort('sn')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Kode SN <span id="sortIcon-sn" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
+                            <th onclick="handleSort('location')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Lokasi <span id="sortIcon-location" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
+                            <th onclick="handleSort('status')" class="sortable px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status <span id="sortIcon-status" class="ml-1 opacity-30 italic text-[8px] uppercase font-bold">Sort</span></th>
                             <th class="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-200" id="tableBody">
-                    </tbody>
+                    <tbody class="divide-y divide-slate-200" id="tableBody"></tbody>
                 </table>
             </div>
-            
-            <div id="emptyState" class="hidden py-12 flex flex-col items-center justify-center text-slate-400">
-                <i class="fa-solid fa-box-open text-5xl mb-4 opacity-20"></i>
-                <p>Belum ada data barang atau sedang memuat...</p>
-            </div>
-
-            <!-- Pagination Footer -->
+            <div id="emptyState" class="hidden py-12 flex flex-col items-center justify-center text-slate-400"><i class="fa-solid fa-box-open text-5xl mb-4 opacity-20"></i><p>Belum ada data barang atau sedang memuat...</p></div>
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-xs text-slate-500 space-y-4 md:space-y-0">
-                <div class="flex items-center space-x-4">
-                    <span id="itemCount">Menampilkan 0 barang</span>
-                    <div class="flex items-center space-x-2">
-                        <label for="itemsPerPageSelect">Per halaman:</label>
-                        <select id="itemsPerPageSelect" onchange="changeItemsPerPage(this.value)" class="bg-transparent border-none outline-none font-bold text-blue-600 cursor-pointer">
-                            <option value="5">5</option>
-                            <option value="10" selected>10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
-                    </div>
+                <div class="flex items-center space-x-4"><span id="itemCount">Menampilkan 0 barang</span>
+                    <div class="flex items-center space-x-2"><label for="itemsPerPageSelect">Per halaman:</label><select id="itemsPerPageSelect" onchange="changeItemsPerPage(this.value)" class="bg-transparent border-none outline-none font-bold text-blue-600 cursor-pointer"><option value="5">5</option><option value="10" selected>10</option><option value="25">25</option><option value="50">50</option></select></div>
                 </div>
-                
                 <div id="paginationControls" class="flex items-center space-x-2"></div>
             </div>
         </div>
@@ -171,13 +125,11 @@
     <!-- Modal Form (Tambah/Edit) -->
     <div id="modal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[100]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
-        <div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
+        <div class="modal-container bg-white w-11/12 md:max-w-lg mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
             <div class="modal-content py-6 text-left px-6">
                 <div class="flex justify-between items-center pb-3 border-b border-slate-100 mb-6">
                     <p class="text-xl font-bold text-slate-800">Tambah Barang Baru</p>
-                    <div onclick="toggleModal()" class="modal-close cursor-pointer z-50 text-slate-400 hover:text-slate-600 transition">
-                        <i class="fa-solid fa-xmark text-xl"></i>
-                    </div>
+                    <div onclick="toggleModal()" class="modal-close cursor-pointer z-50 text-slate-400 hover:text-slate-600 transition"><i class="fa-solid fa-xmark text-xl"></i></div>
                 </div>
                 <form id="addItemForm" onsubmit="handleFormSubmit(event)">
                     <div class="mb-4">
@@ -188,19 +140,19 @@
                         <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Nomor Seri (SN)</label>
                         <input type="text" id="itemSN" required placeholder="Contoh: SN-ABC-12345" class="w-full px-4 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500">
                     </div>
-                    <div class="mb-6 grid grid-cols-2 gap-4">
+                    <div class="mb-4 grid grid-cols-2 gap-4">
+                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Lokasi</label><input type="text" id="itemLocation" required placeholder="Gudang B, Rak 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm"></div>
+                        <div><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Status</label><select id="itemStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer"><option value="Tersedia">Tersedia</option><option value="Dipakai">Dipakai</option><option value="Rusak">Rusak</option><option value="Hilang">Hilang</option></select></div>
+                    </div>
+                    <!-- Foto Section -->
+                    <div class="mb-6 grid grid-cols-2 gap-4 border-t border-slate-100 pt-4">
                         <div>
-                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Lokasi</label>
-                            <input type="text" id="itemLocation" required placeholder="Gudang B, Rak 4" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm">
+                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto Dokumen</label>
+                            <input type="file" id="fileDoc" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                         <div>
-                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Status</label>
-                            <select id="itemStatus" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-blue-500 text-sm appearance-none cursor-pointer">
-                                <option value="Tersedia">Tersedia</option>
-                                <option value="Dipakai">Dipakai</option>
-                                <option value="Rusak">Rusak</option>
-                                <option value="Hilang">Hilang</option>
-                            </select>
+                            <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider italic">Foto SN</label>
+                            <input type="file" id="fileSN" accept="image/*" class="text-[10px] text-slate-400 file:mr-2 file:py-1 file:px-2 file:rounded-md file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
                         </div>
                     </div>
                     <div class="flex justify-end pt-2 space-x-3">
@@ -212,27 +164,15 @@
         </div>
     </div>
 
-    <!-- Auth Modal (Login) -->
+    <!-- Auth Modal -->
     <div id="authModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[110]">
         <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-50"></div>
         <div class="modal-container bg-white w-11/12 md:max-w-sm mx-auto rounded-xl shadow-2xl z-50 overflow-y-auto">
             <div class="modal-content py-8 px-8">
-                <div class="text-center mb-8">
-                    <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <i class="fa-solid fa-user-shield text-xl"></i>
-                    </div>
-                    <h2 class="text-xl font-black text-slate-800">Login Admin</h2>
-                    <p class="text-xs text-slate-400 mt-1">Masukkan akun Supabase Tuan Muda</p>
-                </div>
+                <div class="text-center mb-8"><div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4"><i class="fa-solid fa-user-shield text-xl"></i></div><h2 class="text-xl font-black text-slate-800">Login Admin</h2><p class="text-xs text-slate-400 mt-1">Masukkan akun Supabase Tuan Muda</p></div>
                 <form id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="mb-4">
-                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Email</label>
-                        <input type="email" id="loginEmail" required placeholder="tuanmuda@email.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                    </div>
-                    <div class="mb-8">
-                        <label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Password</label>
-                        <input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500">
-                    </div>
+                    <div class="mb-4"><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Email</label><input type="email" id="loginEmail" required placeholder="tuanmuda@email.com" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></div>
+                    <div class="mb-8"><label class="block text-slate-600 text-[10px] font-bold mb-1 uppercase tracking-wider">Password</label><input type="password" id="loginPassword" required placeholder="••••••••" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"></div>
                     <button type="submit" id="authSubmitBtn" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-bold py-3 rounded-lg shadow-lg transition-all transform active:scale-95 mb-4">Masuk Sekarang</button>
                     <button type="button" onclick="toggleAuthModal()" class="w-full text-slate-400 text-xs font-semibold hover:text-slate-600 transition">Batal</button>
                 </form>
@@ -240,17 +180,22 @@
         </div>
     </div>
 
-    <footer class="bg-white py-8 border-t border-slate-200 text-center text-slate-400 text-[10px] tracking-widest uppercase">
-        &copy; 2026 Kimshie Stock Manager. Dirancang khusus untuk Tuan Muda yang Berbahagia. ✨
-    </footer>
+    <!-- Image Viewer Modal -->
+    <div id="imageModal" class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center z-[120]">
+        <div class="modal-overlay absolute w-full h-full bg-slate-900 opacity-90" onclick="closeImageModal()"></div>
+        <div class="z-[130] max-w-4xl w-full p-4 relative">
+            <button onclick="closeImageModal()" class="absolute -top-10 right-0 text-white text-3xl">&times;</button>
+            <img id="modalImage" src="" class="w-full h-auto rounded-lg shadow-2xl">
+        </div>
+    </div>
+
+    <footer class="bg-white py-8 border-t border-slate-200 text-center text-slate-400 text-[10px] tracking-widest uppercase">&copy; 2026 Kimshie Stock Manager. Dirancang khusus untuk Tuan Muda yang Berbahagia. ✨</footer>
 
     <script>
-        // --- KONFIGURASI SUPABASE ---
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- LOGIKA UTAMA ---
         let stockItems = [];
         let currentPage = 1;
         let itemsPerPage = 10;
@@ -258,270 +203,127 @@
         let sortOrder = 'desc';
         let currentUser = null;
 
-        window.onload = () => {
-            checkAuth();
-            initSupabase();
-        };
+        window.onload = () => { checkAuth(); initSupabase(); };
 
-        // --- AUTH LOGIC ---
         async function checkAuth() {
             const { data: { session } } = await _supabase.auth.getSession();
             updateUIForAuth(session?.user || null);
-            
-            _supabase.auth.onAuthStateChange((_event, session) => {
-                updateUIForAuth(session?.user || null);
-            });
+            _supabase.auth.onAuthStateChange((_event, session) => updateUIForAuth(session?.user || null));
         }
 
         function updateUIForAuth(user) {
             currentUser = user;
-            const loginBtn = document.getElementById('loginBtn');
-            const userProfile = document.getElementById('userProfile');
-            const userEmail = document.getElementById('userEmail');
-            const addBtn = document.getElementById('addBtn');
-            const loginPrompt = document.getElementById('loginPrompt');
-
-            if (user) {
-                loginBtn.classList.add('hidden');
-                userProfile.classList.remove('hidden');
-                userEmail.innerText = user.email;
-                addBtn.classList.remove('hidden-auth');
-                loginPrompt.classList.add('hidden');
-            } else {
-                loginBtn.classList.remove('hidden');
-                userProfile.classList.add('hidden');
-                addBtn.classList.add('hidden-auth');
-                loginPrompt.classList.remove('hidden');
-            }
-            renderTable(); // Re-render to show/hide action buttons in rows
+            const loginBtn = document.getElementById('loginBtn'), userProfile = document.getElementById('userProfile'), userEmail = document.getElementById('userEmail'), addBtn = document.getElementById('addBtn'), loginPrompt = document.getElementById('loginPrompt');
+            if (user) { loginBtn.classList.add('hidden'); userProfile.classList.remove('hidden'); userEmail.innerText = user.email; addBtn.classList.remove('hidden-auth'); loginPrompt.classList.add('hidden'); }
+            else { loginBtn.classList.remove('hidden'); userProfile.classList.add('hidden'); addBtn.classList.add('hidden-auth'); loginPrompt.classList.remove('hidden'); }
+            renderTable();
         }
 
         async function handleLogin(e) {
             e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('authSubmitBtn');
-            
-            btn.disabled = true;
-            btn.innerText = 'Autentikasi...';
-
+            const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value, btn = document.getElementById('authSubmitBtn');
+            btn.disabled = true; btn.innerText = 'Autentikasi...';
             const { error } = await _supabase.auth.signInWithPassword({ email, password });
-
-            if (error) {
-                alert('Gagal Login: ' + error.message);
-            } else {
-                toggleAuthModal();
-            }
-            btn.disabled = false;
-            btn.innerText = 'Masuk Sekarang';
+            if (error) alert('Gagal Login: ' + error.message); else toggleAuthModal();
+            btn.disabled = false; btn.innerText = 'Masuk Sekarang';
         }
 
-        async function handleLogout() {
-            if (confirm('Tuan Muda ingin keluar dari sesi Admin?')) {
-                await _supabase.auth.signOut();
-            }
-        }
+        async function handleLogout() { if (confirm('Tuan Muda ingin keluar dari sesi Admin?')) await _supabase.auth.signOut(); }
+        function toggleAuthModal() { const m = document.querySelector('#authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); document.body.classList.toggle('modal-active'); }
 
-        function toggleAuthModal() {
-            const modal = document.querySelector('#authModal');
-            modal.classList.toggle('opacity-0');
-            modal.classList.toggle('pointer-events-none');
-            document.body.classList.toggle('modal-active');
-        }
-
-        // --- DATA LOGIC ---
-        async function initSupabase() {
-            updateStatus('Connecting...', 'yellow');
-            try {
-                await fetchFromSupabase();
-                updateStatus('Cloud Storage Active', 'green');
-            } catch (err) {
-                updateStatus('Cloud Connection Error', 'red');
-            }
-        }
-
-        function updateStatus(text, color) {
-            const dot = document.getElementById('statusDot');
-            const txt = document.getElementById('statusText');
-            if (txt) txt.innerText = text;
-            if (dot) {
-                dot.className = `w-2 h-2 rounded-full animate-pulse bg-${color}-500`;
-                if(color === 'green') dot.classList.remove('animate-pulse');
-            }
-        }
-
-        async function fetchFromSupabase() {
-            const { data, error } = await _supabase
-                .from('stock_items')
-                .select('*')
-                .order(sortKey, { ascending: sortOrder === 'asc' });
-
-            if (error) throw error;
-            stockItems = data || [];
-            renderTable();
-            updateLocationFilter();
-        }
+        async function initSupabase() { updateStatus('Connecting...', 'yellow'); try { await fetchFromSupabase(); updateStatus('Cloud Storage Active', 'green'); } catch (err) { updateStatus('Cloud Connection Error', 'red'); } }
+        function updateStatus(t, c) { const d = document.getElementById('statusDot'), tx = document.getElementById('statusText'); if (tx) tx.innerText = t; if (d) { d.className = `w-2 h-2 rounded-full animate-pulse bg-${c}-500`; if(c === 'green') d.classList.remove('animate-pulse'); } }
+        async function fetchFromSupabase() { const { data, error } = await _supabase.from('stock_items').select('*').order(sortKey, { ascending: sortOrder === 'asc' }); if (error) throw error; stockItems = data || []; renderTable(); updateLocationFilter(); }
 
         function renderTable(dataToRender = null) {
-            const tableBody = document.getElementById('tableBody');
-            const emptyState = document.getElementById('emptyState');
-            const itemCount = document.getElementById('itemCount');
+            const tableBody = document.getElementById('tableBody'), emptyState = document.getElementById('emptyState'), itemCount = document.getElementById('itemCount');
             const baseData = dataToRender || getFilteredData();
-            
-            const sortedData = [...baseData].sort((a, b) => {
-                let valA = (a[sortKey] || '').toString().toLowerCase();
-                let valB = (b[sortKey] || '').toString().toLowerCase();
-                if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-                if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-                return 0;
-            });
-
-            const totalItems = sortedData.length;
-            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            const sortedData = [...baseData].sort((a, b) => { let vA = (a[sortKey] || '').toString().toLowerCase(), vB = (b[sortKey] || '').toString().toLowerCase(); if (vA < vB) return sortOrder === 'asc' ? -1 : 1; if (vA > vB) return sortOrder === 'asc' ? 1 : -1; return 0; });
+            const totalItems = sortedData.length, totalPages = Math.ceil(totalItems / itemsPerPage);
             if (currentPage > totalPages && totalPages > 0) currentPage = totalPages;
-            
-            const startIndex = (currentPage - 1) * itemsPerPage;
-            const paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
-
+            const startIndex = (currentPage - 1) * itemsPerPage, paginatedData = sortedData.slice(startIndex, startIndex + itemsPerPage);
             tableBody.innerHTML = '';
-            if (totalItems === 0) {
-                emptyState.classList.remove('hidden');
-            } else {
+            if (totalItems === 0) emptyState.classList.remove('hidden');
+            else {
                 emptyState.classList.add('hidden');
                 paginatedData.forEach((item) => {
                     const statusClass = `status-badge-${(item.status || 'Tersedia').toLowerCase()}`;
-                    const actionButtons = currentUser ? `
-                        <div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition">
-                            <button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button>
+                    const photoHtml = `
+                        <div class="flex space-x-1">
+                            ${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="img-preview" onclick="openImageModal('${item.doc_photo_url}')" title="Dokumen">` : `<div class="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[8px] text-slate-300 italic border border-slate-50">No Doc</div>`}
+                            ${item.sn_photo_url ? `<img src="${item.sn_photo_url}" class="img-preview" onclick="openImageModal('${item.sn_photo_url}')" title="Foto SN">` : `<div class="w-10 h-10 bg-slate-100 flex items-center justify-center rounded text-[8px] text-slate-300 italic border border-slate-50">No SN</div>`}
                         </div>
-                    ` : `<div class="text-[8px] text-slate-300 uppercase font-bold tracking-widest italic">View Only</div>`;
-
+                    `;
+                    const actionButtons = currentUser ? `<div class="flex justify-end items-center space-x-2 md:opacity-0 md:group-hover:opacity-100 transition"><button onclick="editItem('${item.id}')" class="text-slate-300 hover:text-blue-600 transition px-2"><i class="fa-solid fa-pen-to-square"></i></button><button onclick="deleteItem('${item.id}')" class="text-slate-300 hover:text-red-500 transition px-2"><i class="fa-solid fa-trash-can"></i></button></div>` : `<div class="text-[8px] text-slate-300 uppercase font-bold tracking-widest italic text-right">View Only</div>`;
                     tableBody.innerHTML += `
                         <tr class="hover:bg-slate-50 transition animate-fade-in group text-sm">
                             <td class="px-6 py-4 font-bold text-slate-900 group-hover:text-blue-600 transition">${item.name}</td>
+                            <td class="px-6 py-4">${photoHtml}</td>
                             <td class="px-6 py-4 font-mono text-xs text-slate-500 tracking-wider">${item.sn}</td>
-                            <td class="px-6 py-4 flex items-center space-x-2 text-slate-600">
-                                <i class="fa-solid fa-location-dot text-blue-500 text-[10px]"></i>
-                                <span>${item.location}</span>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status || 'Tersedia'}</span>
-                            </td>
+                            <td class="px-6 py-4 flex items-center space-x-2 text-slate-600"><i class="fa-solid fa-location-dot text-blue-500 text-[10px]"></i><span>${item.location}</span></td>
+                            <td class="px-6 py-4"><span class="px-2 py-0.5 text-[10px] font-bold rounded-full ${statusClass} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td>
                             <td class="px-6 py-4 text-right">${actionButtons}</td>
                         </tr>`;
                 });
             }
             itemCount.innerText = `Menampilkan ${totalItems > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + itemsPerPage, totalItems)} dari ${totalItems} barang`;
-            renderPagination(totalPages);
-            updateStats();
+            renderPagination(totalPages); updateStats();
         }
 
-        // --- CRUD ACTIONS ---
-        let editingId = null;
+        async function uploadFile(file, prefix) {
+            if (!file) return null;
+            const ext = file.name.split('.').pop();
+            const fileName = `${prefix}_${Date.now()}.${ext}`;
+            const { data, error } = await _supabase.storage.from('stock-images').upload(fileName, file);
+            if (error) throw error;
+            const { data: { publicUrl } } = _supabase.storage.from('stock-images').getPublicUrl(fileName);
+            return publicUrl;
+        }
+
         async function handleFormSubmit(e) {
-            e.preventDefault();
-            if (!currentUser) return alert('Tuan Muda harus login dulu ya! 🔒');
-
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerText = 'Menyimpan...';
-
-            const payload = {
-                name: document.getElementById('itemName').value,
-                sn: document.getElementById('itemSN').value,
-                location: document.getElementById('itemLocation').value,
-                status: document.getElementById('itemStatus').value
-            };
-
+            e.preventDefault(); if (!currentUser) return alert('Login dulu Tuan Muda! 🔒');
+            const submitBtn = document.getElementById('submitBtn'); submitBtn.disabled = true; submitBtn.innerText = 'Menyimpan...';
+            
             try {
+                const docFile = document.getElementById('fileDoc').files[0];
+                const snFile = document.getElementById('fileSN').files[0];
+                
+                const docUrl = await uploadFile(docFile, 'doc');
+                const snUrl = await uploadFile(snFile, 'sn');
+
+                const payload = {
+                    name: document.getElementById('itemName').value,
+                    sn: document.getElementById('itemSN').value,
+                    location: document.getElementById('itemLocation').value,
+                    status: document.getElementById('itemStatus').value
+                };
+                if (docUrl) payload.doc_photo_url = docUrl;
+                if (snUrl) payload.sn_photo_url = snUrl;
+
                 if (editingId) {
                     const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId);
-                    if (error) throw error;
-                    editingId = null;
+                    if (error) throw error; editingId = null;
                 } else {
                     const { error } = await _supabase.from('stock_items').insert([payload]);
                     if (error) throw error;
                 }
-                await fetchFromSupabase();
-                toggleModal();
-            } catch (err) {
-                alert('Gagal menyimpan: ' + err.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = 'Simpan Barang';
-            }
+                await fetchFromSupabase(); toggleModal();
+            } catch (err) { alert('Gagal simpan: ' + err.message); }
+            finally { submitBtn.disabled = false; submitBtn.innerText = 'Simpan Barang'; }
         }
 
-        async function deleteItem(id) {
-            if (!currentUser) return;
-            if (confirm('Tuan Muda, apakah yakin ingin menghapus barang ini?')) {
-                const { error } = await _supabase.from('stock_items').delete().eq('id', id);
-                if (error) alert('Gagal menghapus: ' + error.message);
-                else await fetchFromSupabase();
-            }
-        }
-
-        function editItem(id) {
-            const item = stockItems.find(i => i.id === id);
-            if (!item) return;
-            editingId = id;
-            document.getElementById('itemName').value = item.name;
-            document.getElementById('itemSN').value = item.sn;
-            document.getElementById('itemLocation').value = item.location;
-            document.getElementById('itemStatus').value = item.status || 'Tersedia';
-            document.querySelector('#modal p.text-xl').innerText = 'Edit Barang';
-            document.querySelector('#submitBtn').innerText = 'Simpan Perubahan';
-            toggleModal();
-        }
-
-        // --- UI HELPERS & OTHERS ---
-        function renderPagination(totalPages) {
-            const container = document.getElementById('paginationControls');
-            container.innerHTML = '';
-            if (totalPages <= 1) return;
-            const createBtn = (label, targetPage, active = false, disabled = false) => {
-                const btn = document.createElement('button');
-                btn.innerText = label;
-                btn.disabled = disabled;
-                btn.onclick = () => { currentPage = targetPage; renderTable(); };
-                btn.className = `px-3 py-1 rounded border transition text-xs font-bold ${active ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${disabled ? 'opacity-30 cursor-not-allowed' : ''}`;
-                return btn;
-            };
-            container.appendChild(createBtn('«', currentPage - 1, false, currentPage === 1));
-            for (let i = 1; i <= totalPages; i++) {
-                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
-                    container.appendChild(createBtn(i, i, i === currentPage));
-                }
-            }
-            container.appendChild(createBtn('»', currentPage + 1, false, currentPage === totalPages));
-        }
-
-        function handleSearch(value) {
-            const searchTerm = value.toLowerCase();
-            const suggestionsEl = document.getElementById('searchSuggestions');
-            if (searchTerm.length < 1) { suggestionsEl.classList.add('hidden'); renderTable(); return; }
-            const filtered = stockItems.filter(item => (item.name || '').toLowerCase().includes(searchTerm) || (item.sn || '').toLowerCase().includes(searchTerm));
-            suggestionsEl.innerHTML = '';
-            if (filtered.length > 0) {
-                filtered.slice(0, 5).forEach(item => {
-                    const div = document.createElement('div');
-                    div.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition text-xs';
-                    div.onclick = () => { document.getElementById('searchInput').value = item.name; suggestionsEl.classList.add('hidden'); renderTable([item]); };
-                    div.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800">${item.name}</div><div class="text-[9px] text-slate-400 font-mono">${item.sn}</div></div><div class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold">${item.location}</div></div>`;
-                    suggestionsEl.appendChild(div);
-                });
-                suggestionsEl.classList.remove('hidden');
-            }
-            filterItems();
-        }
-
+        async function deleteItem(id) { if (!currentUser) return; if (confirm('Hapus barang ini Tuan Muda?')) { const { error } = await _supabase.from('stock_items').delete().eq('id', id); if (error) alert('Gagal: ' + error.message); else await fetchFromSupabase(); } }
+        function editItem(id) { const item = stockItems.find(i => i.id === id); if (!item) return; editingId = id; document.getElementById('itemName').value = item.name; document.getElementById('itemSN').value = item.sn; document.getElementById('itemLocation').value = item.location; document.getElementById('itemStatus').value = item.status || 'Tersedia'; document.querySelector('#modal p.text-xl').innerText = 'Edit Barang'; document.querySelector('#submitBtn').innerText = 'Simpan Perubahan'; toggleModal(); }
+        function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); document.body.classList.add('modal-active'); }
+        function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('modal-active'); }
+        function renderPagination(tP) { const c = document.getElementById('paginationControls'); c.innerHTML = ''; if (tP <= 1) return; const crB = (l, t, a = false, d = false) => { const b = document.createElement('button'); b.innerText = l; b.disabled = d; b.onclick = () => { currentPage = t; renderTable(); }; b.className = `px-3 py-1 rounded border transition text-xs font-bold ${a ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'} ${d ? 'opacity-30 cursor-not-allowed' : ''}`; return b; }; c.appendChild(crB('«', currentPage - 1, false, currentPage === 1)); for (let i = 1; i <= tP; i++) if (i === 1 || i === tP || (i >= currentPage - 1 && i <= currentPage + 1)) c.appendChild(crB(i, i, i === currentPage)); c.appendChild(crB('»', currentPage + 1, false, currentPage === tP)); }
+        function handleSearch(v) { const sT = v.toLowerCase(), sE = document.getElementById('searchSuggestions'); if (sT.length < 1) { sE.classList.add('hidden'); renderTable(); return; } const f = stockItems.filter(i => (i.name || '').toLowerCase().includes(sT) || (i.sn || '').toLowerCase().includes(sT)); sE.innerHTML = ''; if (f.length > 0) { f.slice(0, 5).forEach(i => { const d = document.createElement('div'); d.className = 'px-4 py-3 hover:bg-slate-50 cursor-pointer border-b border-slate-100 last:border-0 transition text-xs'; d.onclick = () => { document.getElementById('searchInput').value = i.name; sE.classList.add('hidden'); renderTable([i]); }; d.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800">${i.name}</div><div class="text-[9px] text-slate-400 font-mono">${i.sn}</div></div><div class="text-[8px] bg-blue-50 text-blue-500 px-2 py-0.5 rounded font-bold">${i.location}</div></div>`; sE.appendChild(d); }); sE.classList.remove('hidden'); } filterItems(); }
         function filterItems() { currentPage = 1; renderTable(); }
-        function handleSort(key) { if (sortKey === key) { sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; } else { sortKey = key; sortOrder = 'asc'; } updateSortIcons(); renderTable(); }
-        function updateSortIcons() { ['name', 'sn', 'location', 'status'].forEach(k => { const icon = document.getElementById(`sortIcon-${k}`); if (k === sortKey) { icon.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>'; icon.classList.remove('opacity-30'); icon.classList.add('text-blue-600', 'opacity-100'); } else { icon.innerHTML = 'Sort'; icon.classList.add('opacity-30'); icon.classList.remove('text-blue-600', 'opacity-100'); } }); }
-        function updateStats() { const sTI = document.getElementById('statTotalItems'); const sTL = document.getElementById('statTotalLocations'); if(sTI) sTI.innerText = stockItems.length; if(sTL) sTL.innerText = new Set(stockItems.map(item => (item.location || '').trim().toLowerCase())).size; }
-        function changeItemsPerPage(val) { itemsPerPage = parseInt(val); currentPage = 1; renderTable(); }
-        function getFilteredData() { const s = (document.getElementById('searchInput').value || '').toLowerCase(); const l = document.getElementById('filterLocation').value; return stockItems.filter(i => ((i.name || '').toLowerCase().includes(s) || (i.sn || '').toLowerCase().includes(s)) && (l === "" || i.location === l)); }
+        function handleSort(k) { if (sortKey === k) sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; else { sortKey = k; sortOrder = 'asc'; } updateSortIcons(); renderTable(); }
+        function updateSortIcons() { ['name', 'sn', 'location', 'status'].forEach(k => { const ic = document.getElementById(`sortIcon-${k}`); if (ic) { if (k === sortKey) { ic.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>'; ic.classList.remove('opacity-30'); ic.classList.add('text-blue-600', 'opacity-100'); } else { ic.innerHTML = 'Sort'; ic.classList.add('opacity-30'); ic.classList.remove('text-blue-600', 'opacity-100'); } } }); }
+        function updateStats() { const sTI = document.getElementById('statTotalItems'), sTL = document.getElementById('statTotalLocations'); if(sTI) sTI.innerText = stockItems.length; if(sTL) sTL.innerText = new Set(stockItems.map(i => (i.location || '').trim().toLowerCase())).size; }
+        function changeItemsPerPage(v) { itemsPerPage = parseInt(v); currentPage = 1; renderTable(); }
+        function getFilteredData() { const s = (document.getElementById('searchInput').value || '').toLowerCase(), l = document.getElementById('filterLocation').value; return stockItems.filter(i => ((i.name || '').toLowerCase().includes(s) || (i.sn || '').toLowerCase().includes(s)) && (l === "" || i.location === l)); }
         function updateLocationFilter() { const fD = document.getElementById('filterLocation'); if(!fD) return; const locs = [...new Set(stockItems.map(i => i.location))].filter(l => l); fD.innerHTML = '<option value="">Semua Lokasi</option>'; locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.text = l; fD.appendChild(o); }); }
         function exportToCSV() { if (stockItems.length === 0) return alert('Data kosong!'); const h = ['Nama', 'SN', 'Lokasi', 'Status', 'Tanggal']; const r = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.created_at}"`]); const csv = "data:text/csv;charset=utf-8," + h.join(",") + "\n" + r.map(r => r.join(",")).join("\n"); const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `Stok_Cloud.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
         function toggleModal() { const modal = document.querySelector('#modal'); if (modal.classList.contains('opacity-0') && !editingId) { document.getElementById('addItemForm').reset(); document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru'; document.querySelector('#submitBtn').innerText = 'Simpan Barang'; } modal.classList.toggle('opacity-0'); modal.classList.toggle('pointer-events-none'); document.body.classList.toggle('modal-active'); }
