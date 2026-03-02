@@ -96,15 +96,31 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-8 pb-12">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center text-blue-600 dark:text-blue-400"><i class="fa-solid fa-boxes-stacked text-xl"></i></div>
-                <div><p class="text-xs text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider">Total Barang</p><p id="statTotalItems" class="text-2xl font-black text-slate-800 dark:text-white">0</p></div>
+        <!-- Dashboard Summary -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-4 flex flex-col items-center justify-center text-center">
+                <p class="text-[10px] text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider mb-1">Total</p>
+                <p id="statTotalItems" class="text-2xl font-black text-slate-800 dark:text-white">0</p>
             </div>
-            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
-                <div class="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/20 rounded-full flex items-center justify-center text-indigo-600 dark:text-indigo-400"><i class="fa-solid fa-map-location-dot text-xl"></i></div>
-                <div><p class="text-xs text-slate-500 dark:text-dark-muted uppercase font-bold tracking-wider">Total Lokasi</p><p id="statTotalLocations" class="text-2xl font-black text-slate-800 dark:text-white">0</p></div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-4 flex flex-col items-center justify-center text-center border-l-4 border-l-emerald-500">
+                <p class="text-[10px] text-emerald-600 uppercase font-bold tracking-wider mb-1">Tersedia</p>
+                <p id="statTersedia" class="text-2xl font-black text-slate-800 dark:text-white">0</p>
             </div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-4 flex flex-col items-center justify-center text-center border-l-4 border-l-blue-500">
+                <p class="text-[10px] text-blue-600 uppercase font-bold tracking-wider mb-1">Dipakai</p>
+                <p id="statDipakai" class="text-2xl font-black text-slate-800 dark:text-white">0</p>
+            </div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-4 flex flex-col items-center justify-center text-center border-l-4 border-l-red-500">
+                <p class="text-[10px] text-red-600 uppercase font-bold tracking-wider mb-1">Rusak</p>
+                <p id="statRusak" class="text-2xl font-black text-slate-800 dark:text-white">0</p>
+            </div>
+            <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-4 flex flex-col items-center justify-center text-center border-l-4 border-l-amber-500">
+                <p class="text-[10px] text-amber-600 uppercase font-bold tracking-wider mb-1">Hilang</p>
+                <p id="statHilang" class="text-2xl font-black text-slate-800 dark:text-white">0</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             <div class="bg-white dark:bg-dark-paper rounded-xl shadow-sm border border-slate-200 dark:border-dark-border p-5 flex items-center space-x-4">
                 <button id="logBtn" onclick="toggleLogModal()" class="hidden w-full h-full flex items-center justify-center space-x-2 text-slate-600 dark:text-dark-muted hover:text-blue-600 transition group">
                     <i class="fa-solid fa-clock-rotate-left text-xl group-hover:rotate-[-45deg] transition-transform"></i><span class="font-bold">Histori Pergerakan</span>
@@ -117,8 +133,8 @@
         </div>
         
         <div class="bg-white dark:bg-dark-paper rounded-xl shadow-md border border-slate-200 dark:border-dark-border p-6 mb-8">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div class="md:col-span-2 relative">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                <div class="md:col-span-5 relative">
                     <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
                     <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari barang atau SN..." autocomplete="off" class="w-full pl-10 pr-12 py-3 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-blue-500/20 outline-none transition-all dark:text-white">
                     <button onclick="toggleScanner()" class="absolute right-3 top-2.5 p-1.5 text-slate-400 hover:text-blue-600 transition" title="Scan Barcode/QR">
@@ -126,16 +142,25 @@
                     </button>
                     <div id="searchSuggestions" class="hidden absolute left-0 right-0 mt-1 bg-white dark:bg-dark-paper border border-slate-200 dark:border-dark-border rounded-lg shadow-xl z-[60] max-h-60 overflow-y-auto"></div>
                 </div>
-                <div>
+                <div class="md:col-span-3">
                     <select id="filterLocation" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none appearance-none cursor-pointer dark:text-white">
                         <option value="">Semua Lokasi</option>
                     </select>
                 </div>
-                <div>
-                    <button id="addBtn" onclick="toggleModal()" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
-                        <i class="fa-solid fa-plus"></i><span>Tambah Barang</span>
+                <div class="md:col-span-2">
+                    <select id="filterStatus" onchange="filterItems()" class="w-full px-4 py-3 bg-slate-50 dark:bg-dark-bg border border-slate-200 dark:border-dark-border rounded-lg outline-none appearance-none cursor-pointer dark:text-white">
+                        <option value="">Semua Status</option>
+                        <option value="Tersedia">Tersedia</option>
+                        <option value="Dipakai">Dipakai</option>
+                        <option value="Rusak">Rusak</option>
+                        <option value="Hilang">Hilang</option>
+                    </select>
+                </div>
+                <div class="md:col-span-2">
+                    <button id="addBtn" onclick="toggleModal()" class="w-full bg-[#0056B3] hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg shadow-md transition-all flex items-center justify-center space-x-2 transform active:scale-95">
+                        <i class="fa-solid fa-plus"></i><span>Tambah</span>
                     </button>
-                    <div id="loginPrompt" class="hidden w-full py-3 px-6 rounded-lg border border-dashed border-slate-300 dark:border-dark-border text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-2"><i class="fa-solid fa-lock"></i><span>Login Admin untuk Edit</span></div>
+                    <div id="loginPrompt" class="hidden w-full py-3 px-4 rounded-lg border border-dashed border-slate-300 dark:border-dark-border text-center text-[8px] text-slate-400 font-bold uppercase tracking-widest flex items-center justify-center space-x-1"><i class="fa-solid fa-lock"></i><span>Admin Only</span></div>
                 </div>
             </div>
         </div>
@@ -328,7 +353,6 @@
         }
 
         function onScanSuccess(decodedText, decodedResult) {
-            // Jika hasil scan adalah URL dari website kita sendiri
             if (decodedText.includes(window.location.origin)) {
                 const url = new URL(decodedText);
                 const sn = url.searchParams.get('sn');
@@ -337,12 +361,10 @@
                     handleSearch(sn);
                 }
             } else {
-                // Anggap hasil scan adalah SN murni atau barcode
                 document.getElementById('searchInput').value = decodedText;
                 handleSearch(decodedText);
             }
             toggleScanner();
-            // Berikan getaran singkat jika didukung (haptic feedback)
             if (navigator.vibrate) navigator.vibrate(100);
         }
 
@@ -549,7 +571,6 @@
             const qrContainer = document.getElementById('qrcode');
             qrContainer.innerHTML = '';
             
-            // Build absolute URL for the item (search link)
             const itemUrl = window.location.origin + window.location.pathname + '?sn=' + encodeURIComponent(item.sn);
             
             qrcode = new QRCode(qrContainer, {
@@ -584,13 +605,66 @@
         function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); document.body.classList.add('modal-active'); }
         function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); document.body.classList.remove('modal-active'); }
         function renderPagination(tP) { const c = document.getElementById('paginationControls'); c.innerHTML = ''; if (tP <= 1) return; const crB = (l, t, a = false, d = false) => { const b = document.createElement('button'); b.innerText = l; b.disabled = d; b.onclick = () => { currentPage = t; renderTable(); }; b.className = `px-3 py-1 rounded border transition text-xs font-bold ${a ? 'bg-blue-600 text-white border-blue-600' : 'bg-white dark:bg-dark-paper text-slate-600 dark:text-dark-text border-slate-200 dark:border-dark-border hover:bg-slate-50'} ${d ? 'opacity-30 cursor-not-allowed' : ''}`; return b; }; c.appendChild(crB('«', currentPage - 1, false, currentPage === 1)); for (let i = 1; i <= tP; i++) if (i === 1 || i === tP || (i >= currentPage - 1 && i <= currentPage + 1)) c.appendChild(crB(i, i, i === currentPage)); c.appendChild(crB('»', currentPage + 1, false, currentPage === tP)); }
-        function handleSearch(v) { const sT = v.toLowerCase(), sE = document.getElementById('searchSuggestions'); if (sT.length < 1) { sE.classList.add('hidden'); renderTable(); return; } const f = stockItems.filter(i => (i.name || '').toLowerCase().includes(sT) || (i.sn || '').toLowerCase().includes(sT)); sE.innerHTML = ''; if (f.length > 0) { f.slice(0, 5).forEach(i => { const d = document.createElement('div'); d.className = 'px-4 py-3 hover:bg-slate-50 dark:hover:bg-dark-bg cursor-pointer border-b border-slate-100 dark:border-dark-border last:border-0 transition text-xs'; d.onclick = () => { document.getElementById('searchInput').value = i.name; sE.classList.add('hidden'); renderTable([i]); }; d.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800 dark:text-white">${i.name}</div><div class="text-[9px] text-slate-400 font-mono">${i.sn}</div></div><div class="text-[8px] bg-blue-50 dark:bg-blue-900/30 text-blue-500 px-2 py-0.5 rounded font-bold">${i.location}</div></div>`; sE.appendChild(d); }); sE.classList.remove('hidden'); } filterItems(); }
+        
+        function handleSearch(v) { 
+            const sT = v.toLowerCase(), sE = document.getElementById('searchSuggestions'); 
+            if (sT.length < 1) { 
+                sE.classList.add('hidden'); 
+                filterItems(); 
+                return; 
+            } 
+            const f = stockItems.filter(i => (i.name || '').toLowerCase().includes(sT) || (i.sn || '').toLowerCase().includes(sT)); 
+            sE.innerHTML = ''; 
+            if (f.length > 0) { 
+                f.slice(0, 5).forEach(i => { 
+                    const d = document.createElement('div'); 
+                    d.className = 'px-4 py-3 hover:bg-slate-50 dark:hover:bg-dark-bg cursor-pointer border-b border-slate-100 dark:border-dark-border last:border-0 transition text-xs'; 
+                    d.onclick = () => { 
+                        document.getElementById('searchInput').value = i.sn; 
+                        sE.classList.add('hidden'); 
+                        filterItems(); 
+                    }; 
+                    d.innerHTML = `<div class="flex justify-between items-center"><div><div class="font-semibold text-slate-800 dark:text-white">${i.name}</div><div class="text-[9px] text-slate-400 font-mono">${i.sn}</div></div><div class="text-[8px] bg-blue-50 dark:bg-blue-900/30 text-blue-500 px-2 py-0.5 rounded font-bold">${i.location}</div></div>`; 
+                    sE.appendChild(d); 
+                }); 
+                sE.classList.remove('hidden'); 
+            } 
+            filterItems(); 
+        }
+
         function filterItems() { currentPage = 1; renderTable(); }
         function handleSort(k) { if (sortKey === k) sortOrder = sortOrder === 'asc' ? 'desc' : 'asc'; else { sortKey = k; sortOrder = 'asc'; } updateSortIcons(); renderTable(); }
         function updateSortIcons() { ['name', 'sn', 'location', 'status'].forEach(k => { const ic = document.getElementById(`sortIcon-${k}`); if (ic) { if (k === sortKey) { ic.innerHTML = sortOrder === 'asc' ? '<i class="fa-solid fa-sort-up"></i>' : '<i class="fa-solid fa-sort-down"></i>'; ic.classList.remove('opacity-30'); ic.classList.add('text-blue-600', 'opacity-100'); } else { ic.innerHTML = 'Sort'; ic.classList.add('opacity-30'); ic.classList.remove('text-blue-600', 'opacity-100'); } } }); }
-        function updateStats() { const sTI = document.getElementById('statTotalItems'), sTL = document.getElementById('statTotalLocations'); if(sTI) sTI.innerText = stockItems.length; if(sTL) sTL.innerText = new Set(stockItems.map(i => (i.location || '').trim().toLowerCase())).size; }
+        
+        function updateStats() { 
+            const sTotal = document.getElementById('statTotalItems');
+            const sTersedia = document.getElementById('statTersedia');
+            const sDipakai = document.getElementById('statDipakai');
+            const sRusak = document.getElementById('statRusak');
+            const sHilang = document.getElementById('statHilang');
+
+            if(sTotal) sTotal.innerText = stockItems.length;
+            if(sTersedia) sTersedia.innerText = stockItems.filter(i => i.status === 'Tersedia').length;
+            if(sDipakai) sDipakai.innerText = stockItems.filter(i => i.status === 'Dipakai').length;
+            if(sRusak) sRusak.innerText = stockItems.filter(i => i.status === 'Rusak').length;
+            if(sHilang) sHilang.innerText = stockItems.filter(i => i.status === 'Hilang').length;
+        }
+
         function changeItemsPerPage(v) { itemsPerPage = parseInt(v); currentPage = 1; renderTable(); }
-        function getFilteredData() { const s = (document.getElementById('searchInput').value || '').toLowerCase(), l = document.getElementById('filterLocation').value; return stockItems.filter(i => ((i.name || '').toLowerCase().includes(s) || (i.sn || '').toLowerCase().includes(s)) && (l === "" || i.location === l)); }
+        
+        function getFilteredData() { 
+            const search = (document.getElementById('searchInput').value || '').toLowerCase();
+            const location = document.getElementById('filterLocation').value;
+            const status = document.getElementById('filterStatus').value;
+
+            return stockItems.filter(item => {
+                const matchesSearch = (item.name || '').toLowerCase().includes(search) || (item.sn || '').toLowerCase().includes(search);
+                const matchesLocation = location === "" || item.location === location;
+                const matchesStatus = status === "" || item.status === status;
+                return matchesSearch && matchesLocation && matchesStatus;
+            });
+        }
+
         function updateLocationFilter() { const fD = document.getElementById('filterLocation'); if(!fD) return; const locs = [...new Set(stockItems.map(i => i.location))].filter(l => l); fD.innerHTML = '<option value="">Semua Lokasi</option>'; locs.forEach(l => { const o = document.createElement('option'); o.value = l; o.text = l; fD.appendChild(o); }); }
         function exportToCSV() { if (stockItems.length === 0) return alert('Data kosong!'); const h = ['Nama', 'SN', 'Lokasi', 'Status', 'Tanggal']; const r = stockItems.map(i => [`"${i.name}"`, `"${i.sn}"`, `"${i.location}"`, `"${i.status}"`, `"${i.created_at}"`]); const csv = "data:text/csv;charset=utf-8," + h.join(",") + "\n" + r.map(r => r.join(",")).join("\n"); const link = document.createElement("a"); link.setAttribute("href", encodeURI(csv)); link.setAttribute("download", `Stok_Cloud.csv`); document.body.appendChild(link); link.click(); document.body.removeChild(link); }
         function toggleModal() { const modal = document.querySelector('#modal'); if (modal.classList.contains('opacity-0') && !editingId) { document.getElementById('addItemForm').reset(); document.querySelector('#modal p.text-xl').innerText = 'Tambah Barang Baru'; document.querySelector('#submitBtn').innerText = 'Simpan Barang'; } modal.classList.toggle('opacity-0'); modal.classList.toggle('pointer-events-none'); document.body.classList.toggle('modal-active'); }
