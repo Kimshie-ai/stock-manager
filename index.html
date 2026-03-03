@@ -82,12 +82,12 @@
         </div>
     </nav>
 
-    <!-- Module Headers -->
+    <!-- Headers -->
     <header id="header-assets" class="bg-paper-gradient py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div>
-                    <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white text-white">Dashboard Aset</h1>
+                    <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Dashboard Aset</h1>
                     <p class="text-blue-100/80 text-lg font-medium">Kelola inventaris kantor dengan cerdas. 📂✨</p>
                 </div>
                 <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-80">
@@ -98,7 +98,7 @@
     </header>
 
     <header id="header-tickets" class="hidden bg-slate-900 py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Ticketing System</h1>
             <p class="text-slate-400 text-lg font-medium">Lapor keluhan & perbaikan fasilitas kantor. 🛠️</p>
         </div>
@@ -242,7 +242,7 @@
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
                 <input type="email" id="loginEmail" required placeholder="Email" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
                 <input type="password" id="loginPassword" required placeholder="Password" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6">Login</button>
+                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6 transition-all active:scale-95">Login</button>
             </form>
         </div>
     </div>
@@ -322,19 +322,33 @@
 
         function renderTable() {
             const tableBody = document.getElementById('tableBody');
-            tableBody.innerHTML = stockItems.map(item => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all group"><td class="px-8 py-5 font-bold text-slate-900 dark:text-white">${item.name}</td><td class="px-8 py-5">${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="w-10 h-10 object-cover rounded-lg">` : '-'}</td><td class="px-8 py-5 font-mono text-[11px] text-slate-400">${item.sn}</td><td class="px-8 py-5 text-xs text-slate-600 dark:text-dark-muted font-semibold">${item.location}</td><td class="px-8 py-5"><span class="px-3 py-1 text-[9px] font-black rounded-full status-badge-${(item.status || 'Tersedia').toLowerCase()} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td><td class="px-8 py-5 text-right">${currentUser ? '<button class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>' : ''}</td></tr>`).join('');
-            document.getElementById('itemCount').innerText = `Menampilkan ${stockItems.length} aset`;
+            const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
+            const location = document.getElementById('filterLocation')?.value;
+            const status = document.getElementById('filterStatus')?.value;
+
+            const filtered = stockItems.filter(item => {
+                const matchesSearch = (item.name || '').toLowerCase().includes(search) || (item.sn || '').toLowerCase().includes(search);
+                const matchesLocation = !location || item.location === location;
+                const matchesStatus = !status || item.status === status;
+                return matchesSearch && matchesLocation && matchesStatus;
+            });
+
+            tableBody.innerHTML = filtered.map(item => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all group"><td class="px-8 py-5 font-bold text-slate-900 dark:text-white">${item.name}</td><td class="px-8 py-5">${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="w-10 h-10 object-cover rounded-lg cursor-pointer" onclick="openImageModal('${item.doc_photo_url}')">` : '-'}</td><td class="px-8 py-5 font-mono text-[11px] text-slate-400">${item.sn}</td><td class="px-8 py-5 text-xs text-slate-600 dark:text-dark-muted font-semibold">${item.location}</td><td class="px-8 py-5"><span class="px-3 py-1 text-[9px] font-black rounded-full status-badge-${(item.status || 'Tersedia').toLowerCase()} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td><td class="px-8 py-5 text-right">${currentUser ? `<button onclick="editItem('${item.id}')" class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button> <button onclick="deleteItem('${item.id}')" class="text-slate-400 hover:text-red-600 transition-colors ml-2"><i class="fa-solid fa-trash-can"></i></button>` : ''}</td></tr>`).join('');
+            document.getElementById('itemCount').innerText = `Menampilkan ${filtered.length} aset`;
             updateStats();
         }
 
         function updateStats() {
-            const counts = { Tersedia: stockItems.filter(i => i.status === 'Tersedia').length };
+            const counts = { Tersedia: stockItems.filter(i => i.status === 'Tersedia').length, Dipakai: stockItems.filter(i => i.status === 'Dipakai').length, Rusak: stockItems.filter(i => i.status === 'Rusak').length, Hilang: stockItems.filter(i => i.status === 'Hilang').length };
             document.getElementById('statTotalItems').innerText = stockItems.length;
             document.getElementById('statTersedia').innerText = counts.Tersedia;
+            document.getElementById('statDipakai').innerText = counts.Dipakai;
+            document.getElementById('statRusak').innerText = counts.Rusak;
+            document.getElementById('statHilang').innerText = counts.Hilang;
             const ctx = document.getElementById('stockChart')?.getContext('2d');
             if (ctx) {
                 if (chart) chart.destroy();
-                chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Tersedia', 'Lainnya'], datasets: [{ data: [counts.Tersedia, stockItems.length - counts.Tersedia], backgroundColor: ['#10b981', '#3b82f6'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', maintainAspectRatio: false } });
+                chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Tersedia', 'Dipakai', 'Rusak', 'Hilang'], datasets: [{ data: [counts.Tersedia, counts.Dipakai, counts.Rusak, counts.Hilang], backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', maintainAspectRatio: false } });
             }
         }
 
@@ -353,13 +367,18 @@
             document.getElementById('ticketStatWait').innerText = tickets.filter(t => t.status === 'MENUNGGU').length;
             document.getElementById('ticketStatProcess').innerText = tickets.filter(t => t.status === 'DIPROSES').length;
             document.getElementById('ticketStatDone').innerText = tickets.filter(t => t.status === 'SELESAI').length;
-            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `<div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6 spring-hover"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-wrench text-2xl opacity-20 text-slate-400"></i></div><div class="flex-1"><div class="flex justify-between items-start mb-2"><span class="px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest status-badge-${t.status.toLowerCase()}">${t.status}</span><span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: #${t.id.toString().slice(0,6)}</span></div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">${t.subject}</h3><p class="text-xs text-slate-500 font-semibold mb-4"><i class="fa-solid fa-location-dot text-blue-500 mr-1.5"></i>${t.location}</p></div></div>`).join('') : '<div class="text-center py-12 text-slate-400">Belum ada tiket laporan.</div>';
+            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `<div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6 spring-hover"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-wrench text-2xl opacity-20 text-slate-400"></i></div><div class="flex-1"><div class="flex justify-between items-start mb-2"><span class="px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest status-badge-${t.status.toLowerCase()}">${t.status}</span><span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: #${t.id.toString().slice(0,6)} ${t.urgency === 'DARURAT' ? '🚨' : ''}</span></div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">${t.subject}</h3><p class="text-xs text-slate-500 font-semibold mb-4"><i class="fa-solid fa-location-dot text-blue-500 mr-1.5"></i>${t.location}</p>${currentUser ? `<div class="flex gap-2"><button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-blue-50 text-blue-600 rounded-lg">Proses</button><button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg">Selesai</button></div>` : ''}</div></div>`).join('') : '<div class="text-center py-12 text-slate-400">Belum ada tiket laporan.</div>';
         }
 
         async function handleTicketSubmit(e) {
             e.preventDefault();
             const { error } = await _supabase.from('office_tickets').insert([{ subject: document.getElementById('ticketSubject').value, location: document.getElementById('ticketLocation').value, status: 'MENUNGGU', urgency: ticketUrgensi }]);
             if (error) showToast(error.message, "error"); else { showToast("Laporan terkirim!", "success"); document.getElementById('addTicketForm').reset(); fetchTickets(); }
+        }
+
+        async function updateTicketStatus(id, status) {
+            const { error } = await _supabase.from('office_tickets').update({ status }).eq('id', id);
+            if (!error) { showToast(`Tiket ${status}`, "success"); fetchTickets(); }
         }
 
         function setUrgensi(val) {
@@ -372,11 +391,43 @@
         async function handleFormSubmit(e) {
             e.preventDefault(); if (!currentUser) return;
             const payload = { name: document.getElementById('itemName').value, sn: document.getElementById('itemSN').value, location: document.getElementById('itemLocation').value, status: document.getElementById('itemStatus').value };
-            const { error } = await _supabase.from('stock_items').insert([payload]);
-            if (error) showToast(error.message, 'error'); else { showToast("Aset disimpan!", "success"); fetchFromSupabase(); toggleModal(); }
+            if (editingId) {
+                const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId);
+                if (error) showToast(error.message, 'error'); else { showToast("Aset diupdate!", "success"); editingId = null; fetchFromSupabase(); toggleModal(); }
+            } else {
+                const { error } = await _supabase.from('stock_items').insert([payload]);
+                if (error) showToast(error.message, 'error'); else { showToast("Aset disimpan!", "success"); fetchFromSupabase(); toggleModal(); }
+            }
         }
 
-        function handleSearch() {} function filterItems() {} function toggleScanner() {} function setViewMode() {} function changeItemsPerPage() {}
+        function editItem(id) {
+            const item = stockItems.find(i => i.id === id);
+            if (!item) return;
+            editingId = id;
+            document.getElementById('itemName').value = item.name;
+            document.getElementById('itemSN').value = item.sn;
+            document.getElementById('itemLocation').value = item.location;
+            document.getElementById('itemStatus').value = item.status || 'Tersedia';
+            document.getElementById('modalTitle').innerText = 'Edit Aset';
+            toggleModal();
+        }
+
+        async function deleteItem(id) {
+            if (confirm('Hapus aset ini?')) {
+                const { error } = await _supabase.from('stock_items').delete().eq('id', id);
+                if (!error) { showToast("Terhapus", "info"); fetchFromSupabase(); }
+            }
+        }
+
+        function handleSearch(v) { renderTable(); }
+        function filterItems() { renderTable(); }
+        function toggleScanner() { showToast("Scanner siap diaktifkan!", "info"); }
+        function openImageModal(url) { 
+            const m = document.getElementById('imageModal'), i = document.getElementById('modalImage');
+            if (m && i) { i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); }
+        }
+        function closeImageModal() { document.getElementById('imageModal').classList.add('opacity-0', 'pointer-events-none'); }
+        function setViewMode() {} function changeItemsPerPage() {}
     </script>
 </body>
 </html>
