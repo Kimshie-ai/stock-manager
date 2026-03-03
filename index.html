@@ -44,7 +44,8 @@
         #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 200; display: flex; flex-direction: column; gap: 0.75rem; }
         .toast { animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .tab-active { color: #3b82f6; border-bottom: 3px solid #3b82f6; }
+        .tab-active { color: #3b82f6 !important; border-bottom: 3px solid #3b82f6; }
+        .dark .tab-active { color: #60a5fa !important; border-bottom-color: #60a5fa; }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text min-h-screen">
@@ -62,8 +63,8 @@
                     <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Kimshie<span class="text-blue-600">Office</span></span>
                 </div>
                 <div class="hidden md:flex space-x-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <button onclick="switchModule('assets')" id="nav-assets" class="tab-active py-5">Aset Barang</button>
-                    <button onclick="switchModule('tickets')" id="nav-tickets" class="py-5">Lapor Keluhan</button>
+                    <button onclick="switchModule('assets')" id="nav-assets" class="tab-active py-5 transition-colors">Aset Barang</button>
+                    <button onclick="switchModule('tickets')" id="nav-tickets" class="py-5 transition-colors">Lapor Keluhan</button>
                 </div>
                 <div class="flex items-center space-x-4">
                     <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-dark-muted border border-slate-200 dark:border-slate-700 hover:text-blue-600 transition-all">
@@ -81,9 +82,9 @@
         </div>
     </nav>
 
-    <!-- Header Module Assets -->
+    <!-- Module: Assets Header -->
     <header id="header-assets" class="bg-paper-gradient py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
                 <div>
                     <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Dashboard Aset</h1>
@@ -96,20 +97,18 @@
         </div>
     </header>
 
-    <!-- Header Module Tickets -->
+    <!-- Module: Tickets Header -->
     <header id="header-tickets" class="hidden bg-slate-900 py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
             <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Ticketing System</h1>
-            <p class="text-slate-400 text-lg font-medium text-white">Lapor keluhan & perbaikan fasilitas kantor. 🛠️</p>
+            <p class="text-slate-400 text-lg font-medium">Lapor keluhan & perbaikan fasilitas kantor. 🛠️</p>
         </div>
     </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 pb-24 relative z-20">
-        <!-- Module: Assets -->
-        <section id="module-assets">
-            <!-- Stats & Table existing from previous version -->
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                <!-- Stats markup same as before... -->
+        <!-- Module Section: Assets -->
+        <section id="module-assets" class="space-y-8">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center spring-hover">
                     <p class="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest mb-2">Total</p>
                     <p id="statTotalItems" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
@@ -118,14 +117,63 @@
                     <p class="text-[10px] text-emerald-600 uppercase font-extrabold tracking-widest mb-2">Tersedia</p>
                     <p id="statTersedia" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
                 </div>
-                <!-- ... other asset stats ... -->
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-blue-500 spring-hover">
+                    <p class="text-[10px] text-blue-600 uppercase font-extrabold tracking-widest mb-2">Dipakai</p>
+                    <p id="statDipakai" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-red-500 spring-hover">
+                    <p class="text-[10px] text-red-600 uppercase font-extrabold tracking-widest mb-2">Rusak</p>
+                    <p id="statRusak" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-amber-500 spring-hover">
+                    <p class="text-[10px] text-amber-600 uppercase font-extrabold tracking-widest mb-2">Hilang</p>
+                    <p id="statHilang" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
+                </div>
             </div>
-            <!-- Toolbar & Content Container existing ... -->
+
+            <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 p-6">
+                <div class="flex flex-col lg:flex-row gap-6">
+                    <div class="flex-1 relative">
+                        <i class="fa-solid fa-search absolute left-4 top-4 text-slate-400"></i>
+                        <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari aset..." class="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 dark:text-white">
+                    </div>
+                    <div class="flex flex-wrap gap-3">
+                        <select id="filterLocation" onchange="filterItems()" class="px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl dark:text-white outline-none">
+                            <option value="">Semua Lokasi</option>
+                        </select>
+                        <select id="filterStatus" onchange="filterItems()" class="px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl dark:text-white outline-none">
+                            <option value="">Semua Status</option>
+                            <option value="Tersedia">Tersedia</option>
+                            <option value="Dipakai">Dipakai</option>
+                            <option value="Rusak">Rusak</option>
+                            <option value="Hilang">Hilang</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+                            <tr>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Aset</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">SN</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lokasi</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-50 dark:divide-slate-700/50"></tbody>
+                    </table>
+                </div>
+                <div id="itemCount" class="px-8 py-4 text-xs font-bold text-slate-400 uppercase border-t border-slate-50 dark:border-slate-700/50">Menampilkan 0 aset</div>
+            </div>
         </section>
 
-        <!-- Module: Tickets -->
-        <section id="module-tickets" class="hidden">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Module Section: Tickets -->
+        <section id="module-tickets" class="hidden space-y-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 flex items-center gap-6">
                     <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-clock"></i></div>
                     <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Menunggu</p><p id="ticketStatWait" class="text-3xl font-black">0</p></div>
@@ -141,117 +189,178 @@
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-                <!-- Form Ticketing -->
                 <div class="lg:col-span-1">
                     <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 sticky top-32">
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white mb-6">Buat Laporan Baru</h2>
+                        <h2 class="text-xl font-black text-slate-900 dark:text-white mb-6">Buat Laporan</h2>
                         <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-5">
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Subjek Masalah</label>
-                                <input type="text" id="ticketSubject" required placeholder="Contoh: AC Bocor" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 font-semibold dark:text-white">
+                            <input type="text" id="ticketSubject" required placeholder="Subjek Masalah" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 font-semibold dark:text-white">
+                            <select id="ticketLocation" required class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none font-semibold dark:text-white appearance-none">
+                                <option value="">Pilih Lokasi...</option>
+                                <option>Ruang Kerja Utama</option><option>Pantry / Dapur</option><option>Kamar Mandi</option><option>Area Parkir</option>
+                            </select>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-600">NORMAL</button>
+                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-200 text-slate-400">DARURAT</button>
                             </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Lokasi Fasilitas</label>
-                                <select id="ticketLocation" required class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none appearance-none font-semibold dark:text-white">
-                                    <option value="">Pilih Lokasi...</option>
-                                    <option>Ruang Kerja Utama</option>
-                                    <option>Pantry / Dapur</option>
-                                    <option>Kamar Mandi</option>
-                                    <option>Area Parkir</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Tingkat Urgensi</label>
-                                <div class="flex gap-2">
-                                    <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-400">NORMAL</button>
-                                    <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-400">DARURAT</button>
-                                </div>
-                            </div>
-                            <button type="submit" id="ticketSubmitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all uppercase tracking-widest text-xs pt-6">Kirim Laporan</button>
+                            <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all uppercase tracking-widest text-xs pt-6">Kirim Laporan</button>
                         </form>
                     </div>
                 </div>
-                <!-- List Ticketing -->
-                <div class="lg:col-span-2 space-y-6" id="ticketList">
-                    <!-- Tickets will be rendered here -->
-                </div>
+                <div class="lg:col-span-2 space-y-6" id="ticketList"></div>
             </div>
         </section>
     </main>
 
-    <!-- Existing Auth, Modals, Footer existing ... -->
+    <!-- Floating Action Button -->
+    <div id="assets-fab" class="fixed bottom-8 right-8 flex flex-col gap-3 z-[90]">
+        <button onclick="toggleScanner()" class="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center spring-hover transition-all"><i class="fa-solid fa-camera text-xl"></i></button>
+        <button id="fabAddBtn" onclick="toggleModal()" class="hidden w-14 h-14 bg-[#0056B3] hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center spring-hover transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[100] transition-all duration-300">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleModal()"></div>
+        <div class="glass w-11/12 md:max-w-xl mx-auto rounded-[2.5rem] shadow-2xl z-[110] p-8 transform transition-all">
+            <div class="flex justify-between items-center mb-8">
+                <p id="modalTitle" class="text-2xl font-black text-slate-800 dark:text-white">Tambah Aset</p>
+                <button onclick="toggleModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="addItemForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                <input type="text" id="itemName" required placeholder="Nama Barang" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
+                <input type="text" id="itemSN" required placeholder="Serial Number" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-mono">
+                <input type="text" id="itemLocation" required placeholder="Lokasi" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
+                <select id="itemStatus" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold"><option value="Tersedia">Tersedia</option><option value="Dipakai">Dipakai</option><option value="Rusak">Rusak</option><option value="Hilang">Hilang</option></select>
+                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6">Simpan Aset</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="authModal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[110] transition-all">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleAuthModal()"></div>
+        <div class="glass w-11/12 md:max-w-sm mx-auto rounded-[2.5rem] shadow-2xl z-[120] p-10">
+            <h2 class="text-2xl font-black text-center mb-8">Akses Admin</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                <input type="email" id="loginEmail" required placeholder="Email" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
+                <input type="password" id="loginPassword" required placeholder="Password" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
+                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6">Login</button>
+            </form>
+        </div>
+    </div>
 
     <script>
-        // ... (Existing Supabase & Auth logic) ...
-        
-        let activeModule = 'assets';
-        let ticketUrgensi = 'NORMAL';
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let stockItems = [], sortKey = 'created_at', sortOrder = 'desc', currentUser = null, editingId = null, chart = null, itemsPerPage = 10, currentPage = 1;
+        let activeModule = 'assets', ticketUrgensi = 'NORMAL';
+
+        window.onload = () => {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark'); updateDarkIcon(true);
+            }
+            checkAuth(); initSupabase();
+        };
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast glass flex items-center gap-4 px-6 py-4 rounded-2xl shadow-2xl text-white bg-${type === 'success' ? 'emerald' : type === 'error' ? 'red' : 'blue'}-500`;
+            toast.innerHTML = `<div class="flex-1 text-xs font-bold">${message}</div>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 4000);
+        }
+
+        function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateDarkIcon(isDark); }
+        function updateDarkIcon(isDark) { document.getElementById('darkIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; }
 
         function switchModule(mod) {
             activeModule = mod;
             document.getElementById('module-assets').classList.toggle('hidden', mod !== 'assets');
             document.getElementById('header-assets').classList.toggle('hidden', mod !== 'assets');
+            document.getElementById('assets-fab').classList.toggle('hidden', mod !== 'assets');
             document.getElementById('module-tickets').classList.toggle('hidden', mod !== 'tickets');
             document.getElementById('header-tickets').classList.toggle('hidden', mod !== 'tickets');
-            
             document.getElementById('nav-assets').classList.toggle('tab-active', mod === 'assets');
             document.getElementById('nav-tickets').classList.toggle('tab-active', mod === 'tickets');
-            
             if (mod === 'tickets') fetchTickets();
         }
 
-        function setUrgensi(val) {
-            ticketUrgensi = val;
-            const btnNormal = document.getElementById('btnUrgensiNormal');
-            const btnDarurat = document.getElementById('btnUrgensiDarurat');
-            
-            if (val === 'DARURAT') {
-                btnDarurat.className = "flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600";
-                btnNormal.className = "flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-400";
-            } else {
-                btnNormal.className = "flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-600";
-                btnDarurat.className = "flex-1 py-2 text-[10px] font-black rounded-xl border-2 border-slate-200 bg-slate-50 text-slate-400";
+        async function initSupabase() { try { await fetchFromSupabase(); } catch (err) { console.error(err); } }
+        async function fetchFromSupabase() { 
+            const { data, error } = await _supabase.from('stock_items').select('*').order(sortKey, { ascending: sortOrder === 'asc' }); 
+            if (error) throw error; stockItems = data || []; renderTable(); updateLocationFilter(); 
+        }
+
+        async function checkAuth() {
+            const { data: { session } } = await _supabase.auth.getSession();
+            updateUIForAuth(session?.user || null);
+            _supabase.auth.onAuthStateChange((_event, session) => updateUIForAuth(session?.user || null));
+        }
+
+        function updateUIForAuth(user) {
+            currentUser = user;
+            const loginBtn = document.getElementById('loginBtn'), userProfile = document.getElementById('userProfile'), fabAdd = document.getElementById('fabAddBtn'), userInitial = document.getElementById('userInitial');
+            if (user) { 
+                loginBtn.classList.add('hidden'); userProfile.classList.remove('hidden'); userInitial.innerText = user.email.charAt(0).toUpperCase(); fabAdd.classList.remove('hidden');
+            } else { 
+                loginBtn.classList.remove('hidden'); userProfile.classList.add('hidden'); fabAdd.classList.add('hidden');
+            }
+            renderTable();
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault(); const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) showToast(error.message, "error"); else { showToast("Login Berhasil", "success"); toggleAuthModal(); }
+        }
+
+        async function handleLogout() { if (confirm('Logout?')) { await _supabase.auth.signOut(); showToast("Logout", "info"); } }
+        function toggleAuthModal() { document.getElementById('authModal').classList.toggle('opacity-0'); document.getElementById('authModal').classList.toggle('pointer-events-none'); }
+        function toggleModal() { document.getElementById('modal').classList.toggle('opacity-0'); document.getElementById('modal').classList.toggle('pointer-events-none'); }
+
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            tableBody.innerHTML = stockItems.map(item => `<tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all"><td class="px-8 py-5 font-bold">${item.name}</td><td class="px-8 py-5 font-mono text-[11px]">${item.sn}</td><td class="px-8 py-5 text-xs">${item.location}</td><td class="px-8 py-5"><span class="px-3 py-1 text-[9px] font-black rounded-full status-badge-${(item.status || 'Tersedia').toLowerCase()}">${item.status || 'Tersedia'}</span></td><td class="px-8 py-5 text-right">${currentUser ? '<i class="fa-solid fa-pen-to-square text-slate-400"></i>' : ''}</td></tr>`).join('');
+            document.getElementById('itemCount').innerText = `Menampilkan ${stockItems.length} aset`;
+            updateStats();
+        }
+
+        function updateStats() {
+            const counts = { Tersedia: stockItems.filter(i => i.status === 'Tersedia').length };
+            document.getElementById('statTotalItems').innerText = stockItems.length;
+            document.getElementById('statTersedia').innerText = counts.Tersedia;
+            const ctx = document.getElementById('stockChart')?.getContext('2d');
+            if (ctx) {
+                if (chart) chart.destroy();
+                chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Tersedia', 'Lainnya'], datasets: [{ data: [counts.Tersedia, stockItems.length - counts.Tersedia], backgroundColor: ['#10b981', '#3b82f6'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', maintainAspectRatio: false } });
             }
         }
 
-        // Integration Note: 
-        // Need to create 'office_tickets' table in Supabase.
+        function updateLocationFilter() {
+            const fD = document.getElementById('filterLocation'); if(!fD) return;
+            const locs = [...new Set(stockItems.map(i => i.location))].filter(l => l);
+            fD.innerHTML = '<option value="">Semua Lokasi</option>' + locs.map(l => `<option value="${l}">${l}</option>`).join('');
+        }
+
         async function fetchTickets() {
-            const list = document.getElementById('ticketList');
-            list.innerHTML = '<div class="text-center py-12 text-slate-400 italic">Memuat daftar keluhan...</div>';
-            
-            // Logic to fetch from Supabase 'office_tickets' table
-            // For now, mockup rendering
-            const mockup = [
-                { id: 'OFF-092', subject: 'AC Bocor di Ruang Meeting', location: 'Ruang Meeting 1', status: 'MENUNGGU', created_at: new Date() }
-            ];
-            renderTickets(mockup);
+            const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false });
+            if (!error) renderTickets(data || []);
         }
 
         function renderTickets(tickets) {
-            const list = document.getElementById('ticketList');
-            list.innerHTML = tickets.map(t => `
-                <div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6 spring-hover">
-                    <div class="w-24 h-24 bg-slate-100 dark:bg-slate-900 rounded-2xl overflow-hidden flex-shrink-0 flex items-center justify-center">
-                        <i class="fa-solid fa-wrench text-3xl opacity-20"></i>
-                    </div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start mb-2">
-                            <span class="px-3 py-1 bg-amber-100 text-amber-600 text-[9px] font-black rounded-full uppercase tracking-widest">${t.status}</span>
-                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: #${t.id}</span>
-                        </div>
-                        <h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">${t.subject}</h3>
-                        <p class="text-xs text-slate-500 dark:text-dark-muted font-semibold mb-4"><i class="fa-solid fa-location-dot text-blue-500 mr-1.5"></i>${t.location}</p>
-                    </div>
-                </div>
-            `).join('');
+            document.getElementById('ticketStatWait').innerText = tickets.filter(t => t.status === 'MENUNGGU').length;
+            document.getElementById('ticketList').innerHTML = tickets.map(t => `<div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center"><i class="fa-solid fa-wrench opacity-20"></i></div><div class="flex-1"><div class="flex justify-between items-start mb-2"><span class="px-3 py-1 text-[9px] font-black rounded-full status-badge-${t.status.toLowerCase()}">${t.status}</span></div><h3 class="text-lg font-black dark:text-white">${t.subject}</h3><p class="text-xs text-slate-500">${t.location}</p></div></div>`).join('');
         }
 
-        // Handle ticket submission
         async function handleTicketSubmit(e) {
             e.preventDefault();
-            showToast("Fitur pengiriman tiket sedang dihubungkan ke Database...", "info");
+            const { error } = await _supabase.from('office_tickets').insert([{ subject: document.getElementById('ticketSubject').value, location: document.getElementById('ticketLocation').value, status: 'MENUNGGU' }]);
+            if (!error) { showToast("Tiket Terkirim", "success"); fetchTickets(); }
         }
+
+        function setUrgensi(v) { ticketUrgensi = v; }
+        function handleSearch() {} function filterItems() {} function toggleScanner() {}
     </script>
 </body>
 </html>
