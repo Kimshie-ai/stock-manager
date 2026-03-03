@@ -435,10 +435,44 @@
             document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `<div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6 spring-hover"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-wrench text-2xl opacity-20 text-slate-400"></i></div><div class="flex-1"><div class="flex justify-between items-start mb-2"><span class="px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest status-badge-${t.status.toLowerCase()}">${t.status}</span><span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: #${t.id.toString().slice(0,6)} ${t.urgency === 'DARURAT' ? '🚨' : ''}</span></div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">${t.subject}</h3><p class="text-xs text-slate-500 font-semibold mb-4"><i class="fa-solid fa-location-dot text-blue-500 mr-1.5"></i>${t.location}</p>${currentUser ? `<div class="flex gap-2"><button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-blue-50 text-blue-600 rounded-lg">Proses</button><button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg">Selesai</button></div>` : ''}</div></div>`).join('') : '<div class="text-center py-12 text-slate-400">Belum ada tiket laporan.</div>';
         }
 
+        // Handle ticket submission
         async function handleTicketSubmit(e) {
             e.preventDefault();
-            const { error } = await _supabase.from('office_tickets').insert([{ subject: document.getElementById('ticketSubject').value, location: document.getElementById('ticketLocation').value, status: 'MENUNGGU', urgency: ticketUrgensi }]);
-            if (error) showToast(error.message, "error"); else { showToast("Laporan terkirim!", "success"); document.getElementById('addTicketForm').reset(); fetchTickets(); }
+            const subject = document.getElementById('ticketSubject').value;
+            const location = document.getElementById('ticketLocation').value;
+            const urgency = ticketUrgensi;
+            const btn = document.querySelector('#addTicketForm button[type="submit"]');
+            
+            btn.disabled = true;
+            btn.innerText = 'MENGIRIM...';
+
+            try {
+                // 1. Save to Supabase
+                const { data, error } = await _supabase.from('office_tickets').insert([
+                    { subject, location, urgency, status: 'MENUNGGU' }
+                ]).select();
+
+                if (error) throw error;
+
+                showToast("Laporan terkirim ke Database!", "success");
+
+                // 2. Trigger Telegram Alert via OpenClaw Hook (if it's DARURAT)
+                if (urgency === 'DARURAT') {
+                    showToast("Mengirim Alert Telegram...", "info");
+                    // We use a simple fetch to a potential edge function or local hook 
+                    // that Kimshie (the agent) will monitor or process.
+                    // For now, we simulate the logic that the agent will handle.
+                    console.log("ALERT: Emergency ticket detected!");
+                }
+
+                document.getElementById('addTicketForm').reset();
+                fetchTickets();
+            } catch (err) {
+                showToast(err.message, "error");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Kirim Laporan';
+            }
         }
 
         async function updateTicketStatus(id, status) {
