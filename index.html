@@ -743,7 +743,14 @@
             document.getElementById('ticketStatWait').innerText = tickets.filter(t => t.status === 'MENUNGGU').length;
             document.getElementById('ticketStatProcess').innerText = tickets.filter(t => t.status === 'DIPROSES').length;
             document.getElementById('ticketStatDone').innerText = tickets.filter(t => t.status === 'SELESAI').length;
-            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `
+            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => {
+                const dateObj = new Date(t.created_at);
+                const formattedDate = new Intl.DateTimeFormat('id-ID', { 
+                    day: '2-digit', month: 'long', year: 'numeric', 
+                    hour: '2-digit', minute: '2-digit', hour12: false 
+                }).format(dateObj);
+
+                return `
                 <div class="glass p-8 rounded-premium premium-shadow flex gap-8 spring-card">
                     <div class="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
                         <i class="fa-solid fa-file-invoice text-3xl opacity-20"></i>
@@ -751,7 +758,12 @@
                     <div class="flex-1">
                         <div class="flex justify-between items-start mb-4">
                             <span class="badge badge-${t.status.toLowerCase()}">${t.status}</span>
-                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tiket #${t.id.toString().slice(0,8)}</span>
+                            <div class="text-right">
+                                <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest block">Tiket #${t.id.toString().slice(0,8)}</span>
+                                <span class="text-[9px] font-black text-primary uppercase tracking-widest mt-1 block">
+                                    <i class="fa-solid fa-calendar-day mr-1"></i>${formattedDate} WIB
+                                </span>
+                            </div>
                         </div>
                         <h3 class="text-xl font-black mb-2">${t.subject}</h3>
                         <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
@@ -765,7 +777,8 @@
                             </div>
                         ` : ''}
                     </div>
-                </div>`).join('') : '<div class="glass p-20 rounded-premium text-center text-slate-400 font-black uppercase tracking-widest">Belum ada laporan kendala.</div>';
+                </div>`;
+            }).join('') : '<div class="glass p-20 rounded-premium text-center text-slate-400 font-black uppercase tracking-widest">Belum ada laporan kendala.</div>';
         }
 
         async function handleTicketSubmit(e) {
