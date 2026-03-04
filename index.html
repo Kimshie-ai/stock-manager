@@ -339,7 +339,10 @@
                     <div class="glass p-6 rounded-premium premium-shadow mb-8 border-l-4 border-l-primary flex flex-col md:flex-row gap-4 items-center animate-premium">
                         <div class="flex-1 relative w-full">
                             <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Masukkan ID Tiket (Contoh: #f17b4a)..." class="w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold">
+                            <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Masukkan ID atau Kata Kunci (Subjek/Lokasi)..." class="w-full pl-14 pr-14 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none transition-all font-bold">
+                            <button onclick="clearTicketSearch()" id="clearSearchBtn" class="hidden absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-red-500 transition-colors">
+                                <i class="fa-solid fa-circle-xmark text-lg"></i>
+                            </button>
                         </div>
                         <div id="searchBadge" class="hidden px-4 py-2 bg-primary/10 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest whitespace-nowrap">
                             Hasil Pencarian
@@ -960,18 +963,32 @@
         }
 
         function handleTicketSearch() {
-            const input = document.getElementById('searchTicketInput').value.toLowerCase().replace('#', '');
+            const input = document.getElementById('searchTicketInput').value.toLowerCase().trim();
             const badge = document.getElementById('searchBadge');
+            const clearBtn = document.getElementById('clearSearchBtn');
             
             if (!input) {
                 badge.classList.add('hidden');
+                clearBtn.classList.add('hidden');
                 renderTickets(allTickets);
                 return;
             }
 
             badge.classList.remove('hidden');
-            const filtered = allTickets.filter(t => t.id.toString().toLowerCase().includes(input));
+            clearBtn.classList.remove('hidden');
+            
+            const searchId = input.replace('#', '');
+            const filtered = allTickets.filter(t => 
+                t.id.toString().toLowerCase().includes(searchId) || 
+                t.subject.toLowerCase().includes(input) || 
+                t.location.toLowerCase().includes(input)
+            );
             renderTickets(filtered);
+        }
+
+        function clearTicketSearch() {
+            document.getElementById('searchTicketInput').value = '';
+            handleTicketSearch();
         }
 
         let allTickets = []; 
