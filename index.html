@@ -703,9 +703,27 @@
             document.getElementById('module-rooms').classList.toggle('hidden', !isRooms);
             document.getElementById('header-rooms').classList.toggle('hidden', !isRooms);
             
-            document.getElementById('nav-assets').className = isAssets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
-            document.getElementById('nav-tickets').className = isTickets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
-            document.getElementById('nav-rooms').className = isRooms ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
+            // Tab Visual States
+            const tabs = {
+                'assets': document.getElementById('nav-assets'),
+                'tickets': document.getElementById('nav-tickets'),
+                'rooms': document.getElementById('nav-rooms')
+            };
+
+            const activeClass = ["bg-white", "dark:bg-blue-600", "shadow-sm", "text-blue-600", "dark:text-white"];
+            const idleClass = ["text-slate-400", "hover:text-slate-600", "dark:hover:text-white"];
+
+            Object.keys(tabs).forEach(key => {
+                if (tabs[key]) {
+                    if (key === mod) {
+                        tabs[key].classList.add(...activeClass);
+                        tabs[key].classList.remove(...idleClass);
+                    } else {
+                        tabs[key].classList.remove(...activeClass);
+                        tabs[key].classList.add(...idleClass);
+                    }
+                }
+            });
             
             if (isTickets) fetchTickets();
         }
