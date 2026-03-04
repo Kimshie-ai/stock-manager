@@ -21,6 +21,7 @@
                 extend: {
                     colors: {
                         primary: '#0056B3',
+                        kimshie: '#FFB7C5',
                         dark: {
                             bg: '#050505',
                             card: '#121212',
@@ -116,6 +117,9 @@
         .badge-dipakai { @apply bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:border-blue-500/30; }
         .badge-rusak { @apply bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:border-red-500/30; }
         .badge-hilang { @apply bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:border-amber-500/30; }
+
+        /* Kimshie Bubble Animation */
+        .bubble-show { transform: scale(1) opacity(1) !important; display: block !important; opacity: 1 !important; }
     </style>
 </head>
 <body class="bg-mesh min-h-screen text-slate-800 dark:text-white">
@@ -129,7 +133,7 @@
                 <div class="flex items-center space-x-4">
                     <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-10 w-auto spring-card">
                     <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
-                    <span class="text-xl font-extrabold tracking-tight">Stock<span class="text-primary">Manager</span></span>
+                    <span class="text-xl font-extrabold tracking-tight">Stock<span class="text-primary">Manager</span> <span class="text-[8px] bg-primary text-white px-2 py-0.5 rounded-full align-middle ml-1">V3.0</span></span>
                 </div>
                 
                 <div class="hidden md:flex bg-slate-100 dark:bg-white/5 p-1.5 rounded-2xl border border-slate-200 dark:border-white/10">
@@ -322,6 +326,18 @@
         </button>
     </div>
 
+    <!-- Kimshie Assistant -->
+    <div id="kimshie-assistant" class="fixed bottom-10 left-10 z-[100] flex flex-col items-start gap-4 animate-premium" style="animation-delay: 1s">
+        <div id="kimshie-bubble" class="hidden glass p-6 rounded-2xl premium-shadow border-l-4 border-l-kimshie max-w-xs mb-2 transform scale-95 opacity-0 transition-all duration-500">
+            <p class="text-[10px] font-black text-pink-500 dark:text-kimshie uppercase tracking-widest mb-1">Kimshie Assistant 🌸</p>
+            <p id="kimshie-text" class="text-xs font-bold leading-relaxed text-slate-600 dark:text-slate-300">Halo Tuan Muda! Ada yang bisa Kimshie bantu pantau hari ini? 🫡✨</p>
+        </div>
+        <button onclick="toggleKimshie()" class="w-16 h-16 rounded-2xl glass premium-shadow flex items-center justify-center hover:scale-110 transition-transform relative group">
+            <img src="https://raw.githubusercontent.com/Kimshie-ai/Kimshie/main/avatars/kimshie.png" alt="Kimshie" class="w-12 h-12 object-contain group-hover:rotate-12 transition-transform" onerror="this.src='assets/branding/logo-k-refined.png'">
+            <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 border-2 border-white dark:border-black rounded-full"></div>
+        </button>
+    </div>
+
     <!-- MODAL: Add/Edit Asset -->
     <div id="modal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[100] transition-all duration-500">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleModal()"></div>
@@ -443,12 +459,18 @@
 
         let stockItems = [], currentUser = null, editingId = null, chart = null;
         let activeModule = 'assets', ticketUrgensi = 'NORMAL';
+        const scanBeep = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
 
         window.onload = () => {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark'); updateDarkIcon(true);
             }
             checkAuth(); fetchFromSupabase();
+            
+            // Initial Kimshie Greeting
+            setTimeout(() => {
+                showKimshieMessage("Halo Tuan Muda! Sistem Stock V3.0 sudah online dan siap membantu. 🌸🫡✨");
+            }, 3000);
         };
 
         function showToast(message, type = 'info') {
@@ -459,6 +481,31 @@
             toast.innerHTML = `<div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-info'}"></i></div><div class="flex-1 text-[11px] font-black uppercase tracking-widest pt-1">${message}</div>`;
             container.appendChild(toast);
             setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 500); }, 4000);
+        }
+
+        function showKimshieMessage(text) {
+            const bubble = document.getElementById('kimshie-bubble');
+            const textEl = document.getElementById('kimshie-text');
+            textEl.innerText = text;
+            bubble.classList.add('bubble-show');
+            setTimeout(() => { bubble.classList.remove('bubble-show'); }, 6000);
+        }
+
+        function toggleKimshie() {
+            const bubble = document.getElementById('kimshie-bubble');
+            const isActive = bubble.classList.contains('bubble-show');
+            if (isActive) {
+                bubble.classList.remove('bubble-show');
+            } else {
+                const messages = [
+                    "Status sistem: Semua jalur hijau, Tuan Muda! 🫡✨",
+                    "Database tersinkronisasi dengan baik. Aman! 🌸",
+                    "Ingat istirahat ya Tuan Muda, Kimshie yang jaga stoknya. ☕🌸",
+                    "Ada laporan darurat? Segera lapor via tab Keluhan! 🚨",
+                    "Kimshie V3.0 makin mantap kan Tuan Muda? 🌸✨"
+                ];
+                showKimshieMessage(messages[Math.floor(Math.random() * messages.length)]);
+            }
         }
 
         function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateDarkIcon(isDark); }
@@ -638,6 +685,7 @@
             const config = { fps: 20, qrbox: { width: 280, height: 280 } };
             try {
                 await html5QrCode.start({ facingMode: "environment" }, config, (text) => {
+                    scanBeep.play();
                     document.getElementById('itemSN').value = text;
                     showToast("Scan Berhasil!", "success");
                     toggleScanner();
@@ -677,7 +725,7 @@
                         <h3 class="text-xl font-black mb-2">${t.subject}</h3>
                         <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                             <span><i class="fa-solid fa-location-dot mr-1.5 text-primary"></i>${t.location}</span>
-                            ${t.urgency === 'DARURAT' ? '<span class="text-red-500"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>PRIORITAS TINGGI</span>' : ''}
+                            ${t.urgency === 'DARURAT' ? '<span class="text-red-500 font-black"><i class="fa-solid fa-circle-exclamation mr-1.5 animate-pulse"></i>PRIORITAS DARURAT</span>' : ''}
                         </div>
                         ${currentUser ? `
                             <div class="flex gap-2 mt-6">
@@ -698,6 +746,7 @@
                 showToast("Laporan Terkirim!", "success");
                 if (urgency === 'DARURAT') {
                     showToast("🚨 ALERT DARURAT: Mengirim sinyal ke Kimshie...", "error");
+                    showKimshieMessage("Tuan Muda, Kimshie sudah menerima sinyal darurat! Segera diproses ya. 🚨🫡✨");
                     setTimeout(() => { showToast("Sinyal diterima Kimshie! Alert sedang diproses.", "success"); }, 1500);
                 }
                 e.target.reset(); fetchTickets();
@@ -746,6 +795,7 @@
             const item = stockItems.find(i => i.id === id); if (!item) return;
             editingId = id;
             document.getElementById('itemName').value = item.name;
+
             document.getElementById('itemSN').value = item.sn;
             document.getElementById('itemLocation').value = item.location;
             document.getElementById('itemStatus').value = item.status || 'Tersedia';
@@ -757,6 +807,11 @@
             if (item.sn_photo_url) { sP.src = item.sn_photo_url; sC.classList.remove('hidden'); hasImg = true; } else sC.classList.add('hidden');
             prev.classList.toggle('hidden', !hasImg);
             toggleModal();
+        }
+
+        async function updateTicketStatus(id, status) {
+            const { error } = await _supabase.from('office_tickets').update({ status }).eq('id', id);
+            if (!error) { showToast(`Tiket ${status}`, "success"); fetchTickets(); }
         }
 
         async function deleteItem(id) {
