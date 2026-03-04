@@ -285,8 +285,18 @@
                         <h2 class="text-2xl font-black mb-8">Buat Laporan</h2>
                         <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
                             <div>
-                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Apa Masalahnya?</label>
-                                <input type="text" id="ticketSubject" required placeholder="Contoh: AC Mati, Kursi Patah" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-semibold">
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Pilih Barang / Masalah</label>
+                                <input list="assetList" id="ticketSubject" required placeholder="Ketik atau pilih dari daftar..." class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-semibold">
+                                <datalist id="assetList">
+                                    <option value="AC / Pendingin Ruangan">
+                                    <option value="Jaringan Internet / WiFi">
+                                    <option value="Listrik / Lampu">
+                                    <option value="Kebersihan Ruangan">
+                                </datalist>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Detail Masalah (Opsional)</label>
+                                <textarea id="ticketDetail" placeholder="Ceritakan detail kendalanya..." class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-semibold min-h-[80px]"></textarea>
                             </div>
                             <div>
                                 <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Lokasi Kejadian</label>
@@ -595,6 +605,20 @@
                     </td>
                 </tr>`).join('');
             document.getElementById('itemCount').innerText = `${filtered.length} TOTAL ASET DITEMUKAN`;
+            
+            // Populate Ticket Asset List
+            const assetList = document.getElementById('assetList');
+            if (assetList) {
+                const uniqueNames = [...new Set(stockItems.map(i => i.name))];
+                assetList.innerHTML = `
+                    <option value="AC / Pendingin Ruangan">
+                    <option value="Jaringan Internet / WiFi">
+                    <option value="Listrik / Lampu">
+                    <option value="Kebersihan Ruangan">
+                    ${uniqueNames.map(name => `<option value="${name}">`).join('')}
+                `;
+            }
+
             updateStats();
         }
 
@@ -738,7 +762,11 @@
         }
 
         async function handleTicketSubmit(e) {
-            e.preventDefault(); const subject = document.getElementById('ticketSubject').value, location = document.getElementById('ticketLocation').value, urgency = ticketUrgensi;
+            e.preventDefault(); 
+            const assetName = document.getElementById('ticketSubject').value;
+            const detail = document.getElementById('ticketDetail').value;
+            const subject = detail ? `${assetName}: ${detail}` : assetName;
+            const location = document.getElementById('ticketLocation').value, urgency = ticketUrgensi;
             const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'MENGIRIM...';
             try {
                 const { error } = await _supabase.from('office_tickets').insert([{ subject, location, urgency, status: 'MENUNGGU' }]);
