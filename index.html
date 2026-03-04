@@ -139,6 +139,7 @@
                 <div class="hidden md:flex bg-slate-100 dark:bg-white/5 p-1.5 rounded-2xl border border-slate-200 dark:border-white/10">
                     <button onclick="switchModule('assets')" id="nav-assets" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white">Aset</button>
                     <button onclick="switchModule('tickets')" id="nav-tickets" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white">Keluhan</button>
+                    <button onclick="switchModule('rooms')" id="nav-rooms" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white">Ruangan</button>
                 </div>
 
                 <div class="flex items-center space-x-3">
@@ -185,6 +186,13 @@
         <div class="max-w-7xl mx-auto px-6">
             <h1 class="text-5xl font-black tracking-tighter mb-4">Ticketing System</h1>
             <p class="text-slate-500 dark:text-slate-400 text-lg">Laporkan kendala fasilitas kantor dalam hitungan detik. 🛠️</p>
+        </div>
+    </header>
+
+    <header id="header-rooms" class="hidden pt-12 pb-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-5xl font-black tracking-tighter mb-4">Peminjaman Ruangan</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-lg">Pesan ruang rapat dengan mudah dan transparan. 🏢✨</p>
         </div>
     </header>
 
@@ -328,6 +336,128 @@
                 </div>
                 <div class="lg:col-span-2 space-y-6" id="ticketList">
                     <!-- Tickets will be rendered here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Rooms Section -->
+        <section id="module-rooms" class="hidden space-y-12 animate-premium">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="roomGallery">
+                <!-- Room Cards -->
+                <div class="glass rounded-super-premium premium-shadow overflow-hidden group spring-card">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-4 left-6 text-white font-black text-xs uppercase tracking-widest">Kapasitas 40</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-lg font-black mb-2">Ruang Collaboration</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Witel Lantai 2</p>
+                        <button onclick="openBooking('Lantai 2 Witel Ruang Colaboration')" class="w-full py-3 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all">Pilih Ruangan</button>
+                    </div>
+                </div>
+
+                <div class="glass rounded-super-premium premium-shadow overflow-hidden group spring-card">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVB9uHIcfpsodWEJMgYw-jUxAf-E_3sfa58fgpl4Xphi3K53HX_hb3PgD0Fjx6kkZibiReXkMsFaiGpgSkHGtijrqMYk4MCARcuG8pLcRMAAd7o46WU5weM-39tf__Pj5T2pVIptngmTvi2uzrjHcMmEwwmRWHRsKaobiroHU-igNQGd9obdP6mJuQneN1jmBACTNRgwvXKqzbLC=w600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-4 left-6 text-white font-black text-xs uppercase tracking-widest">Kapasitas Besar</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-lg font-black mb-2">Ruang Rapat Besar</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Witel Lantai 4</p>
+                        <button onclick="openBooking('Ruang rapat besar lantai 4')" class="w-full py-3 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all">Pilih Ruangan</button>
+                    </div>
+                </div>
+
+                <div class="glass rounded-super-premium premium-shadow overflow-hidden group spring-card">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVC3mEN1oBPVEyWVnKr0Q0pPtw_7REYIxonKaXFrkyeB18e5J_a9TCEqNwU1FZ-Rn_g8OPEVkoPtu-BBbKT_Qyzb-EM8MnAoJMU16zg-Gw2_8HSIaursAn9ZqjZD1XT4NMbcDaAk7g6cydStKYzAQaYzMQLvPl86V6Vuan6MytWaqeQ6TJc5XuZuETErAlN6rUCrJ5euetdKdzEW=w600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-4 left-6 text-white font-black text-xs uppercase tracking-widest">Kapasitas 20</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-lg font-black mb-2">Spark Room 1</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Witel Lantai 7</p>
+                        <button onclick="openBooking('Lantai 7 Witel Spark room 1')" class="w-full py-3 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all">Pilih Ruangan</button>
+                    </div>
+                </div>
+
+                <div class="glass rounded-super-premium premium-shadow overflow-hidden group spring-card">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVArlBn7b_nTkqEKvsDa8JG_j6-8bcqMKgTaiLXVgDuw6SD7-svcexYpNYscl6dlonA7pbk8W9HqhW1dmsY0TF3QspzAHzId7oX_g040YOX0r8HK7wvsDbn4FT2Wqq4it7NHALHrd5DTeRXBGpU2WP58UbaRKiNR4oc09l4Tei6eOPr37lgL7JNHgh_jqrwik5tuCjd-T3M7Awyn=w600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-4 left-6 text-white font-black text-xs uppercase tracking-widest">Kapasitas 16</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-lg font-black mb-2">Spark Room 2</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Witel Lantai 7</p>
+                        <button onclick="openBooking('Lantai 7 Witel Spark room 2')" class="w-full py-3 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all">Pilih Ruangan</button>
+                    </div>
+                </div>
+
+                <div class="glass rounded-super-premium premium-shadow overflow-hidden group spring-card">
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVAtoTj21FW2aRqXV9v3uP9Wlqlvrxqzc2NOQnv09vRtJGMLJ6NjjVeasoj0WHup1ydfK8wgHG4CRdfGkyhAE6CF-cElatpk0SiHdwDXYLmEgGOeTLCh1GiBQp_VA4PKsPKmpxAXnG9HZ5fzU_4zXWF5y1mI4e0_SKp98vsrwiBLgLl-aJykwc4Bo-gyCGnvk2_FxJ1P23vA95F_=w600" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                        <span class="absolute bottom-4 left-6 text-white font-black text-xs uppercase tracking-widest">Kapasitas 6</span>
+                    </div>
+                    <div class="p-8">
+                        <h3 class="text-lg font-black mb-2">Mindspace 2</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6">Witel Lantai 7</p>
+                        <button onclick="openBooking('Lantai 7 Witel Mindspace 2')" class="w-full py-3 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-primary hover:text-white transition-all">Pilih Ruangan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form -->
+            <div id="bookingContainer" class="hidden animate-premium">
+                <div class="max-w-3xl mx-auto">
+                    <div class="glass p-12 rounded-super-premium premium-shadow border-t-4 border-t-primary">
+                        <div class="flex justify-between items-center mb-10">
+                            <h2 class="text-3xl font-black">Form Reservasi</h2>
+                            <button onclick="closeBooking()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+                        </div>
+                        <form id="roomBookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-8">
+                            <input type="hidden" id="bookingRoomName">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Nama Lengkap</label>
+                                    <input type="text" id="bookingName" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Nomor Whatsapp</label>
+                                    <input type="tel" id="bookingWA" required placeholder="08..." class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Bidang / Unit</label>
+                                    <select id="bookingUnit" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold appearance-none">
+                                        <option value="">Pilih Unit...</option>
+                                        <option>PAM</option><option>SIM</option><option>GEA</option><option>DGM</option><option>DPS</option><option>AIX</option>
+                                        <option>DIS</option><option>DOA</option><option>DPE</option><option>TRS</option><option>SSO</option><option>BIG</option>
+                                        <option>DGP</option><option>GDD</option><option>VID</option><option>GTP</option><option>PAS</option><option>SMB</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Tanggal Pemakaian</label>
+                                    <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Waktu Mulai</label>
+                                    <input type="time" id="bookingStart" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Waktu Selesai</label>
+                                    <input type="time" id="bookingEnd" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                                </div>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Agenda / Keperluan</label>
+                                <textarea id="bookingAgenda" required rows="3" class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-[11px] pt-7">Konfirmasi Pesanan</button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </section>
@@ -536,16 +666,24 @@
         function switchModule(mod) {
             activeModule = mod;
             const isAssets = mod === 'assets';
+            const isTickets = mod === 'tickets';
+            const isRooms = mod === 'rooms';
+
             document.getElementById('module-assets').classList.toggle('hidden', !isAssets);
             document.getElementById('header-assets').classList.toggle('hidden', !isAssets);
             document.getElementById('assets-fab').classList.toggle('hidden', !isAssets);
-            document.getElementById('module-tickets').classList.toggle('hidden', isAssets);
-            document.getElementById('header-tickets').classList.toggle('hidden', isAssets);
+            
+            document.getElementById('module-tickets').classList.toggle('hidden', !isTickets);
+            document.getElementById('header-tickets').classList.toggle('hidden', !isTickets);
+            
+            document.getElementById('module-rooms').classList.toggle('hidden', !isRooms);
+            document.getElementById('header-rooms').classList.toggle('hidden', !isRooms);
             
             document.getElementById('nav-assets').className = isAssets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
-            document.getElementById('nav-tickets').className = !isAssets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
+            document.getElementById('nav-tickets').className = isTickets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
+            document.getElementById('nav-rooms').className = isRooms ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
             
-            if (mod === 'tickets') fetchTickets();
+            if (isTickets) fetchTickets();
         }
 
         async function fetchFromSupabase() { 
@@ -878,6 +1016,59 @@
         function filterItems() { renderTable(); }
         function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); m.children[1].classList.remove('scale-95'); }
         function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); m.children[1].classList.add('scale-95'); }
+
+        // --- Room Booking Logic ---
+        function openBooking(room) {
+            document.getElementById('roomGallery').classList.add('hidden');
+            document.getElementById('bookingContainer').classList.remove('hidden');
+            document.getElementById('bookingRoomName').value = room;
+            document.getElementById('bookingAgenda').placeholder = `Keperluan penggunaan ${room}...`;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function closeBooking() {
+            document.getElementById('bookingContainer').classList.add('hidden');
+            document.getElementById('roomGallery').classList.remove('hidden');
+        }
+
+        async function handleBookingSubmit(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true; btn.innerText = 'MEMPROSES...';
+
+            const payload = {
+                room: document.getElementById('bookingRoomName').value,
+                name: document.getElementById('bookingName').value,
+                whatsapp: document.getElementById('bookingWA').value,
+                unit: document.getElementById('bookingUnit').value,
+                date: document.getElementById('bookingDate').value,
+                start: document.getElementById('bookingStart').value,
+                end: document.getElementById('bookingEnd').value,
+                agenda: document.getElementById('bookingAgenda').value
+            };
+
+            try {
+                // For now, we simulate booking by adding it as a hidden ticket or just a toast
+                // since the room_bookings table doesn't exist yet.
+                const subject = `RESERVASI: ${payload.room} (${payload.date})`;
+                const detail = `Pemesan: ${payload.name} [${payload.unit}]\nWaktu: ${payload.start} - ${payload.end}\nAgenda: ${payload.agenda}`;
+                
+                const { error } = await _supabase.from('office_tickets').insert([
+                    { subject: `${subject} - ${payload.agenda}`, location: payload.room, urgency: 'NORMAL', status: 'MENUNGGU' }
+                ]);
+
+                if (error) throw error;
+
+                showToast("Pesanan Ruangan Berhasil!", "success");
+                showKimshieMessage(`Tuan Muda, reservasi ${payload.room} untuk tanggal ${payload.date} sudah Kimshie catat! 🌸✨`);
+                e.target.reset();
+                closeBooking();
+            } catch (err) {
+                showToast("Gagal memproses reservasi", "error");
+            } finally {
+                btn.disabled = false; btn.innerText = 'Konfirmasi Pesanan';
+            }
+        }
     </script>
 </body>
 </html>
