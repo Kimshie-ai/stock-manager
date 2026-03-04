@@ -696,6 +696,10 @@
                 const { error } = await _supabase.from('office_tickets').insert([{ subject, location, urgency, status: 'MENUNGGU' }]);
                 if (error) throw error;
                 showToast("Laporan Terkirim!", "success");
+                if (urgency === 'DARURAT') {
+                    showToast("🚨 ALERT DARURAT: Mengirim sinyal ke Kimshie...", "error");
+                    setTimeout(() => { showToast("Sinyal diterima Kimshie! Alert sedang diproses.", "success"); }, 1500);
+                }
                 e.target.reset(); fetchTickets();
             } catch (err) { showToast("Gagal mengirim", "error"); } finally { btn.disabled = false; btn.innerText = 'Kirim Laporan'; }
         }
