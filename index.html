@@ -198,6 +198,153 @@
 
     <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-6 -mt-16 pb-32 relative z-10">
+        <!-- Module Section: Rooms -->
+        <section id="module-rooms" class="hidden space-y-12 animate-premium">
+            <!-- Room Navigation Bar (Floor Switcher) -->
+            <div class="glass p-4 rounded-premium premium-shadow flex justify-center gap-4 border-b-4 border-b-primary sticky top-24 z-30">
+                <button onclick="switchFloor(7)" id="btnFloor7" class="px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-primary text-white shadow-lg transition-all">Lantai 7</button>
+                <button onclick="switchFloor(4)" id="btnFloor4" class="px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all">Lantai 4</button>
+                <button onclick="switchFloor(2)" id="btnFloor2" class="px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all">Lantai 2</button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+                <!-- Interactive Floor Plan Column -->
+                <div class="lg:col-span-2">
+                    <div class="glass p-10 rounded-super-premium premium-shadow relative min-h-[500px] overflow-hidden bg-slate-50/30 dark:bg-black/20 border-2 border-slate-100 dark:border-white/5">
+                        <div class="absolute top-6 left-8"><span class="text-[10px] font-black uppercase text-primary tracking-widest">Pilih Ruangan di Denah</span></div>
+                        
+                        <!-- Floor 7 Layout -->
+                        <div id="floor7-plan" class="w-full h-full relative mt-10">
+                            <!-- Main Hallway/Lobby -->
+                            <div class="absolute top-[40%] left-[40%] w-[20%] h-[20%] border-2 border-slate-200 dark:border-white/10 flex items-center justify-center bg-white dark:bg-white/5 rounded-2xl shadow-inner">
+                                <span class="text-[8px] font-black text-slate-300 dark:text-slate-600 uppercase text-center">Lobby / Lift</span>
+                            </div>
+
+                            <!-- Room Zones (Floor 7) -->
+                            <div class="absolute top-[5%] left-[5%] w-[40%] h-[30%] border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center group" onclick="openBooking('Lantai 7 Witel Spark room 1')">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] mb-2"></div>
+                                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 group-hover:text-primary">SPARK ROOM 1</span>
+                                <span class="text-[8px] font-bold text-slate-400">Cap: 20</span>
+                            </div>
+
+                            <div class="absolute top-[5%] right-[5%] w-[40%] h-[30%] border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center group" onclick="openBooking('Lantai 7 Witel Spark room 2')">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] mb-2"></div>
+                                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 group-hover:text-primary">SPARK ROOM 2</span>
+                                <span class="text-[8px] font-bold text-slate-400">Cap: 16</span>
+                            </div>
+
+                            <div class="absolute bottom-[5%] left-[5%] w-[30%] h-[40%] border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center group" onclick="openBooking('Lantai 7 Witel Mindspace 2')">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] mb-2"></div>
+                                <span class="text-[10px] font-black text-slate-600 dark:text-slate-300 group-hover:text-primary">MINDSPACE 2</span>
+                                <span class="text-[8px] font-bold text-slate-400">Cap: 6</span>
+                            </div>
+
+                            <div class="absolute bottom-[5%] right-[5%] w-[55%] h-[40%] border-2 border-slate-100 dark:border-white/5 rounded-2xl flex items-center justify-center bg-slate-100/50 dark:bg-white/5">
+                                <span class="text-[10px] font-black text-slate-400 uppercase">Open Space / Workspace</span>
+                            </div>
+                        </div>
+
+                        <!-- Floor 4 Placeholder -->
+                        <div id="floor4-plan" class="hidden w-full h-full relative mt-10">
+                            <div class="absolute top-[10%] left-[10%] w-[80%] h-[80%] border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center group" onclick="openBooking('Ruang rapat besar lantai 4')">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] mb-2"></div>
+                                <span class="text-xl font-black text-slate-600 dark:text-slate-300 group-hover:text-primary uppercase">Ruang Rapat Besar</span>
+                                <span class="text-[10px] font-bold text-slate-400">Lantai 4</span>
+                            </div>
+                        </div>
+
+                        <!-- Floor 2 Placeholder -->
+                        <div id="floor2-plan" class="hidden w-full h-full relative mt-10">
+                            <div class="absolute top-[10%] left-[10%] w-[80%] h-[80%] border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl hover:border-primary hover:bg-primary/5 transition-all cursor-pointer flex flex-col items-center justify-center group" onclick="openBooking('Lantai 2 Witel Ruang Colaboration')">
+                                <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981] mb-2"></div>
+                                <span class="text-xl font-black text-slate-600 dark:text-slate-300 group-hover:text-primary uppercase">Ruang Collaboration</span>
+                                <span class="text-[10px] font-bold text-slate-400">Lantai 2 - Cap: 40</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Info and PIC Column -->
+                <div class="lg:col-span-1 space-y-8">
+                    <!-- Contact PIC Card -->
+                    <div class="glass p-8 rounded-super-premium premium-shadow border-t-4 border-t-primary animate-premium">
+                        <h3 class="text-xl font-black mb-6">Contact PIC</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 spring-card">
+                                <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie"></i></div>
+                                <div><p class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Gesang Istiyanto</p><p class="text-xs font-bold font-mono text-primary">081295312443</p></div>
+                            </div>
+                            <div class="flex items-center gap-4 p-4 rounded-2xl bg-slate-50 dark:bg-white/5 border border-slate-100 dark:border-white/5 spring-card">
+                                <div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie"></i></div>
+                                <div><p class="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Apit Lesmana</p><p class="text-xs font-bold font-mono text-primary">082114705237</p></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Room Gallery / Images -->
+                    <div class="glass p-8 rounded-super-premium premium-shadow animate-premium" style="animation-delay: 0.2s">
+                        <h3 class="text-xl font-black mb-6">Pratinjau Ruangan</h3>
+                        <div id="roomImagePreview" class="rounded-2xl overflow-hidden aspect-video relative group border border-slate-100 dark:border-white/5">
+                            <img id="activeRoomImg" src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600?key=nJ46R7ZS1TueXAVPvww5Ig" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex flex-col justify-end p-6">
+                                <p id="activeRoomName" class="text-white font-black uppercase text-xs tracking-widest">Pilih Ruangan di Peta</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Booking Form (Hidden until room selected) -->
+            <div id="bookingContainer" class="hidden animate-premium">
+                <div class="max-w-3xl mx-auto glass p-12 rounded-super-premium premium-shadow border-t-4 border-t-primary relative">
+                    <button onclick="closeBooking()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-all"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+                    <div class="text-center mb-10">
+                        <h2 class="text-3xl font-black mb-2">Form Reservasi</h2>
+                        <p id="bookingRoomLabel" class="text-xs font-black text-primary uppercase tracking-[0.2em]">RUANGAN TERPILIH</p>
+                    </div>
+                    <form id="roomBookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-8">
+                        <input type="hidden" id="bookingRoomName">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Nama Lengkap</label>
+                                <input type="text" id="bookingName" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Nomor Whatsapp</label>
+                                <input type="tel" id="bookingWA" required placeholder="08..." class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Bidang / Unit</label>
+                                <select id="bookingUnit" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold appearance-none">
+                                    <option value="">Pilih Unit...</option>
+                                    <option>PAM</option><option>SIM</option><option>GEA</option><option>DGM</option><option>DPS</option><option>AIX</option>
+                                    <option>DIS</option><option>DOA</option><option>DPE</option><option>TRS</option><option>SSO</option><option>BIG</option>
+                                    <option>DGP</option><option>GDD</option><option>VID</option><option>GTP</option><option>PAS</option><option>SMB</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Tanggal Pemakaian</label>
+                                <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Waktu Mulai</label>
+                                <input type="time" id="bookingStart" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Waktu Selesai</label>
+                                <input type="time" id="bookingEnd" required class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Agenda / Keperluan</label>
+                            <textarea id="bookingAgenda" required rows="3" class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold focus:ring-4 focus:ring-primary/10 transition-all"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-[11px] pt-7">Konfirmasi Pesanan</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
         <!-- Dashboard Stats -->
         <section id="module-assets" class="space-y-12">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-6 animate-premium" style="animation-delay: 0.3s">
@@ -1168,17 +1315,50 @@
         }
 
         // --- Room Booking Logic ---
+        function switchFloor(floor) {
+            // Update Buttons
+            [2, 4, 7].forEach(f => {
+                const btn = document.getElementById(`btnFloor${f}`);
+                if (f === floor) {
+                    btn.className = "px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest bg-primary text-white shadow-lg transition-all";
+                } else {
+                    btn.className = "px-8 py-3 rounded-xl text-xs font-black uppercase tracking-widest text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all";
+                }
+                
+                // Update Plan Visibility
+                const plan = document.getElementById(`floor${f}-plan`);
+                if (plan) plan.classList.toggle('hidden', f !== floor);
+            });
+        }
+
         function openBooking(room) {
-            document.getElementById('roomGallery').classList.add('hidden');
+            // Mapping for images
+            const roomImgs = {
+                'Lantai 2 Witel Ruang Colaboration': 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600?key=nJ46R7ZS1TueXAVPvww5Ig',
+                'Ruang rapat besar lantai 4': 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBSn0WwzPD3TL528yA8szsE_tQ2uNsiwKjnbH-N0LWSgzp5G0Cz_TJK78OmpIpQ_-OaTgvAsO_lDhpcHQUvJ9LdVi0Wyd5P8egsa1Z5D26PjHKB5YkLzeze7LnvDyuPlX9IPNYgq2vZB4aqIS0a3ngKy7Lwmw_2V8iHd-Qm7N9v763AeS0b1M7MBITI01Uh5lGAJ0E6VPjYsYrL=w600?key=nJ46R7ZS1TueXAVPvww5Ig',
+                'Lantai 7 Witel Spark room 1': 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVA4iC4dVZx6UMKnVjwOUV_W53gUG41iRJ6n5AWCPGRMIjti7z1n6-2iLI-VU7esHp_E3v_NcBfccMa5n2NlxQ5yrYSt4lGfA3wO3HtTdUzQLx5zYHSzq0eiGZaO66QjQloFHTwbXz_WeMhMLgSDMry3FbFktPvlrc3Mq4sUDMwvvLISGuEcA1U5_aAXLTshne9ykHQfee0QifPI=w600?key=nJ46R7ZS1TueXAVPvww5Ig',
+                'Lantai 7 Witel Spark room 2': 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDZe-Tj1h-cikmR4HG3ZZeUM3qfjlFlzusiGHXcQgicrn892ZPtR_Ox5VXYXKLsud-D839_Ck8KhzYOxkM9m9eCmFJjRdJjhk2ToXGDyxTD1djcTgTtuW6xpkD1yQfcroGbfHLc8ljVJBAqithl3z-5I3IUykb7IkjYCb5vDibhLuIFh31deO5jLnZApxK7DqKD9TESodafwuMt=w600?key=nJ46R7ZS1TueXAVPvww5Ig',
+                'Lantai 7 Witel Mindspace 2': 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDfLcdIpdMjyo-2TrKJ6SBI5bsPTERpLEU8DukBGDbd-NGuaC_e5Z2rEvlbCQZAm_VfAcHY-RjGrN4UTc2Bq9r0mxAcz6y5mDIj2P34flCIRsGaBNMDVRYi_AMLYg41OK0TusL2Fim_bOgTTk5MTN7c7EwuWp8RhELJZVT6FNnOOrlGcz0C2gyYebEZMi6fBLVV6sCkrfcAG8gM=w600?key=nJ46R7ZS1TueXAVPvww5Ig'
+            };
+
+            // Update Preview Image
+            if (roomImgs[room]) {
+                document.getElementById('activeRoomImg').src = roomImgs[room];
+                document.getElementById('activeRoomName').innerText = room;
+            }
+
+            // Show Form
             document.getElementById('bookingContainer').classList.remove('hidden');
             document.getElementById('bookingRoomName').value = room;
+            document.getElementById('bookingRoomLabel').innerText = room;
             document.getElementById('bookingAgenda').placeholder = `Keperluan penggunaan ${room}...`;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            
+            // Scroll to form
+            document.getElementById('bookingContainer').scrollIntoView({ behavior: 'smooth' });
         }
 
         function closeBooking() {
             document.getElementById('bookingContainer').classList.add('hidden');
-            document.getElementById('roomGallery').classList.remove('hidden');
         }
 
         async function handleBookingSubmit(e) {
