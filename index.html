@@ -3,78 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kimshie Office - Management Suite</title>
-    <link rel="icon" type="image/png" href="assets/branding/favicon.png">
+    <title>Kimshie Stock - Premium Management Suite</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    
+    <!-- Scripts -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
+                        primary: '#0056B3',
                         dark: {
-                            bg: '#0F172A',
-                            paper: 'rgba(30, 41, 59, 0.7)',
-                            border: '#334155',
-                            text: '#F1F5F9',
-                            muted: '#94A3B8'
+                            bg: '#050505',
+                            card: '#121212',
+                            border: '#222222',
+                            text: '#FFFFFF',
+                            muted: '#A0A0A0'
                         }
+                    },
+                    borderRadius: {
+                        'premium': '1.5rem',
+                        'super-premium': '2.5rem'
                     }
                 }
             }
         }
     </script>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s, color 0.3s; scroll-behavior: smooth; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
-        .dark .glass { background: rgba(30, 41, 59, 0.7); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .bg-paper-gradient { background: linear-gradient(135deg, #0056B3 0%, #002D5E 100%); }
-        .spring-hover { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .spring-hover:hover { transform: translateY(-4px) scale(1.02); }
-        .status-badge-tersedia, .status-badge-selesai { background-color: #ecfdf5; color: #059669; border: 1px solid #d1fae5; }
-        .status-badge-dipakai, .status-badge-diproses { background-color: #eff6ff; color: #2563eb; border: 1px solid #dbeafe; }
-        .status-badge-rusak, .status-badge-darurat { background-color: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; }
-        .status-badge-hilang, .status-badge-menunggu { background-color: #fef3c7; color: #d97706; border: 1px solid #fef3c7; }
-        #toast-container { position: fixed; top: 1.5rem; right: 1.5rem; z-index: 200; display: flex; flex-direction: column; gap: 0.75rem; }
-        .toast { animation: slideIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .tab-active { color: #3b82f6 !important; border-bottom: 3px solid #3b82f6; }
-        .dark .tab-active { color: #60a5fa !important; border-bottom-color: #60a5fa; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            transition: all 0.4s ease;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Premium Glassmorphism */
+        .glass { 
+            background: rgba(255, 255, 255, 0.75); 
+            backdrop-filter: blur(20px) saturate(180%); 
+            -webkit-backdrop-filter: blur(20px) saturate(180%); 
+            border: 1px solid rgba(255, 255, 255, 0.4); 
+        }
+        
+        .dark .glass { 
+            background: rgba(18, 18, 18, 0.8); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
+
+        /* Mesh Gradients */
+        .bg-mesh {
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(210,100%,93%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(210,100%,96%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(210,100%,93%,1) 0, transparent 50%);
+        }
+
+        .dark .bg-mesh {
+            background-color: #050505;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(210,100%,10%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(210,100%,5%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(210,100%,10%,1) 0, transparent 50%);
+        }
+
+        /* Components */
+        .premium-shadow { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08); }
+        .dark .premium-shadow { box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); }
+        
+        .spring-card { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .spring-card:hover { transform: translateY(-8px) scale(1.01); }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+        /* Keyframes */
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        /* QR Scanner Laser */
+        .scan-laser {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #3b82f6;
+            box-shadow: 0 0 15px #3b82f6;
+            z-index: 10;
+            animation: scanning 2.5s infinite ease-in-out;
+        }
+        @keyframes scanning {
+            0% { top: 10%; }
+            50% { top: 90%; }
+            100% { top: 10%; }
+        }
+
+        /* Status Badges */
+        .badge { @apply px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
+        .badge-tersedia { @apply bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-500/30; }
+        .badge-dipakai { @apply bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-900/20 dark:border-blue-500/30; }
+        .badge-rusak { @apply bg-red-50 text-red-600 border-red-100 dark:bg-red-900/20 dark:border-red-500/30; }
+        .badge-hilang { @apply bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-900/20 dark:border-amber-500/30; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 dark:bg-dark-bg dark:text-dark-text min-h-screen">
-    <div id="toast-container"></div>
+<body class="bg-mesh min-h-screen text-slate-800 dark:text-white">
+    <!-- Toast Notification -->
+    <div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
 
     <!-- Navigation -->
-    <nav class="glass sticky top-0 z-50 shadow-sm border-b border-white/20">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 relative">
-                        <img src="assets/branding/icon-black.png" alt="Logo" class="absolute inset-0 w-full h-full object-contain dark:opacity-0 transition-opacity duration-300">
-                        <img src="assets/branding/icon-white.png" alt="Logo" class="absolute inset-0 w-full h-full object-contain opacity-0 dark:opacity-100 transition-opacity duration-300">
-                    </div>
-                    <span class="text-xl font-extrabold tracking-tight text-slate-900 dark:text-white">Kimshie<span class="text-blue-600">Office</span></span>
-                </div>
-                <div class="hidden md:flex space-x-8 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
-                    <button onclick="switchModule('assets')" id="nav-assets" class="tab-active py-5 transition-colors">Aset Barang</button>
-                    <button onclick="switchModule('tickets')" id="nav-tickets" class="py-5 transition-colors">Lapor Keluhan</button>
-                </div>
+    <nav class="glass sticky top-0 z-50 border-b shadow-sm">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between h-20 items-center">
                 <div class="flex items-center space-x-4">
-                    <button onclick="toggleDarkMode()" class="p-2.5 rounded-xl bg-white/50 dark:bg-slate-800/50 text-slate-600 dark:text-dark-muted border border-slate-200 dark:border-slate-700 hover:text-blue-600 transition-all">
+                    <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-10 w-auto spring-card">
+                    <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-700 mx-2"></div>
+                    <span class="text-xl font-extrabold tracking-tight">Stock<span class="text-primary">Manager</span></span>
+                </div>
+                
+                <div class="hidden md:flex bg-slate-100 dark:bg-white/5 p-1.5 rounded-2xl border border-slate-200 dark:border-white/10">
+                    <button onclick="switchModule('assets')" id="nav-assets" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white">Aset</button>
+                    <button onclick="switchModule('tickets')" id="nav-tickets" class="px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white">Keluhan</button>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 glass rounded-xl flex items-center justify-center hover:scale-110 transition-transform">
                         <i id="darkIcon" class="fa-solid fa-moon"></i>
                     </button>
                     <div id="authSection">
-                        <button id="loginBtn" onclick="toggleAuthModal()" class="text-xs font-bold text-slate-600 dark:text-dark-muted uppercase border border-slate-200 dark:border-dark-border px-4 py-2 rounded-xl bg-white dark:bg-slate-800">Login</button>
-                        <div id="userProfile" class="hidden flex items-center space-x-3">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 font-bold text-xs" id="userInitial">A</div>
-                            <button onclick="handleLogout()" class="text-xs font-bold text-red-500 hover:text-red-700 transition uppercase">Logout</button>
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-5 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20 hover:bg-blue-700 transition-all">Login</button>
+                        <div id="userProfile" class="hidden flex items-center space-x-3 bg-white dark:bg-white/5 p-1 rounded-full pl-3 pr-1 border border-slate-200 dark:border-white/10">
+                            <span id="userInitial" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">A</span>
+                            <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
                         </div>
                     </div>
                 </div>
@@ -82,65 +153,72 @@
         </div>
     </nav>
 
-    <!-- Headers -->
-    <header id="header-assets" class="bg-paper-gradient py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-8">
-                <div>
-                    <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Dashboard Aset</h1>
-                    <p class="text-blue-100/80 text-lg font-medium">Kelola inventaris kantor dengan cerdas. 📂✨</p>
-                </div>
-                <div class="bg-white/10 backdrop-blur-md p-6 rounded-3xl border border-white/10 w-full md:w-80">
-                    <canvas id="stockChart" height="150"></canvas>
-                </div>
+    <!-- Header / Hero Section -->
+    <header id="header-assets" class="pt-12 pb-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="animate-premium">
+                <h1 class="text-5xl md:text-6xl font-black tracking-tighter leading-none mb-6">
+                    Kelola Aset <br><span class="text-primary italic">Tanpa Batas.</span>
+                </h1>
+                <p class="text-slate-500 dark:text-slate-400 text-lg font-medium max-w-md leading-relaxed">
+                    Sistem inventaris cerdas dengan teknologi QR Scanner dan monitoring real-time untuk efisiensi bisnis Anda.
+                </p>
             </div>
-        </div>
-    </header>
-
-    <header id="header-tickets" class="hidden bg-slate-900 py-16 text-white relative overflow-hidden">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-white text-white">
-            <h1 class="text-4xl md:text-5xl font-black mb-3 tracking-tight text-white">Ticketing System</h1>
-            <p class="text-slate-400 text-lg font-medium">Lapor keluhan & perbaikan fasilitas kantor. 🛠️</p>
-        </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 pb-24 relative z-20">
-        <!-- Module Section: Assets -->
-        <section id="module-assets" class="space-y-8">
-            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center spring-hover">
-                    <p class="text-[10px] text-slate-400 uppercase font-extrabold tracking-widest mb-2">Total</p>
-                    <p id="statTotalItems" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
-                </div>
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-emerald-500 spring-hover">
-                    <p class="text-[10px] text-emerald-600 uppercase font-extrabold tracking-widest mb-2">Tersedia</p>
-                    <p id="statTersedia" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
-                </div>
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-blue-500 spring-hover">
-                    <p class="text-[10px] text-blue-600 uppercase font-extrabold tracking-widest mb-2">Dipakai</p>
-                    <p id="statDipakai" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
-                </div>
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-red-500 spring-hover">
-                    <p class="text-[10px] text-red-600 uppercase font-extrabold tracking-widest mb-2">Rusak</p>
-                    <p id="statRusak" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
-                </div>
-                <div class="bg-white dark:bg-slate-800 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700 p-6 flex flex-col items-center justify-center text-center border-b-4 border-b-amber-500 spring-hover">
-                    <p class="text-[10px] text-amber-600 uppercase font-extrabold tracking-widest mb-2">Hilang</p>
-                    <p id="statHilang" class="text-3xl font-black text-slate-800 dark:text-white">0</p>
-                </div>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 p-6">
-                <div class="flex flex-col lg:flex-row gap-6">
-                    <div class="flex-1 relative">
-                        <i class="fa-solid fa-search absolute left-4 top-4 text-slate-400"></i>
-                        <input type="text" id="searchInput" onkeyup="handleSearch(this.value)" placeholder="Cari aset..." class="w-full pl-12 pr-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 dark:text-white">
+            <div class="animate-premium" style="animation-delay: 0.2s">
+                <div class="glass p-8 rounded-super-premium premium-shadow relative group">
+                    <div class="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl group-hover:bg-primary/20 transition-all"></div>
+                    <canvas id="stockChart" height="220"></canvas>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span id="statTotalItems" class="text-5xl font-black">0</span>
+                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total Aset</span>
                     </div>
-                    <div class="flex flex-wrap gap-3">
-                        <select id="filterLocation" onchange="filterItems()" class="px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl dark:text-white outline-none">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <header id="header-tickets" class="hidden pt-12 pb-24">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-5xl font-black tracking-tighter mb-4">Ticketing System</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-lg">Laporkan kendala fasilitas kantor dalam hitungan detik. 🛠️</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 -mt-16 pb-32 relative z-10">
+        <!-- Dashboard Stats -->
+        <section id="module-assets" class="space-y-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 animate-premium" style="animation-delay: 0.3s">
+                <div class="glass p-8 rounded-premium premium-shadow spring-card border-l-4 border-l-emerald-500">
+                    <span class="text-[10px] font-black uppercase text-emerald-600 tracking-widest block mb-1">Tersedia</span>
+                    <h2 id="statTersedia" class="text-4xl font-black">0</h2>
+                </div>
+                <div class="glass p-8 rounded-premium premium-shadow spring-card border-l-4 border-l-blue-500">
+                    <span class="text-[10px] font-black uppercase text-blue-600 tracking-widest block mb-1">Dipakai</span>
+                    <h2 id="statDipakai" class="text-4xl font-black">0</h2>
+                </div>
+                <div class="glass p-8 rounded-premium premium-shadow spring-card border-l-4 border-l-red-500">
+                    <span class="text-[10px] font-black uppercase text-red-600 tracking-widest block mb-1">Rusak</span>
+                    <h2 id="statRusak" class="text-4xl font-black">0</h2>
+                </div>
+                <div class="glass p-8 rounded-premium premium-shadow spring-card border-l-4 border-l-amber-500">
+                    <span class="text-[10px] font-black uppercase text-amber-600 tracking-widest block mb-1">Hilang</span>
+                    <h2 id="statHilang" class="text-4xl font-black">0</h2>
+                </div>
+            </div>
+
+            <!-- Search and Filter -->
+            <div class="glass p-6 rounded-premium premium-shadow animate-premium" style="animation-delay: 0.4s">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="flex-1 relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="searchInput" onkeyup="handleSearch()" placeholder="Cari nama barang atau serial number..." class="w-full pl-14 pr-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl focus:ring-4 focus:ring-primary/10 outline-none transition-all font-medium">
+                    </div>
+                    <div class="flex gap-3">
+                        <select id="filterLocation" onchange="filterItems()" class="px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-semibold">
                             <option value="">Semua Lokasi</option>
                         </select>
-                        <select id="filterStatus" onchange="filterItems()" class="px-4 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl dark:text-white outline-none">
+                        <select id="filterStatus" onchange="filterItems()" class="px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-semibold">
                             <option value="">Semua Status</option>
                             <option value="Tersedia">Tersedia</option>
                             <option value="Dipakai">Dipakai</option>
@@ -151,164 +229,236 @@
                 </div>
             </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 overflow-hidden">
+            <!-- Table -->
+            <div class="glass rounded-super-premium premium-shadow overflow-hidden animate-premium" style="animation-delay: 0.5s">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left">
-                        <thead class="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-700">
+                        <thead class="bg-slate-50/50 dark:bg-white/5 border-b border-slate-100 dark:border-white/10">
                             <tr>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Aset</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Visual</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">SN</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Lokasi</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                <th class="px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Aksi</th>
+                                <th class="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Informasi Aset</th>
+                                <th class="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Serial Number</th>
+                                <th class="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Lokasi</th>
+                                <th class="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest">Status</th>
+                                <th class="px-8 py-6 text-[10px] font-black uppercase text-slate-400 tracking-widest text-right">Manajemen</th>
                             </tr>
                         </thead>
-                        <tbody id="tableBody" class="divide-y divide-slate-50 dark:divide-slate-700/50"></tbody>
+                        <tbody id="tableBody" class="divide-y divide-slate-100 dark:divide-white/5">
+                            <!-- Items will be rendered here -->
+                        </tbody>
                     </table>
                 </div>
-                <div id="itemCount" class="px-8 py-4 text-xs font-bold text-slate-400 uppercase border-t border-slate-50 dark:border-slate-700/50">Menampilkan 0 aset</div>
+                <div class="bg-slate-50/50 dark:bg-white/5 px-8 py-4 flex justify-between items-center">
+                    <span id="itemCount" class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Loading assets...</span>
+                    <div class="flex gap-2">
+                        <button class="w-8 h-8 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center text-xs shadow-sm hover:bg-primary hover:text-white transition-all"><i class="fa-solid fa-chevron-left"></i></button>
+                        <button class="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center text-xs shadow-sm">1</button>
+                        <button class="w-8 h-8 rounded-lg bg-white dark:bg-white/10 flex items-center justify-center text-xs shadow-sm hover:bg-primary hover:text-white transition-all"><i class="fa-solid fa-chevron-right"></i></button>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <!-- Module Section: Tickets -->
-        <section id="module-tickets" class="hidden space-y-8">
+        <!-- Tickets Section -->
+        <section id="module-tickets" class="hidden space-y-12 animate-premium">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 flex items-center gap-6">
-                    <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-clock"></i></div>
-                    <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Menunggu</p><p id="ticketStatWait" class="text-3xl font-black text-slate-800 dark:text-white">0</p></div>
+                <div class="glass p-8 rounded-premium premium-shadow flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                    <div><span class="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Menunggu</span><h3 id="ticketStatWait" class="text-3xl font-black">0</h3></div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 flex items-center gap-6">
-                    <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-screwdriver-wrench"></i></div>
-                    <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Diproses</p><p id="ticketStatProcess" class="text-3xl font-black text-slate-800 dark:text-white">0</p></div>
+                <div class="glass p-8 rounded-premium premium-shadow flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div>
+                    <div><span class="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Diproses</span><h3 id="ticketStatProcess" class="text-3xl font-black">0</h3></div>
                 </div>
-                <div class="bg-white dark:bg-slate-800 p-8 rounded-[2rem] shadow-xl border border-slate-100 dark:border-slate-700 flex items-center gap-6">
-                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-2xl flex items-center justify-center text-2xl"><i class="fa-solid fa-circle-check"></i></div>
-                    <div><p class="text-[10px] font-black uppercase text-slate-400 tracking-widest">Selesai</p><p id="ticketStatDone" class="text-3xl font-black text-slate-800 dark:text-white">0</p></div>
+                <div class="glass p-8 rounded-premium premium-shadow flex items-center gap-6">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div>
+                    <div><span class="text-[10px] font-black uppercase text-slate-400 tracking-widest block">Selesai</span><h3 id="ticketStatDone" class="text-3xl font-black">0</h3></div>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
                 <div class="lg:col-span-1">
-                    <div class="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] shadow-2xl border border-slate-100 dark:border-slate-700 sticky top-32">
-                        <h2 class="text-xl font-black text-slate-900 dark:text-white mb-6">Buat Laporan</h2>
-                        <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-5">
-                            <input type="text" id="ticketSubject" required placeholder="Subjek Masalah" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none focus:ring-4 focus:ring-blue-500/10 font-semibold dark:text-white">
-                            <select id="ticketLocation" required class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none font-semibold dark:text-white appearance-none">
-                                <option value="">Pilih Lokasi...</option>
-                                <option>Ruang Kerja Utama</option><option>Pantry / Dapur</option><option>Kamar Mandi</option><option>Area Parkir</option>
-                            </select>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-600 transition-all">NORMAL</button>
-                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-200 text-slate-400 transition-all">DARURAT</button>
+                    <div class="glass p-10 rounded-super-premium premium-shadow border-t-4 border-t-primary sticky top-32">
+                        <h2 class="text-2xl font-black mb-8">Buat Laporan</h2>
+                        <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Apa Masalahnya?</label>
+                                <input type="text" id="ticketSubject" required placeholder="Contoh: AC Mati, Kursi Patah" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-semibold">
                             </div>
-                            <button type="submit" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl shadow-xl shadow-blue-500/20 hover:bg-blue-700 transition-all uppercase tracking-widest text-xs pt-6">Kirim Laporan</button>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Lokasi Kejadian</label>
+                                <select id="ticketLocation" required class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-semibold">
+                                    <option value="">Pilih Lokasi...</option>
+                                    <option>Ruang Kerja Utama</option>
+                                    <option>Pantry / Dapur</option>
+                                    <option>Kamar Mandi</option>
+                                    <option>Area Parkir</option>
+                                </select>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[10px] font-black uppercase text-slate-400 tracking-widest block mb-2 pl-1">Tingkat Urgensi</label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50/50 text-primary transition-all">NORMAL</button>
+                                    <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 dark:border-white/5 text-slate-400 transition-all">DARURAT 🚨</button>
+                                </div>
+                            </div>
+                            <button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-[11px] pt-7">Kirim Laporan</button>
                         </form>
                     </div>
                 </div>
-                <div class="lg:col-span-2 space-y-6" id="ticketList"></div>
+                <div class="lg:col-span-2 space-y-6" id="ticketList">
+                    <!-- Tickets will be rendered here -->
+                </div>
             </div>
         </section>
     </main>
 
-    <!-- Floating Action Button -->
-    <div id="assets-fab" class="fixed bottom-8 right-8 flex flex-col gap-3 z-[90]">
-        <button onclick="toggleScanner()" class="w-14 h-14 bg-emerald-500 hover:bg-emerald-600 text-white rounded-full shadow-2xl flex items-center justify-center spring-hover transition-all"><i class="fa-solid fa-camera text-xl"></i></button>
-        <button id="fabAddBtn" onclick="toggleModal()" class="hidden w-14 h-14 bg-[#0056B3] hover:bg-blue-700 text-white rounded-full shadow-2xl flex items-center justify-center spring-hover transition-all"><i class="fa-solid fa-plus text-xl"></i></button>
+    <!-- Floating Action Buttons -->
+    <div id="assets-fab" class="fixed bottom-10 right-10 flex flex-col gap-4 z-[90]">
+        <button onclick="toggleScanner()" class="w-16 h-16 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-2xl flex items-center justify-center spring-card transition-all" title="Scan QR">
+            <i class="fa-solid fa-qrcode text-2xl"></i>
+        </button>
+        <button id="fabAddBtn" onclick="toggleModal()" class="hidden w-16 h-16 bg-primary hover:bg-blue-700 text-white rounded-2xl shadow-2xl flex items-center justify-center spring-card transition-all" title="Tambah Aset">
+            <i class="fa-solid fa-plus text-2xl"></i>
+        </button>
     </div>
 
-    <!-- Modals -->
-    <div id="modal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[100] transition-all duration-300">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleModal()"></div>
-        <div class="glass w-11/12 md:max-w-xl mx-auto rounded-[2.5rem] shadow-2xl z-[110] p-8 transform transition-all">
-            <div class="flex justify-between items-center mb-8">
-                <p id="modalTitle" class="text-2xl font-black text-slate-800 dark:text-white">Tambah Aset</p>
-                <button onclick="toggleModal()" class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"><i class="fa-solid fa-xmark"></i></button>
+    <!-- MODAL: Add/Edit Asset -->
+    <div id="modal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[100] transition-all duration-500">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleModal()"></div>
+        <div class="glass w-11/12 md:max-w-xl mx-auto rounded-super-premium shadow-2xl z-[110] p-10 transform scale-95 transition-all">
+            <div class="flex justify-between items-center mb-10">
+                <div>
+                    <h2 id="modalTitle" class="text-3xl font-black mb-1">Tambah Aset</h2>
+                    <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Lengkapi informasi inventaris</p>
+                </div>
+                <button onclick="toggleModal()" class="w-12 h-12 glass rounded-2xl flex items-center justify-center hover:bg-red-50 hover:text-red-500 transition-all"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
             <form id="addItemForm" onsubmit="handleFormSubmit(event)" class="space-y-6">
-                <input type="text" id="itemName" required placeholder="Nama Barang" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                <input type="text" id="itemSN" required placeholder="Serial Number" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-mono">
-                <input type="text" id="itemLocation" required placeholder="Lokasi" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                <select id="itemStatus" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                    <option value="Tersedia">Tersedia</option>
-                    <option value="Dipakai">Dipakai</option>
-                    <option value="Rusak">Rusak</option>
-                    <option value="Hilang">Hilang</option>
-                </select>
-                <!-- Image Inputs -->
-                <div id="edit-image-preview" class="grid grid-cols-2 gap-4 mb-4 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="md:col-span-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block pl-1">Nama Barang</label>
+                        <input type="text" id="itemName" required placeholder="Contoh: Laptop MacBook Pro" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 font-bold transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block pl-1">Serial Number</label>
+                        <input type="text" id="itemSN" required placeholder="SN12345678" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-mono text-sm transition-all">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block pl-1">Lokasi Simpan</label>
+                        <input type="text" id="itemLocation" required placeholder="Contoh: Gudang Lt. 2" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold transition-all">
+                    </div>
+                    <div class="md:col-span-2">
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block pl-1">Status Kondisi</label>
+                        <select id="itemStatus" class="w-full px-5 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold transition-all appearance-none">
+                            <option value="Tersedia">Tersedia ✅</option>
+                            <option value="Dipakai">Sedang Dipakai 📦</option>
+                            <option value="Rusak">Rusak / Perbaikan ⚠️</option>
+                            <option value="Hilang">Hilang ❌</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="edit-image-preview" class="grid grid-cols-2 gap-4 hidden p-4 bg-slate-50 dark:bg-white/5 rounded-2xl border border-slate-100 dark:border-white/5">
                     <div id="preview-doc-container" class="hidden">
-                        <p class="text-[8px] font-black text-slate-400 uppercase mb-1">Doc Saat Ini</p>
-                        <img id="preview-doc" src="" class="w-full h-20 object-cover rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:opacity-80 transition-opacity" onclick="openImageModal(this.src)">
+                        <span class="text-[8px] font-black text-slate-400 uppercase mb-2 block">Foto Dokumen</span>
+                        <img id="preview-doc" class="w-full h-24 object-cover rounded-xl border cursor-zoom-in" onclick="openImageModal(this.src)">
                     </div>
                     <div id="preview-sn-container" class="hidden">
-                        <p class="text-[8px] font-black text-slate-400 uppercase mb-1">SN Saat Ini</p>
-                        <img id="preview-sn" src="" class="w-full h-20 object-cover rounded-xl border border-slate-100 dark:border-slate-700 cursor-pointer hover:opacity-80 transition-opacity" onclick="openImageModal(this.src)">
+                        <span class="text-[8px] font-black text-slate-400 uppercase mb-2 block">Foto SN</span>
+                        <img id="preview-sn" class="w-full h-24 object-cover rounded-xl border cursor-zoom-in" onclick="openImageModal(this.src)">
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 dark:border-slate-700">
+
+                <div class="grid grid-cols-2 gap-4">
                     <label class="block">
-                        <span class="block text-[10px] font-black text-slate-400 uppercase mb-2">Foto Dokumen</span>
-                        <input type="file" id="fileDoc" accept="image/*" class="text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-50 file:text-blue-700">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Upload Dokumen</span>
+                        <input type="file" id="fileDoc" accept="image/*" class="text-[10px] font-bold text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-all cursor-pointer">
                     </label>
                     <label class="block">
-                        <span class="block text-[10px] font-black text-slate-400 uppercase mb-2">Foto SN</span>
-                        <input type="file" id="fileSN" accept="image/*" class="text-xs text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:bg-blue-50 file:text-blue-700">
+                        <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 block">Upload SN</span>
+                        <input type="file" id="fileSN" accept="image/*" class="text-[10px] font-bold text-slate-500 file:mr-2 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:bg-primary/10 file:text-primary hover:file:bg-primary hover:file:text-white transition-all cursor-pointer">
                     </label>
                 </div>
-                <button type="submit" id="submitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6 shadow-xl shadow-blue-500/20 active:scale-95">Simpan Aset</button>
+
+                <button type="submit" id="submitBtn" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-[11px] pt-7">Simpan Data Aset</button>
             </form>
         </div>
     </div>
 
-    <!-- Auth Modal -->
-    <div id="authModal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[110] transition-all">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm" onclick="toggleAuthModal()"></div>
-        <div class="glass w-11/12 md:max-w-sm mx-auto rounded-[2.5rem] shadow-2xl z-[120] p-10">
-            <h2 class="text-2xl font-black text-center mb-8 dark:text-white">Akses Admin</h2>
-            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
-                <input type="email" id="loginEmail" required placeholder="Email" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                <input type="password" id="loginPassword" required placeholder="Password" class="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl outline-none dark:text-white font-semibold">
-                <button type="submit" id="authSubmitBtn" class="w-full bg-blue-600 text-white font-black py-4 rounded-2xl uppercase tracking-widest text-xs pt-6 transition-all active:scale-95">Login</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Image Viewer Modal -->
-    <div id="imageModal" class="modal opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[120] transition-all">
-        <div class="absolute inset-0 bg-slate-900/95 backdrop-blur-xl" onclick="closeImageModal()"></div>
-        <div class="z-[130] max-w-5xl w-full p-6 relative">
-            <button onclick="closeImageModal()" class="absolute -top-12 right-0 md:-right-12 text-white text-5xl hover:scale-110 transition-transform focus:outline-none">&times;</button>
-            <img id="modalImage" src="" class="w-full h-auto rounded-[2rem] shadow-2xl mx-auto border border-white/10" onclick="event.stopPropagation()">
-            <div class="mt-6 text-center">
-                <button onclick="closeImageModal()" class="px-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all backdrop-blur-md border border-white/10">Tutup Gambar</button>
+    <!-- MODAL: QR Scanner -->
+    <div id="scannerModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[150] transition-all duration-500">
+        <div class="absolute inset-0 bg-slate-900/90 backdrop-blur-xl" onclick="toggleScanner()"></div>
+        <div class="glass w-11/12 md:max-w-md mx-auto rounded-super-premium shadow-2xl z-[160] p-8 relative overflow-hidden">
+            <div class="flex justify-between items-center mb-8 relative z-20">
+                <h2 class="text-2xl font-black text-white">Scanner</h2>
+                <button onclick="toggleScanner()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-red-500 transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <div class="relative rounded-premium overflow-hidden border-2 border-white/20 bg-black aspect-square">
+                <div class="scan-laser"></div>
+                <div id="reader"></div>
+            </div>
+            
+            <div class="mt-8 text-center relative z-20">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest">Arahkan kamera ke QR / Barcode</p>
             </div>
         </div>
     </div>
 
+    <!-- MODAL: Login -->
+    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[110] transition-all duration-500">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div>
+        <div class="glass w-11/12 md:max-w-sm mx-auto rounded-super-premium shadow-2xl z-[120] p-12 transform scale-95 transition-all">
+            <div class="text-center mb-10">
+                <img src="assets/branding/logo-k-refined.png" class="h-12 w-auto mx-auto mb-6">
+                <h2 class="text-3xl font-black">Akses Admin</h2>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mt-2">Kimshie Stock Manager</p>
+            </div>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                <input type="email" id="loginEmail" required placeholder="Alamat Email" class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold">
+                <input type="password" id="loginPassword" required placeholder="Kata Sandi" class="w-full px-6 py-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none focus:ring-4 focus:ring-primary/10 transition-all font-bold">
+                <button type="submit" id="authSubmitBtn" class="w-full bg-primary text-white font-black py-5 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-[11px] pt-7">Masuk Sekarang</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL: Image Viewer -->
+    <div id="imageModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[130] transition-all duration-300">
+        <div class="absolute inset-0 bg-slate-900/95 backdrop-blur-2xl" onclick="closeImageModal()"></div>
+        <div class="z-[140] max-w-5xl w-full p-8 relative flex flex-col items-center">
+            <button onclick="closeImageModal()" class="absolute -top-12 right-0 md:-right-4 text-white text-5xl font-light hover:scale-110 transition-transform">&times;</button>
+            <img id="modalImage" src="" class="max-w-full max-h-[80vh] rounded-premium shadow-2xl border border-white/10 object-contain">
+            <div class="mt-8">
+                <button onclick="closeImageModal()" class="px-10 py-4 glass text-white font-black text-[10px] uppercase tracking-widest rounded-2xl border border-white/20 hover:bg-white/10 transition-all">Tutup Pratinjau</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SYSTEM SCRIPTS -->
     <script>
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let stockItems = [], sortKey = 'created_at', sortOrder = 'desc', currentUser = null, editingId = null, chart = null, itemsPerPage = 10, currentPage = 1;
+        let stockItems = [], currentUser = null, editingId = null, chart = null;
         let activeModule = 'assets', ticketUrgensi = 'NORMAL';
 
         window.onload = () => {
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark'); updateDarkIcon(true);
             }
-            checkAuth(); initSupabase();
+            checkAuth(); fetchFromSupabase();
         };
 
         function showToast(message, type = 'info') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            const bg = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-600';
-            toast.className = `toast glass flex items-center gap-4 px-6 py-4 rounded-2xl shadow-2xl text-white ${bg}`;
-            toast.innerHTML = `<div class="flex-1 text-xs font-bold">${message}</div>`;
+            const bg = type === 'success' ? 'bg-emerald-500' : type === 'error' ? 'bg-red-500' : 'bg-primary';
+            toast.className = `glass flex items-center gap-4 px-8 py-5 rounded-2xl shadow-2xl text-white ${bg} border-0 animate-premium`;
+            toast.innerHTML = `<div class="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"><i class="fa-solid ${type === 'success' ? 'fa-check' : 'fa-info'}"></i></div><div class="flex-1 text-[11px] font-black uppercase tracking-widest pt-1">${message}</div>`;
             container.appendChild(toast);
-            setTimeout(() => { toast.remove(); }, 4000);
+            setTimeout(() => { toast.classList.add('opacity-0'); setTimeout(() => toast.remove(), 500); }, 4000);
         }
 
         function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateDarkIcon(isDark); }
@@ -316,20 +466,22 @@
 
         function switchModule(mod) {
             activeModule = mod;
-            document.getElementById('module-assets').classList.toggle('hidden', mod !== 'assets');
-            document.getElementById('header-assets').classList.toggle('hidden', mod !== 'assets');
-            document.getElementById('assets-fab').classList.toggle('hidden', mod !== 'assets');
-            document.getElementById('module-tickets').classList.toggle('hidden', mod !== 'tickets');
-            document.getElementById('header-tickets').classList.toggle('hidden', mod !== 'tickets');
-            document.getElementById('nav-assets').classList.toggle('tab-active', mod === 'assets');
-            document.getElementById('nav-tickets').classList.toggle('tab-active', mod === 'tickets');
+            const isAssets = mod === 'assets';
+            document.getElementById('module-assets').classList.toggle('hidden', !isAssets);
+            document.getElementById('header-assets').classList.toggle('hidden', !isAssets);
+            document.getElementById('assets-fab').classList.toggle('hidden', !isAssets);
+            document.getElementById('module-tickets').classList.toggle('hidden', isAssets);
+            document.getElementById('header-tickets').classList.toggle('hidden', isAssets);
+            
+            document.getElementById('nav-assets').className = isAssets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
+            document.getElementById('nav-tickets').className = !isAssets ? "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all bg-white dark:bg-blue-600 shadow-sm text-blue-600 dark:text-white" : "px-6 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all text-slate-400 hover:text-slate-600 dark:hover:text-white";
+            
             if (mod === 'tickets') fetchTickets();
         }
 
-        async function initSupabase() { try { await fetchFromSupabase(); } catch (err) { console.error(err); } }
         async function fetchFromSupabase() { 
-            const { data, error } = await _supabase.from('stock_items').select('*').order(sortKey, { ascending: sortOrder === 'asc' }); 
-            if (error) throw error; stockItems = data || []; renderTable(); updateLocationFilter(); 
+            const { data, error } = await _supabase.from('stock_items').select('*').order('created_at', { ascending: false }); 
+            if (!error) { stockItems = data || []; renderTable(); updateLocationFilter(); }
         }
 
         async function checkAuth() {
@@ -349,24 +501,6 @@
             renderTable();
         }
 
-        async function handleLogin(e) {
-            e.preventDefault(); const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value;
-            const { error } = await _supabase.auth.signInWithPassword({ email, password });
-            if (error) showToast(error.message, "error"); else { showToast("Login Berhasil", "success"); toggleAuthModal(); }
-        }
-
-        async function handleLogout() { if (confirm('Logout?')) { await _supabase.auth.signOut(); showToast("Logout", "info"); } }
-        function toggleAuthModal() { document.getElementById('authModal').classList.toggle('opacity-0'); document.getElementById('authModal').classList.toggle('pointer-events-none'); }
-        function toggleModal() { 
-            if (!editingId) {
-                document.getElementById('addItemForm').reset();
-                document.getElementById('modalTitle').innerText = 'Tambah Aset';
-                document.getElementById('edit-image-preview').classList.add('hidden');
-            }
-            document.getElementById('modal').classList.toggle('opacity-0'); 
-            document.getElementById('modal').classList.toggle('pointer-events-none'); 
-        }
-
         function renderTable() {
             const tableBody = document.getElementById('tableBody');
             const search = (document.getElementById('searchInput')?.value || '').toLowerCase();
@@ -380,26 +514,40 @@
                 return matchesSearch && matchesLocation && matchesStatus;
             });
 
-            tableBody.innerHTML = filtered.map(item => `
-                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-all group">
-                    <td class="px-8 py-5 font-bold text-slate-900 dark:text-white">${item.name}</td>
-                    <td class="px-8 py-5">
-                        <div class="flex space-x-1">
-                            ${item.doc_photo_url ? `<img src="${item.doc_photo_url}" class="w-10 h-10 object-cover rounded-lg cursor-pointer hover:scale-110 transition-transform" onclick="openImageModal('${item.doc_photo_url}')">` : '-'}
-                            ${item.sn_photo_url ? `<img src="${item.sn_photo_url}" class="w-10 h-10 object-cover rounded-lg cursor-pointer hover:scale-110 transition-transform" onclick="openImageModal('${item.sn_photo_url}')">` : ''}
+            tableBody.innerHTML = filtered.map((item, idx) => `
+                <tr class="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all group animate-premium" style="animation-delay: ${0.1 * idx}s">
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center flex-shrink-0">
+                                <i class="fa-solid fa-box text-slate-300 dark:text-slate-700 text-xl"></i>
+                            </div>
+                            <div>
+                                <p class="font-extrabold text-slate-900 dark:text-white leading-tight">${item.name}</p>
+                                <div class="flex gap-2 mt-1">
+                                    ${item.doc_photo_url ? `<button onclick="openImageModal('${item.doc_photo_url}')" class="text-[8px] font-black uppercase text-primary tracking-widest hover:underline">Lampiran Doc</button>` : ''}
+                                    ${item.sn_photo_url ? `<button onclick="openImageModal('${item.sn_photo_url}')" class="text-[8px] font-black uppercase text-primary tracking-widest hover:underline">Foto SN</button>` : ''}
+                                </div>
+                            </div>
                         </div>
                     </td>
-                    <td class="px-8 py-5 font-mono text-[11px] text-slate-400">${item.sn}</td>
-                    <td class="px-8 py-5 text-xs text-slate-600 dark:text-dark-muted font-semibold">${item.location}</td>
-                    <td class="px-8 py-5"><span class="px-3 py-1 text-[9px] font-black rounded-full status-badge-${(item.status || 'Tersedia').toLowerCase()} uppercase tracking-widest">${item.status || 'Tersedia'}</span></td>
-                    <td class="px-8 py-5 text-right">
+                    <td class="px-8 py-6 font-mono text-xs text-slate-400 group-hover:text-primary transition-colors">${item.sn}</td>
+                    <td class="px-8 py-6">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-[10px] text-primary"></i>
+                            <span class="text-xs font-bold text-slate-500">${item.location}</span>
+                        </div>
+                    </td>
+                    <td class="px-8 py-6"><span class="badge badge-${(item.status || 'Tersedia').toLowerCase()}">${item.status || 'Tersedia'}</span></td>
+                    <td class="px-8 py-6 text-right">
                         ${currentUser ? `
-                            <button onclick="editItem('${item.id}')" class="text-slate-400 hover:text-blue-600 transition-colors"><i class="fa-solid fa-pen-to-square"></i></button>
-                            <button onclick="deleteItem('${item.id}')" class="text-slate-400 hover:text-red-600 transition-colors ml-2"><i class="fa-solid fa-trash-can"></i></button>
-                        ` : ''}
+                            <div class="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <button onclick="editItem('${item.id}')" class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center hover:bg-primary hover:text-white transition-all"><i class="fa-solid fa-pen"></i></button>
+                                <button onclick="deleteItem('${item.id}')" class="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        ` : '<span class="text-[8px] font-black text-slate-300 uppercase tracking-widest italic">View Only</span>'}
                     </td>
                 </tr>`).join('');
-            document.getElementById('itemCount').innerText = `Menampilkan ${filtered.length} aset`;
+            document.getElementById('itemCount').innerText = `${filtered.length} TOTAL ASET DITEMUKAN`;
             updateStats();
         }
 
@@ -410,10 +558,29 @@
             document.getElementById('statDipakai').innerText = counts.Dipakai;
             document.getElementById('statRusak').innerText = counts.Rusak;
             document.getElementById('statHilang').innerText = counts.Hilang;
+            
             const ctx = document.getElementById('stockChart')?.getContext('2d');
             if (ctx) {
                 if (chart) chart.destroy();
-                chart = new Chart(ctx, { type: 'doughnut', data: { labels: ['Tersedia', 'Dipakai', 'Rusak', 'Hilang'], datasets: [{ data: [counts.Tersedia, counts.Dipakai, counts.Rusak, counts.Hilang], backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'], borderWidth: 0 }] }, options: { plugins: { legend: { display: false } }, cutout: '75%', maintainAspectRatio: false } });
+                chart = new Chart(ctx, { 
+                    type: 'doughnut', 
+                    data: { 
+                        labels: ['Tersedia', 'Dipakai', 'Rusak', 'Hilang'], 
+                        datasets: [{ 
+                            data: [counts.Tersedia, counts.Dipakai, counts.Rusak, counts.Hilang], 
+                            backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'], 
+                            borderWidth: 8,
+                            borderColor: document.documentElement.classList.contains('dark') ? '#121212' : '#ffffff',
+                            hoverOffset: 15
+                        }] 
+                    }, 
+                    options: { 
+                        plugins: { legend: { display: false }, tooltip: { enabled: true, backgroundColor: '#000', padding: 12, titleFont: { size: 12, weight: 'bold' } } }, 
+                        cutout: '85%', 
+                        maintainAspectRatio: false,
+                        animation: { animateScale: true }
+                    } 
+                });
             }
         }
 
@@ -422,6 +589,71 @@
             const locs = [...new Set(stockItems.map(i => i.location))].filter(l => l);
             fD.innerHTML = '<option value="">Semua Lokasi</option>' + locs.map(l => `<option value="${l}">${l}</option>`).join('');
         }
+
+        function toggleModal() { 
+            const m = document.getElementById('modal');
+            const isActive = !m.classList.contains('opacity-0');
+            if (isActive) {
+                m.classList.add('opacity-0', 'pointer-events-none');
+                m.children[1].classList.add('scale-95');
+                editingId = null;
+            } else {
+                if (!editingId) {
+                    document.getElementById('addItemForm').reset();
+                    document.getElementById('modalTitle').innerText = 'Tambah Aset';
+                    document.getElementById('edit-image-preview').classList.add('hidden');
+                }
+                m.classList.remove('opacity-0', 'pointer-events-none');
+                m.children[1].classList.remove('scale-95');
+            }
+        }
+
+        function toggleAuthModal() {
+            const m = document.getElementById('authModal');
+            const isActive = !m.classList.contains('opacity-0');
+            if (isActive) {
+                m.classList.add('opacity-0', 'pointer-events-none');
+                m.children[1].classList.add('scale-95');
+            } else {
+                m.classList.remove('opacity-0', 'pointer-events-none');
+                m.children[1].classList.remove('scale-95');
+            }
+        }
+
+        function toggleScanner() {
+            const sM = document.getElementById('scannerModal');
+            const isActive = !sM.classList.contains('opacity-0');
+            if (isActive) {
+                sM.classList.add('opacity-0', 'pointer-events-none');
+                if (html5QrCode) html5QrCode.stop();
+            } else {
+                sM.classList.remove('opacity-0', 'pointer-events-none');
+                startScanner();
+            }
+        }
+
+        let html5QrCode = null;
+        async function startScanner() {
+            if (!html5QrCode) html5QrCode = new Html5Qrcode("reader");
+            const config = { fps: 20, qrbox: { width: 280, height: 280 } };
+            try {
+                await html5QrCode.start({ facingMode: "environment" }, config, (text) => {
+                    document.getElementById('itemSN').value = text;
+                    showToast("Scan Berhasil!", "success");
+                    toggleScanner();
+                    if (!document.getElementById('modal').classList.contains('pointer-events-none')) return;
+                    toggleModal(); // Open modal if we scanned from home
+                });
+            } catch (err) { showToast("Kamera tidak ditemukan", "error"); toggleScanner(); }
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault(); const email = document.getElementById('loginEmail').value, password = document.getElementById('loginPassword').value;
+            const { error } = await _supabase.auth.signInWithPassword({ email, password });
+            if (error) showToast("Akses Ditolak", "error"); else { showToast("Selamat Datang!", "success"); toggleAuthModal(); }
+        }
+
+        async function handleLogout() { if (confirm('Keluar dari sistem?')) { await _supabase.auth.signOut(); showToast("Logged Out", "info"); } }
 
         async function fetchTickets() {
             const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false });
@@ -432,169 +664,108 @@
             document.getElementById('ticketStatWait').innerText = tickets.filter(t => t.status === 'MENUNGGU').length;
             document.getElementById('ticketStatProcess').innerText = tickets.filter(t => t.status === 'DIPROSES').length;
             document.getElementById('ticketStatDone').innerText = tickets.filter(t => t.status === 'SELESAI').length;
-            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `<div class="bg-white dark:bg-slate-800 p-6 rounded-[2rem] shadow-lg border border-slate-100 dark:border-slate-700 flex gap-6 spring-hover"><div class="w-16 h-16 bg-slate-100 dark:bg-slate-900 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-wrench text-2xl opacity-20 text-slate-400"></i></div><div class="flex-1"><div class="flex justify-between items-start mb-2"><span class="px-3 py-1 text-[9px] font-black rounded-full uppercase tracking-widest status-badge-${t.status.toLowerCase()}">${t.status}</span><span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ID: #${t.id.toString().slice(0,6)} ${t.urgency === 'DARURAT' ? '🚨' : ''}</span></div><h3 class="text-lg font-black text-slate-800 dark:text-white mb-1">${t.subject}</h3><p class="text-xs text-slate-500 font-semibold mb-4"><i class="fa-solid fa-location-dot text-blue-500 mr-1.5"></i>${t.location}</p>${currentUser ? `<div class="flex gap-2"><button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-blue-50 text-blue-600 rounded-lg">Proses</button><button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="text-[8px] font-black uppercase tracking-widest px-3 py-1 bg-emerald-50 text-emerald-600 rounded-lg">Selesai</button></div>` : ''}</div></div>`).join('') : '<div class="text-center py-12 text-slate-400">Belum ada tiket laporan.</div>';
+            document.getElementById('ticketList').innerHTML = tickets.length ? tickets.map(t => `
+                <div class="glass p-8 rounded-premium premium-shadow flex gap-8 spring-card">
+                    <div class="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-file-invoice text-3xl opacity-20"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="badge badge-${t.status.toLowerCase()}">${t.status}</span>
+                            <span class="text-[9px] font-black text-slate-300 uppercase tracking-widest">Tiket #${t.id.toString().slice(0,8)}</span>
+                        </div>
+                        <h3 class="text-xl font-black mb-2">${t.subject}</h3>
+                        <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span><i class="fa-solid fa-location-dot mr-1.5 text-primary"></i>${t.location}</span>
+                            ${t.urgency === 'DARURAT' ? '<span class="text-red-500"><i class="fa-solid fa-circle-exclamation mr-1.5"></i>PRIORITAS TINGGI</span>' : ''}
+                        </div>
+                        ${currentUser ? `
+                            <div class="flex gap-2 mt-6">
+                                <button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-2 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl hover:bg-primary hover:text-white transition-all">PROSES</button>
+                                <button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-2 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl hover:bg-emerald-600 hover:text-white transition-all">SELESAI</button>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>`).join('') : '<div class="glass p-20 rounded-premium text-center text-slate-400 font-black uppercase tracking-widest">Belum ada laporan kendala.</div>';
         }
 
-        // Handle ticket submission
         async function handleTicketSubmit(e) {
-            e.preventDefault();
-            const subject = document.getElementById('ticketSubject').value;
-            const location = document.getElementById('ticketLocation').value;
-            const urgency = ticketUrgensi;
-            const btn = document.querySelector('#addTicketForm button[type="submit"]');
-            
-            btn.disabled = true;
-            btn.innerText = 'MENGIRIM...';
-
+            e.preventDefault(); const subject = document.getElementById('ticketSubject').value, location = document.getElementById('ticketLocation').value, urgency = ticketUrgensi;
+            const btn = e.target.querySelector('button[type="submit"]'); btn.disabled = true; btn.innerText = 'MENGIRIM...';
             try {
-                // 1. Save to Supabase
-                const { data, error } = await _supabase.from('office_tickets').insert([
-                    { subject, location, urgency, status: 'MENUNGGU' }
-                ]).select();
-
+                const { error } = await _supabase.from('office_tickets').insert([{ subject, location, urgency, status: 'MENUNGGU' }]);
                 if (error) throw error;
-
-                showToast("Laporan terkirim ke Database!", "success");
-
-                // 2. Trigger Telegram Alert via OpenClaw Hook (if it's DARURAT)
-                if (urgency === 'DARURAT') {
-                    showToast("Mengirim Alert Telegram...", "info");
-                    // We use a simple fetch to a potential edge function or local hook 
-                    // that Kimshie (the agent) will monitor or process.
-                    // For now, we simulate the logic that the agent will handle.
-                    console.log("ALERT: Emergency ticket detected!");
-                }
-
-                document.getElementById('addTicketForm').reset();
-                fetchTickets();
-            } catch (err) {
-                showToast(err.message, "error");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = 'Kirim Laporan';
-            }
-        }
-
-        async function updateTicketStatus(id, status) {
-            const { error } = await _supabase.from('office_tickets').update({ status }).eq('id', id);
-            if (!error) { showToast(`Tiket ${status}`, "success"); fetchTickets(); }
+                showToast("Laporan Terkirim!", "success");
+                e.target.reset(); fetchTickets();
+            } catch (err) { showToast("Gagal mengirim", "error"); } finally { btn.disabled = false; btn.innerText = 'Kirim Laporan'; }
         }
 
         function setUrgensi(val) {
             ticketUrgensi = val;
             const bN = document.getElementById('btnUrgensiNormal'), bD = document.getElementById('btnUrgensiDarurat');
-            bN.className = val === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-blue-500 bg-blue-50 text-blue-600 transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-200 text-slate-400 transition-all";
-            bD.className = val === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-200 text-slate-400 transition-all";
+            const activeClass = "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50/50 text-primary transition-all";
+            const emerActive = "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 transition-all";
+            const idleClass = "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 dark:border-white/5 text-slate-400 transition-all";
+            bN.className = val === 'NORMAL' ? activeClass : idleClass;
+            bD.className = val === 'DARURAT' ? emerActive : idleClass;
         }
 
         async function uploadFile(file, prefix) {
             if (!file) return null;
-            const ext = file.name.split('.').pop();
-            const fileName = `${prefix}_${Date.now()}.${ext}`;
+            const ext = file.name.split('.').pop(), fileName = `${prefix}_${Date.now()}.${ext}`;
             const { data, error } = await _supabase.storage.from('stock-images').upload(fileName, file);
             if (error) throw error;
-            const { data: { publicUrl } } = _supabase.storage.from('stock-images').getPublicUrl(fileName);
-            return publicUrl;
+            return _supabase.storage.from('stock-images').getPublicUrl(fileName).data.publicUrl;
         }
 
         async function handleFormSubmit(e) {
             e.preventDefault(); if (!currentUser) return;
-            const btn = document.getElementById('submitBtn');
-            btn.disabled = true; btn.innerText = 'MEMPROSES...';
-            
+            const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = 'MENYIMPAN...';
             try {
-                const docFile = document.getElementById('fileDoc').files[0];
-                const snFile = document.getElementById('fileSN').files[0];
-                const docUrl = await uploadFile(docFile, 'doc');
-                const snUrl = await uploadFile(snFile, 'sn');
-
+                const dUrl = await uploadFile(document.getElementById('fileDoc').files[0], 'doc');
+                const sUrl = await uploadFile(document.getElementById('fileSN').files[0], 'sn');
                 const payload = { 
                     name: document.getElementById('itemName').value, 
                     sn: document.getElementById('itemSN').value, 
                     location: document.getElementById('itemLocation').value, 
                     status: document.getElementById('itemStatus').value 
                 };
-                
-                if (docUrl) payload.doc_photo_url = docUrl;
-                if (snUrl) payload.sn_photo_url = snUrl;
-
-                if (editingId) {
-                    const { error } = await _supabase.from('stock_items').update(payload).eq('id', editingId);
-                    if (error) throw error;
-                    showToast("Aset diupdate!", "success");
-                } else {
-                    const { error } = await _supabase.from('stock_items').insert([payload]);
-                    if (error) throw error;
-                    showToast("Aset disimpan!", "success");
-                }
-                editingId = null;
-                fetchFromSupabase();
-                toggleModal();
-            } catch (err) {
-                showToast(err.message, 'error');
-            } finally {
-                btn.disabled = false; btn.innerText = 'SIMPAN ASET';
-            }
+                if (dUrl) payload.doc_photo_url = dUrl; if (sUrl) payload.sn_photo_url = sUrl;
+                const { error } = editingId ? await _supabase.from('stock_items').update(payload).eq('id', editingId) : await _supabase.from('stock_items').insert([payload]);
+                if (error) throw error;
+                showToast(editingId ? "Aset Diperbarui" : "Aset Berhasil Disimpan", "success");
+                toggleModal(); fetchFromSupabase();
+            } catch (err) { showToast("Gagal menyimpan", "error"); } finally { btn.disabled = false; btn.innerText = 'Simpan Data Aset'; }
         }
 
         function editItem(id) {
-            const item = stockItems.find(i => i.id === id);
-            if (!item) return;
+            const item = stockItems.find(i => i.id === id); if (!item) return;
             editingId = id;
             document.getElementById('itemName').value = item.name;
             document.getElementById('itemSN').value = item.sn;
             document.getElementById('itemLocation').value = item.location;
             document.getElementById('itemStatus').value = item.status || 'Tersedia';
-            document.getElementById('modalTitle').innerText = 'Edit Aset';
+            document.getElementById('modalTitle').innerText = 'Edit Data Aset';
             
-            // Show current images if they exist
-            const previewContainer = document.getElementById('edit-image-preview');
-            const docPreview = document.getElementById('preview-doc');
-            const snPreview = document.getElementById('preview-sn');
-            const docCont = document.getElementById('preview-doc-container');
-            const snCont = document.getElementById('preview-sn-container');
-
-            let hasImage = false;
-            if (item.doc_photo_url) {
-                docPreview.src = item.doc_photo_url;
-                docCont.classList.remove('hidden');
-                hasImage = true;
-            } else {
-                docCont.classList.add('hidden');
-            }
-
-            if (item.sn_photo_url) {
-                snPreview.src = item.sn_photo_url;
-                snCont.classList.remove('hidden');
-                hasImage = true;
-            } else {
-                snCont.classList.add('hidden');
-            }
-
-            if (hasImage) {
-                previewContainer.classList.remove('hidden');
-            } else {
-                previewContainer.classList.add('hidden');
-            }
-
+            const prev = document.getElementById('edit-image-preview'), dP = document.getElementById('preview-doc'), sP = document.getElementById('preview-sn'), dC = document.getElementById('preview-doc-container'), sC = document.getElementById('preview-sn-container');
+            let hasImg = false;
+            if (item.doc_photo_url) { dP.src = item.doc_photo_url; dC.classList.remove('hidden'); hasImg = true; } else dC.classList.add('hidden');
+            if (item.sn_photo_url) { sP.src = item.sn_photo_url; sC.classList.remove('hidden'); hasImg = true; } else sC.classList.add('hidden');
+            prev.classList.toggle('hidden', !hasImg);
             toggleModal();
         }
 
         async function deleteItem(id) {
-            if (confirm('Hapus aset ini?')) {
+            if (confirm('Hapus permanen aset ini?')) {
                 const { error } = await _supabase.from('stock_items').delete().eq('id', id);
-                if (!error) { showToast("Terhapus", "info"); fetchFromSupabase(); }
+                if (!error) { showToast("Data Terhapus", "info"); fetchFromSupabase(); }
             }
         }
 
         function handleSearch() { renderTable(); }
         function filterItems() { renderTable(); }
-        function toggleScanner() { showToast("Scanner siap diaktifkan!", "info"); }
-        function openImageModal(url) { 
-            const m = document.getElementById('imageModal'), i = document.getElementById('modalImage');
-            if (m && i) { i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); }
-        }
-        function closeImageModal() { document.getElementById('imageModal').classList.add('opacity-0', 'pointer-events-none'); }
+        function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); m.children[1].classList.remove('scale-95'); }
+        function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); m.children[1].classList.add('scale-95'); }
     </script>
 </body>
 </html>
