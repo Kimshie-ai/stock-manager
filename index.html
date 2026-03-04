@@ -724,10 +724,16 @@
         function updateUIForAuth(user) {
             currentUser = user;
             const loginBtn = document.getElementById('loginBtn'), userProfile = document.getElementById('userProfile'), fabAdd = document.getElementById('fabAddBtn'), userInitial = document.getElementById('userInitial');
+            const navAssets = document.getElementById('nav-assets');
+
             if (user) { 
                 loginBtn.classList.add('hidden'); userProfile.classList.remove('hidden'); userInitial.innerText = user.email.charAt(0).toUpperCase(); fabAdd.classList.remove('hidden');
+                navAssets.classList.remove('hidden');
             } else { 
                 loginBtn.classList.remove('hidden'); userProfile.classList.add('hidden'); fabAdd.classList.add('hidden');
+                navAssets.classList.add('hidden');
+                // Force switch if currently on assets and logged out
+                if (activeModule === 'assets') switchModule('rooms');
             }
             renderTable();
         }
@@ -1071,24 +1077,37 @@
                 agenda: document.getElementById('bookingAgenda').value
             };
 
+            // Map local room names to exact Google Form option strings
+            const roomMap = {
+                'Lantai 2 Witel Ruang Colaboration': 'Lantai 2 Witel Ruang Colaboration (Kapasitas 40)',
+                'Ruang rapat besar lantai 4': 'Ruang rapat besar lantai 4 (',
+                'Lantai 7 Witel Spark room 1': 'Lantai 7 Witel Spark room 1 (Kapasitas 20)',
+                'Lantai 7 Witel Spark room 2': 'Lantai 7 Witel Spark room 2 (Kapasitas 16)',
+                'Lantai 7 Witel Mindspace 2': 'Lantai 7 Witel Mindspace 2 (Kapasitas 6)'
+            };
+
+            const exactRoomName = roomMap[payload.room] || payload.room;
+
             try {
                 // 1. Send to Google Sheets via Google Form Hook
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLScV8k27aPjDgsj4VkwFL1IH_c8_te2KHzk5eFouS27XorZfag/formResponse";
-                const formData = new FormData();
-                formData.append('entry.1275419724', payload.name);
-                formData.append('entry.803108456', payload.whatsapp);
-                formData.append('entry.276085607', payload.unit);
-                formData.append('entry.905896922', payload.room);
-                formData.append('entry.524278036', payload.date);
-                formData.append('entry.1846877829', payload.start);
-                formData.append('entry.1854871766', payload.end);
-                formData.append('entry.109089657', payload.agenda);
+                
+                // Using URLSearchParams for better compatibility with formResponse
+                const params = new URLSearchParams();
+                params.append('entry.1275419724', payload.name);
+                params.append('entry.803108456', payload.whatsapp);
+                params.append('entry.276085607', payload.unit);
+                params.append('entry.905896922', exactRoomName);
+                params.append('entry.524278036', payload.date);
+                params.append('entry.1846877829', payload.start);
+                params.append('entry.1854871766', payload.end);
+                params.append('entry.109089657', payload.agenda);
 
-                // Submission using no-cors mode (will not be able to read response, but data is sent)
                 fetch(formUrl, {
                     method: 'POST',
                     mode: 'no-cors',
-                    body: formData
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: params.toString()
                 });
 
                 // 2. Save to Supabase as fallback/local log
