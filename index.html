@@ -627,6 +627,22 @@
         </div>
     </div>
 
+    <!-- MODAL: Custom Confirmation -->
+    <div id="confirmModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[180] transition-all duration-500">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div>
+        <div class="glass w-11/12 md:max-w-sm mx-auto rounded-super-premium shadow-2xl z-[190] p-10 transform scale-95 transition-all text-center">
+            <div class="w-20 h-20 bg-amber-50 dark:bg-amber-900/20 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-6 text-3xl">
+                <i class="fa-solid fa-circle-exclamation animate-pulse"></i>
+            </div>
+            <h2 id="confirmTitle" class="text-2xl font-black mb-2">Konfirmasi</h2>
+            <p id="confirmMessage" class="text-xs font-bold text-slate-400 uppercase tracking-widest leading-relaxed mb-10">Apakah Anda yakin ingin melanjutkan tindakan ini?</p>
+            <div class="flex gap-3">
+                <button id="confirmCancel" class="flex-1 py-4 glass text-slate-400 font-black text-[10px] uppercase tracking-widest rounded-2xl border border-slate-200 dark:border-white/10 hover:bg-slate-50 dark:hover:bg-white/5 transition-all">Batal</button>
+                <button id="confirmOk" class="flex-1 py-4 bg-primary text-white font-black text-[10px] uppercase tracking-widest rounded-2xl shadow-lg shadow-primary/30 hover:bg-blue-700 transition-all">Ya, Lanjut</button>
+            </div>
+        </div>
+    </div>
+
     <!-- SYSTEM SCRIPTS -->
     <script>
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co';
@@ -923,7 +939,12 @@
             if (error) showToast("Akses Ditolak", "error"); else { showToast("Selamat Datang!", "success"); toggleAuthModal(); }
         }
 
-        async function handleLogout() { if (confirm('Keluar dari sistem?')) { await _supabase.auth.signOut(); showToast("Logged Out", "info"); } }
+        async function handleLogout() {
+            showConfirm('Log Out', 'Keluar dari sistem admin Kimshie?', async () => {
+                await _supabase.auth.signOut();
+                showToast("Logged Out", "info");
+            });
+        }
 
         async function fetchTickets() {
             const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false });
@@ -1055,23 +1076,45 @@
         }
 
         async function deleteTicket(id) {
-            if (confirm('Hapus riwayat keluhan ini?')) {
+            showConfirm('Hapus Riwayat', 'Hapus permanen riwayat keluhan ini?', async () => {
                 const { error } = await _supabase.from('office_tickets').delete().eq('id', id);
                 if (!error) { showToast("Riwayat Terhapus", "info"); fetchTickets(); }
-            }
+            });
         }
 
         async function deleteItem(id) {
-            if (confirm('Hapus permanen aset ini?')) {
+            showConfirm('Hapus Aset', 'Hapus permanen data aset ini?', async () => {
                 const { error } = await _supabase.from('stock_items').delete().eq('id', id);
                 if (!error) { showToast("Data Terhapus", "info"); fetchFromSupabase(); }
-            }
+            });
         }
 
         function handleSearch() { renderTable(); }
         function filterItems() { renderTable(); }
         function openImageModal(url) { const m = document.getElementById('imageModal'), i = document.getElementById('modalImage'); i.src = url; m.classList.remove('opacity-0', 'pointer-events-none'); m.children[1].classList.remove('scale-95'); }
         function closeImageModal() { const m = document.getElementById('imageModal'); m.classList.add('opacity-0', 'pointer-events-none'); m.children[1].classList.add('scale-95'); }
+
+        // --- Custom Dialogs ---
+        function showConfirm(title, message, onOk) {
+            const m = document.getElementById('confirmModal');
+            document.getElementById('confirmTitle').innerText = title;
+            document.getElementById('confirmMessage').innerText = message;
+            m.classList.remove('opacity-0', 'pointer-events-none');
+            m.children[1].classList.remove('scale-95');
+
+            const okBtn = document.getElementById('confirmOk');
+            const cancelBtn = document.getElementById('confirmCancel');
+
+            const cleanup = () => {
+                m.classList.add('opacity-0', 'pointer-events-none');
+                m.children[1].classList.add('scale-95');
+                okBtn.onclick = null;
+                cancelBtn.onclick = null;
+            };
+
+            okBtn.onclick = () => { cleanup(); onOk(); };
+            cancelBtn.onclick = cleanup;
+        }
 
         // --- Room Booking Logic ---
         function openBooking(room) {
