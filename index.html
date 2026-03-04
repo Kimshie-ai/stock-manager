@@ -944,7 +944,7 @@
                 return `
                 <div class="glass p-8 rounded-premium premium-shadow flex gap-8 spring-card">
                     <div class="w-20 h-20 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
-                        <i class="fa-solid fa-file-invoice text-3xl opacity-20"></i>
+                        ${t.status === 'SELESAI' ? '<i class="fa-solid fa-circle-check text-3xl text-emerald-500 animate-premium"></i>' : '<i class="fa-solid fa-file-invoice text-3xl opacity-20"></i>'}
                     </div>
                     <div class="flex-1">
                         <div class="flex justify-between items-start mb-4">
@@ -963,8 +963,9 @@
                         </div>
                         ${currentUser ? `
                             <div class="flex gap-2 mt-6">
-                                <button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-2 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl hover:bg-primary hover:text-white transition-all">PROSES</button>
-                                <button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-2 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl hover:bg-emerald-600 hover:text-white transition-all">SELESAI</button>
+                                ${t.status === 'MENUNGGU' ? `<button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-2 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl hover:bg-primary hover:text-white transition-all">PROSES</button>` : ''}
+                                ${t.status !== 'SELESAI' ? `<button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-2 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl hover:bg-emerald-600 hover:text-white transition-all">SELESAI</button>` : ''}
+                                ${t.status === 'SELESAI' ? `<button onclick="deleteTicket('${t.id}')" class="px-5 py-2 bg-red-50 text-red-500 text-[9px] font-black rounded-xl hover:bg-red-500 hover:text-white transition-all">HAPUS RIWAYAT</button>` : ''}
                             </div>
                         ` : ''}
                     </div>
@@ -1051,6 +1052,13 @@
         async function updateTicketStatus(id, status) {
             const { error } = await _supabase.from('office_tickets').update({ status }).eq('id', id);
             if (!error) { showToast(`Tiket ${status}`, "success"); fetchTickets(); }
+        }
+
+        async function deleteTicket(id) {
+            if (confirm('Hapus riwayat keluhan ini?')) {
+                const { error } = await _supabase.from('office_tickets').delete().eq('id', id);
+                if (!error) { showToast("Riwayat Terhapus", "info"); fetchTickets(); }
+            }
         }
 
         async function deleteItem(id) {
