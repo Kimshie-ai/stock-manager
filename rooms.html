@@ -108,9 +108,7 @@
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Unit / Departemen</label>
                             <select id="bookingUnit" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
                                 <option value="" class="bg-dark-card text-white">Pilih Unit...</option>
-                                <option class="bg-dark-card text-white">SIM</option>
-                                <option class="bg-dark-card text-white">PAM</option>
-                                <option class="bg-dark-card text-white">BIG</option>
+                                <option class="bg-dark-card text-white">SIM</option><option class="bg-dark-card text-white">PAM</option><option class="bg-dark-card text-white">GEA</option><option class="bg-dark-card text-white">DGM</option><option class="bg-dark-card text-white">DPS</option><option class="bg-dark-card text-white">AIX</option><option class="bg-dark-card text-white">DIS</option><option class="bg-dark-card text-white">DOA</option><option class="bg-dark-card text-white">DPE</option><option class="bg-dark-card text-white">TRS</option><option class="bg-dark-card text-white">SSO</option><option class="bg-dark-card text-white">BIG</option><option class="bg-dark-card text-white">DGP</option><option class="bg-dark-card text-white">GDD</option><option class="bg-dark-card text-white">VID</option><option class="bg-dark-card text-white">GTP</option><option class="bg-dark-card text-white">PAS</option><option class="bg-dark-card text-white">SMB</option>
                             </select>
                         </div>
                         <div class="space-y-2">
@@ -147,11 +145,31 @@
 
         const buildingData = {
             rooms: [
-                { name: 'Lantai 2 Witel Ruang Colaboration', floor: 2, cap: 40, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
-                { name: 'Ruang rapat besar lantai 4', floor: 4, cap: 40, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBSn0WwzPD3TL528yA8szsE_tQ2uNsiwKjnbH-N0LWSgzp5G0Cz_TJK78OmpIpQ_-OaTgvAsO_lDhpcHQUvJ9LdVi0Wyd5P8egsa1Z5D26PjHKB5YkLzeze7LnvDyuPlX9IPNYgq2vZB4aqIS0a3ngKy7Lwmw_2V8iHd-Qm7N9v763AeS0b1M7MBITI01Uh5lGAJ0E6VPjYsYrL=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
-                { name: 'Lantai 7 Witel Spark room 1', floor: 7, cap: 20, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
-                { name: 'Lantai 7 Witel Spark room 2', floor: 7, cap: 16, img: '' },
-                { name: 'Lantai 7 Witel Mindspace 2', floor: 7, cap: 6, img: '' }
+                { 
+                    name: 'Lantai 2 Witel Ruang Colaboration (Kapasitas 40)', 
+                    floor: 2, cap: 40, 
+                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDpuJfxEMOP9ytsaI7jdxZsZJTGpO7Dnpxbe_Zy2pRkOwasCWkrFN1pehc4qWzCXHb7BfVpntePwdR5EeNZDcJ6EwU5GizbpAn6ZYVSoPRPJfQ3pNtTEtymODhYNQzFVaoPN4z1HnfjHclGcR7gzdilGBjFf4-XIx3fN2IyfTiJLBTE7Ja_A5J_ke0T1rrs0xM3HfySBnOV4RaQ=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
+                },
+                { 
+                    name: 'Ruang rapat besar lantai 4 (', 
+                    floor: 4, cap: 40, 
+                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVAJB0s0ZOZa6TRsQjldkS5L9fl7EzkM5bVvPts1NJDSbnvyICgwvV6R586xXEy_KQO9a2NA1slskirskK352PTjdPhXKHdlxN-5m7yzApiJRy1tdT7R8a1Yakh5RLULI482XHOkdmiCHQyYCG-oXM0UnyHWk14plQPwC0gnNfvZCUAbvoWhSjS0WOKkKxRDlAz2b1O2j09JHkfA=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
+                },
+                { 
+                    name: 'Lantai 7 Witel Spark room 1 (Kapasitas 20)', 
+                    floor: 7, cap: 20, 
+                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBMmQhG2tbAHySmpTA7DrQ79kgq4jtAUpmGQCYoc87sK4c2OILZtVIiYPW8tJ_CvQw3ZKG0hRbgwoOm4rYwwqhkZx3CNPp91eqbafBwN2voYxjc0lhxnLsi7yQ7QIgxRVb1Emr0vn2eHKHvMM1rUMngD3L-2irkLG-oIwZE7K87q5aZOzzG1VqQXlq_GmRh4yO83A4iZ0ZrJXIH=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
+                },
+                { 
+                    name: 'Lantai 7 Witel Spark room 2 (Kapasitas 16)', 
+                    floor: 7, cap: 16, 
+                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBfYRy8boG1dAuIqpM7FXv0NntAZIBrxKewFMhLe4VfqYEBijCsH0KqxI_Bm6YRAoAPMEdu3B2ICmiOoIurjc6srOfpzZD90nCM5ZWVnEE1hSgHtKklTKbb09X6Rn1yWNOaCUWw4jVzUW2XxUiDMAkvwDjg8FTxSOGNXLmyqET42iIFKZf7rtNvll-FTF8LmczsL8CJvG8D8skY=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
+                },
+                { 
+                    name: 'Lantai 7 Witel Mindspace 2 (Kapasitas 6)', 
+                    floor: 7, cap: 6, 
+                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBn1fk9qB14oFvtXeUydxt8rsLSkypFqS5OjQndLfm6owOWZnuRSZkssJ2LsyIR9T1RlD2WO7cFionD9CysRhXxuA7ntw5w0hCMwQWuwXdDxMbsFE2kuInSPz3r4lUc8aEmeD_foPZruBDzhG8JZsmYS991BfE3TQ4hmSBdmSUQJgjTf4tbOa5Aymp82U39HZx7IaUHzkhkPJ4b=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
+                }
             ]
         };
 
