@@ -18,33 +18,43 @@
         .text-glow { text-shadow: 0 0 20px rgba(0, 86, 179, 0.5); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-6">
+<body class="min-h-screen flex flex-col items-center justify-center p-6 md:p-12">
     <div class="hero-gradient"></div>
+    
     <div class="mb-12 text-center floating-k">
-        <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-24 w-auto mx-auto mb-4 drop-shadow-[0_0_15px_rgba(0,86,179,0.8)]">
-        <h1 class="text-4xl font-extrabold tracking-tighter text-glow">KIMSHIE<span class="text-blue-500">PORTAL</span></h1>
-        <p class="text-slate-500 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Next-Gen Management Ecosystem</p>
+        <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-20 md:h-24 w-auto mx-auto mb-4 drop-shadow-[0_0_15px_rgba(0,86,179,0.8)]">
+        <h1 class="text-3xl md:text-4xl font-extrabold tracking-tighter text-glow uppercase">Kimshie<span class="text-blue-500">Portal</span></h1>
+        <p class="text-slate-500 text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] mt-2">Next-Gen Management Ecosystem</p>
     </div>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
-        <a href="assets.html" class="glass-card p-10 rounded-[2.5rem] flex flex-col items-center text-center group">
-            <div class="w-20 h-20 rounded-3xl bg-blue-600/10 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fa-solid fa-boxes-stacked text-3xl"></i></div>
-            <h3 class="text-xl font-black mb-2 uppercase tracking-wide">Office Manager</h3>
-            <p class="text-xs text-slate-400 font-medium leading-relaxed">Kelola inventaris aset kantor, update status barang, dan scanning barcode secara real-time.</p>
-            <div class="mt-8 flex items-center text-[10px] font-black text-blue-500 uppercase tracking-widest">Enter System <i class="fa-solid fa-arrow-right ml-2"></i></div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 max-w-6xl w-full">
+        <!-- Office Manager -->
+        <a href="assets.html" class="glass-card p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] flex flex-col items-center text-center group">
+            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-blue-600/10 flex items-center justify-center mb-6 group-hover:bg-blue-600 group-hover:text-white transition-all"><i class="fa-solid fa-boxes-stacked text-2xl md:text-3xl"></i></div>
+            <h3 class="text-lg md:text-xl font-black mb-2 uppercase tracking-wide">Office Manager</h3>
+            <p class="text-[11px] md:text-xs text-slate-400 font-medium leading-relaxed">Kelola inventaris aset kantor, update status barang, dan scanning barcode secara real-time.</p>
+            <div class="mt-8 flex items-center text-[9px] md:text-[10px] font-black text-blue-500 uppercase tracking-widest">Enter System <i class="fa-solid fa-arrow-right ml-2"></i></div>
         </a>
-        <a href="rooms.html" class="glass-card p-10 rounded-[2.5rem] flex flex-col items-center text-center group">
-            <div class="w-20 h-20 rounded-3xl bg-emerald-600/10 flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all"><i class="fa-solid fa-building-circle-check text-3xl"></i></div>
-            <h3 class="text-xl font-black mb-2 uppercase tracking-wide">Room Booking</h3>
-            <p class="text-xs text-slate-400 font-medium leading-relaxed">Reservasi ruang rapat melalui denah interaktif terpadu dan monitoring jadwal otomatis.</p>
-            <div class="mt-8 flex items-center text-[10px] font-black text-emerald-500 uppercase tracking-widest">Check Availability <i class="fa-solid fa-arrow-right ml-2"></i></div>
+
+        <!-- Room Booking -->
+        <a href="rooms.html" class="glass-card p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] flex flex-col items-center text-center group">
+            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-emerald-600/10 flex items-center justify-center mb-6 group-hover:bg-emerald-600 group-hover:text-white transition-all"><i class="fa-solid fa-building-circle-check text-2xl md:text-3xl"></i></div>
+            <h3 class="text-lg md:text-xl font-black mb-2 uppercase tracking-wide">Room Booking</h3>
+            <p class="text-[11px] md:text-xs text-slate-400 font-medium leading-relaxed">Reservasi ruang rapat Witel OPMC melalui sistem kartu terpadu dan monitoring jadwal.</p>
+            <div class="mt-8 flex items-center text-[9px] md:text-[10px] font-black text-emerald-500 uppercase tracking-widest">Check Availability <i class="fa-solid fa-arrow-right ml-2"></i></div>
         </a>
-        <a href="tickets.html" class="glass-card p-10 rounded-[2.5rem] flex flex-col items-center text-center group">
-            <div class="w-20 h-20 rounded-3xl bg-amber-600/10 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all"><i class="fa-solid fa-screwdriver-wrench text-3xl"></i></div>
-            <h3 class="text-xl font-black mb-2 uppercase tracking-wide">Emergency Hub</h3>
-            <p class="text-xs text-slate-400 font-medium leading-relaxed">Layanan pengaduan kendala operasional dengan respon bot 30 detik via Telegram.</p>
-            <div class="mt-8 flex items-center text-[10px] font-black text-amber-500 uppercase tracking-widest">Report Issue <i class="fa-solid fa-arrow-right ml-2"></i></div>
+
+        <!-- Emergency Hub -->
+        <a href="tickets.html" class="glass-card p-8 md:p-10 rounded-[2rem] md:rounded-[2.5rem] flex flex-col items-center text-center group">
+            <div class="w-16 h-16 md:w-20 md:h-20 rounded-2xl md:rounded-3xl bg-amber-600/10 flex items-center justify-center mb-6 group-hover:bg-amber-600 group-hover:text-white transition-all"><i class="fa-solid fa-screwdriver-wrench text-2xl md:text-3xl"></i></div>
+            <h3 class="text-lg md:text-xl font-black mb-2 uppercase tracking-wide">Emergency Hub</h3>
+            <p class="text-[11px] md:text-xs text-slate-400 font-medium leading-relaxed">Layanan pengaduan kendala operasional dengan respon bot 30 detik via Telegram.</p>
+            <div class="mt-8 flex items-center text-[9px] md:text-[10px] font-black text-amber-500 uppercase tracking-widest">Report Issue <i class="fa-solid fa-arrow-right ml-2"></i></div>
         </a>
     </div>
-    <div class="mt-20 text-slate-600 text-center"><p class="text-[10px] font-bold uppercase tracking-widest">Powered by Kimshie Bot AI 🌸 | 2026 Edition</p></div>
+
+    <footer class="mt-16 md:mt-20 text-slate-600 text-center">
+        <p class="text-[8px] md:text-[10px] font-bold uppercase tracking-widest">Powered by Kimshie Bot AI 🌸 | 2026 Edition</p>
+    </footer>
 </body>
 </html>
