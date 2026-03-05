@@ -33,12 +33,17 @@
         .badge-menunggu { @apply bg-amber-50 text-amber-600 border-amber-100; }
         .badge-diproses { @apply bg-blue-50 text-blue-600 border-blue-100; }
         .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100; }
+        
+        .type-card { @apply relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 transition-all cursor-pointer hover:border-amber-500/50; }
+        .type-card.selected { @apply border-amber-500 bg-amber-50 dark:bg-amber-500/10 shadow-lg shadow-amber-500/10; }
+        .type-card i { @apply text-2xl mb-2 transition-transform duration-300; }
+        .type-card.selected i { @apply scale-110 text-amber-500; }
+        
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white">
     <div class="hero-gradient"></div>
-    <div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
     
     <!-- Success Modal Overlay -->
     <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
@@ -104,16 +109,46 @@
                 <div class="glass p-8 md:p-10 rounded-[2rem] md:rounded-super-premium border-t-4 border-t-amber-500 shadow-2xl sticky top-32">
                     <h2 class="text-2xl font-black mb-8 tracking-tighter">Buat Laporan</h2>
                     <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Nama Pelapor</label>
-                            <input type="text" id="reporterName" required placeholder="Nama Lengkap Karyawan" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Nama Pelapor</label>
+                                <input type="text" id="reporterName" required placeholder="Nama" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Divisi / Unit</label>
+                                <input type="text" id="reporterUnit" required placeholder="Divisi" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                            </div>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Divisi / Unit / Tribe</label>
-                            <input type="text" id="reporterUnit" required placeholder="Contoh: IT / SIM" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="typeContainer">
+                                <div onclick="selectType('AC/ Pendingin Ruangan')" class="type-card" data-val="AC/ Pendingin Ruangan">
+                                    <i class="fa-solid fa-snowflake"></i>
+                                    <span class="text-[9px] font-bold uppercase tracking-tighter">AC</span>
+                                </div>
+                                <div onclick="selectType('Jaringan Internet')" class="type-card" data-val="Jaringan Internet">
+                                    <i class="fa-solid fa-wifi"></i>
+                                    <span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span>
+                                </div>
+                                <div onclick="selectType('Toilet')" class="type-card" data-val="Toilet">
+                                    <i class="fa-solid fa-restroom"></i>
+                                    <span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span>
+                                </div>
+                                <div onclick="selectType('Furniture')" class="type-card" data-val="Furniture">
+                                    <i class="fa-solid fa-chair"></i>
+                                    <span class="text-[9px] font-bold uppercase tracking-tighter">Mebel</span>
+                                </div>
+                                <div onclick="selectType('Yang lain')" class="type-card" data-val="Yang lain">
+                                    <i class="fa-solid fa-ellipsis"></i>
+                                    <span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span>
+                                </div>
+                            </div>
+                            <input type="hidden" id="ticketType" required>
                         </div>
+
                         <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Lokasi Area</label>
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Lokasi Area</label>
                             <select id="ticketLocation" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
                                 <option value="">Pilih Lokasi...</option>
                                 <optgroup label="Witel">
@@ -128,36 +163,31 @@
                                 </optgroup>
                             </select>
                         </div>
+
                         <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Jenis Keluhan</label>
-                            <select id="ticketType" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
-                                <option value="">Pilih Jenis...</option>
-                                <option value="AC/ Pendingin Ruangan">AC/ Pendingin Ruangan</option>
-                                <option>Jaringan Internet</option>
-                                <option>Toilet</option>
-                                <option>Furniture</option>
-                                <option>Yang lain</option>
-                            </select>
-                        </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Deskripsi Keluhan</label>
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Deskripsi Keluhan</label>
                             <textarea id="ticketDetail" required placeholder="Jelaskan detail kerusakan..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold min-h-[100px] focus:border-amber-500 outline-none transition-all"></textarea>
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Tingkat Urgensi</label>
-                            <div class="flex gap-2">
-                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all">NORMAL</button>
-                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all">DARURAT 🚨</button>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Tingkat Urgensi</label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all">NORMAL</button>
+                                    <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all">DARURAT</button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Waktu Kejadian</label>
+                                <input type="date" id="eventDate" required class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all text-xs">
                             </div>
                         </div>
+
                         <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Kontak (WhatsApp)</label>
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Kontak WhatsApp</label>
                             <input type="tel" id="reporterContact" required placeholder="0812..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
                         </div>
-                        <div class="space-y-2">
-                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Waktu Kejadian</label>
-                            <input type="date" id="eventDate" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
-                        </div>
+
                         <button type="submit" id="submitBtn" class="w-full bg-amber-500 text-white font-black py-6 rounded-2xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all uppercase tracking-widest text-xs pt-8">Kirim Laporan</button>
                     </form>
                 </div>
@@ -189,6 +219,7 @@
             }
             updateThemeIcon();
             checkAuth(); fetchTickets(); 
+            document.getElementById('eventDate').valueAsDate = new Date();
         };
         
         function toggleDarkMode() {
@@ -200,6 +231,15 @@
         function updateThemeIcon() {
             const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        function selectType(val) {
+            document.getElementById('ticketType').value = val;
+            const cards = document.querySelectorAll('.type-card');
+            cards.forEach(c => {
+                if(c.getAttribute('data-val') === val) c.classList.add('selected');
+                else c.classList.remove('selected');
+            });
         }
 
         function showSuccessModal() {
@@ -270,6 +310,9 @@
 
         async function handleTicketSubmit(e) { 
             e.preventDefault(); 
+            const type = document.getElementById('ticketType').value;
+            if(!type) { alert("Pilih Jenis Keluhan terlebih dahulu!"); return; }
+
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = "Mengirim...";
@@ -277,13 +320,12 @@
             const name = document.getElementById('reporterName').value,
                   unit = document.getElementById('reporterUnit').value,
                   loc = document.getElementById('ticketLocation').value,
-                  type = document.getElementById('ticketType').value,
                   detail = document.getElementById('ticketDetail').value,
                   contact = document.getElementById('reporterContact').value,
                   date = document.getElementById('eventDate').value,
                   urg = ticketUrgensi;
 
-            const fullSubject = `${type}: ${detail}`;
+            const fullSubject = `[${name}] ${type}: ${detail}`;
 
             try { 
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
@@ -308,6 +350,8 @@
 
                 if(!error) { 
                     e.target.reset(); 
+                    const cards = document.querySelectorAll('.type-card');
+                    cards.forEach(c => c.classList.remove('selected'));
                     fetchTickets(); 
                     showSuccessModal();
                 } 
@@ -321,8 +365,8 @@
 
         function setUrgensi(v) { 
             ticketUrgensi = v; 
-            document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
-            document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
+            document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
+            document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
         }
 
         function handleTicketSearch() { 
