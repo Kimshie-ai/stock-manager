@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mobile Preview - Office Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050505; color: white; margin: 0; padding: 0; }
+        .mobile-frame { width: 375px; height: 812px; background: #050505; border: 12px solid #1a1a1a; border-radius: 3rem; position: relative; overflow-y: auto; margin: 2rem auto; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, #050505 70%); opacity: 0.15; position: absolute; width: 100%; height: 100%; z-index: -1; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
+</head>
+<body class="bg-slate-900 min-h-screen flex flex-col items-center py-10">
+    <div class="text-center mb-10">
+        <h1 class="text-white text-2xl font-black tracking-tighter">Mobile View Simulator</h1>
+        <p class="text-slate-400 text-sm">Ukuran Standar iPhone 13/14 Pro</p>
+    </div>
+
+    <div class="mobile-frame no-scrollbar">
+        <div class="hero-gradient"></div>
+        
+        <!-- Header Mobile -->
+        <nav class="glass sticky top-0 z-50 px-6 py-4 flex justify-between items-center border-b border-white/5">
+            <img src="https://raw.githubusercontent.com/Kimshie-ai/Kimshie/main/office-manager/assets/branding/logo-k-refined.png" class="h-8 w-auto">
+            <div class="flex gap-2">
+                <div class="w-8 h-8 rounded-lg glass flex items-center justify-center text-[10px]"><i class="fa-solid fa-moon"></i></div>
+                <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-[10px] font-black">A</div>
+            </div>
+        </nav>
+
+        <div class="p-6">
+            <h1 class="text-4xl font-black tracking-tighter mb-2">Pesan Ruangan</h1>
+            <p class="text-slate-500 text-sm mb-8">Witel OPMC - Booking cepat.</p>
+
+            <!-- Grid Mobile (1 Column) -->
+            <div class="space-y-6">
+                <!-- Card 1 -->
+                <div class="glass p-5 rounded-[2rem] border border-white/5">
+                    <div class="h-40 rounded-2xl overflow-hidden mb-4 relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVDpuJfxEMOP9ytsaI7jdxZsZJTGpO7Dnpxbe_Zy2pRkOwasCWkrFN1pehc4qWzCXHb7BfVpntePwdR5EeNZDcJ6EwU5GizbpAn6ZYVSoPRPJfQ3pNtTEtymODhYNQzFVaoPN4z1HnfjHclGcR7gzdilGBjFf4-XIx3fN2IyfTiJLBTE7Ja_A5J_ke0T1rrs0xM3HfySBnOV4RaQ=w600?key=nJ46R7ZS1TueXAVPvww5Ig" class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-blue-600/90 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">Lantai 2</div>
+                    </div>
+                    <h3 class="text-lg font-black leading-tight mb-1">Ruang Colaboration</h3>
+                    <p class="text-slate-500 text-[10px] mb-4"><i class="fa-solid fa-users mr-1"></i> Kapasitas 40 Orang</p>
+                    <button class="w-full bg-white/5 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest border border-white/10">Pilih Ruangan</button>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="glass p-5 rounded-[2rem] border border-white/5">
+                    <div class="h-40 rounded-2xl overflow-hidden mb-4 relative">
+                        <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVAJB0s0ZOZa6TRsQjldkS5L9fl7EzkM5bVvPts1NJDSbnvyICgwvV6R586xXEy_KQO9a2NA1slskirskK352PTjdPhXKHdlxN-5m7yzApiJRy1tdT7R8a1Yakh5RLULI482XHOkdmiCHQyYCG-oXM0UnyHWk14plQPwC0gnNfvZCUAbvoWhSjS0WOKkKxRDlAz2b1O2j09JHkfA=w600?key=nJ46R7ZS1TueXAVPvww5Ig" class="w-full h-full object-cover">
+                        <div class="absolute top-3 left-3 bg-blue-600/90 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">Lantai 4</div>
+                    </div>
+                    <h3 class="text-lg font-black leading-tight mb-1">Ruang Rapat Besar OPMC</h3>
+                    <p class="text-slate-500 text-[10px] mb-4"><i class="fa-solid fa-users mr-1"></i> Kapasitas 20 Orang</p>
+                    <button class="w-full bg-blue-600 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest">Pilih Ruangan</button>
+                </div>
+            </div>
+
+            <!-- Form Preview on Mobile -->
+            <div class="mt-10 glass p-8 rounded-[2.5rem] border-t-4 border-t-blue-600">
+                <h2 class="text-2xl font-black text-center mb-6 tracking-tighter">Form Reservasi</h2>
+                <div class="space-y-4">
+                    <input type="text" placeholder="Nama Lengkap" class="w-full px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold">
+                    <input type="tel" placeholder="WhatsApp" class="w-full px-5 py-3 bg-white/5 border border-white/10 rounded-xl text-sm font-bold">
+                    <div class="flex gap-2">
+                        <select class="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold"><option>Jam</option></select>
+                        <select class="flex-1 px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-xs font-bold"><option>Menit</option></select>
+                    </div>
+                    <button class="w-full bg-blue-600 py-4 rounded-xl text-xs font-black uppercase tracking-widest mt-4">Kirim</button>
+                </div>
+            </div>
+        </div>
+
+        <footer class="p-10 text-center opacity-30">
+            <p class="text-[8px] font-bold uppercase tracking-[0.3em]">Office Manager 2026</p>
+        </footer>
+    </div>
+
+    <div class="max-w-2xl text-center px-10 mt-10 text-slate-400 text-sm leading-relaxed">
+        <p>Preview ini mensimulasikan bagaimana tampilan website **Office Manager** di layar smartphone. Layout secara otomatis berubah menjadi satu kolom agar nyaman dibaca dan di-tap menggunakan jempol. 📱✨</p>
+    </div>
+</body>
+</html>

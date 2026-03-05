@@ -64,20 +64,20 @@
 
     <!-- Navigation -->
     <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex justify-between h-20 items-center">
-                <a href="index.html" class="flex items-center space-x-4">
-                    <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-10 w-auto">
-                    <div class="h-6 w-[1px] bg-slate-200 dark:bg-white/10 mx-2"></div>
-                    <span class="text-xl font-extrabold tracking-tighter uppercase">Office<span class="text-primary">Manager</span></span>
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div class="flex justify-between h-16 md:h-20 items-center gap-2">
+                <a href="index.html" class="flex items-center gap-2 md:gap-4 min-w-0 flex-shrink">
+                    <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-7 md:h-10 w-auto">
+                    <div class="hidden sm:block h-6 w-[1px] bg-slate-200 dark:bg-white/10 mx-1"></div>
+                    <span class="text-sm md:text-xl font-extrabold tracking-tighter uppercase truncate">Office<span class="text-primary">Manager</span></span>
                 </a>
-                <div class="flex items-center space-x-4">
-                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
+                <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
                         <i id="themeIcon" class="fa-solid fa-moon text-slate-500 dark:text-slate-400"></i>
                     </button>
-                    <div id="authSection" class="flex items-center space-x-4">
-                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">Login</button>
-                        <div id="userProfile" class="hidden flex items-center space-x-3">
+                    <div id="authSection" class="flex items-center gap-2 md:gap-4">
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-4 md:px-6 py-2 md:py-2.5 bg-primary text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">Login</button>
+                        <div id="userProfile" class="hidden flex items-center gap-2 md:gap-3">
                             <span id="userInitial" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black border border-white/20 shadow-lg shadow-primary/20">A</span>
                             <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
                         </div>
@@ -87,11 +87,11 @@
         </div>
     </nav>
 
-    <header class="pt-20 pb-12 max-w-7xl mx-auto px-6 animate-premium">
+    <header class="pt-12 md:pt-20 pb-8 md:pb-12 max-w-7xl mx-auto px-6 animate-premium">
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-                <h1 class="text-6xl font-black tracking-tighter mb-4">Pesan Ruangan</h1>
-                <p class="text-slate-500 dark:text-slate-400 text-lg">Witel OPMC - Booking ruang rapat secepat kilat. 🏢⚡</p>
+                <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4">Pesan Ruangan</h1>
+                <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg">Witel OPMC - Booking ruang rapat secepat kilat. 🏢⚡</p>
             </div>
             <div class="flex gap-3">
                 <div class="glass px-6 py-4 rounded-2xl border-l-4 border-l-primary shadow-sm">
