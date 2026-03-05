@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tickets - Office Manager</title>
+    <title>Emergency Hub - Office Manager</title>
     <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -32,6 +32,7 @@
         .badge-menunggu { @apply bg-amber-50 text-amber-600 border-amber-100; }
         .badge-diproses { @apply bg-blue-50 text-blue-600 border-blue-100; }
         .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white">
@@ -63,46 +64,105 @@
 
     <main class="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 animate-premium">
         <div class="text-center mb-12 md:mb-20">
-            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4">Emergency Hub</h1>
-            <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg">Laporkan kendala fasilitas kantor dalam hitungan detik. 🛠️</p>
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase">Emergency<span class="text-amber-500">Hub</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg">Laporkan keluhan atau kerusakan fasilitas kantor dengan cepat. 🛠️</p>
         </div>
 
+        <!-- Stats Section -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-premium">
-            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6"><div class="w-16 h-16 rounded-2xl bg-amber-50 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div><div><span class="text-[10px] font-black uppercase text-slate-400 block">Menunggu</span><h3 id="ticketStatWait" class="text-3xl font-black">0</h3></div></div>
-            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6"><div class="w-16 h-16 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div><div><span class="text-[10px] font-black uppercase text-slate-400 block">Diproses</span><h3 id="ticketStatProcess" class="text-3xl font-black">0</h3></div></div>
-            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6"><div class="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div><div><span class="text-[10px] font-black uppercase text-slate-400 block">Selesai</span><h3 id="ticketStatDone" class="text-3xl font-black">0</h3></div></div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-amber-500">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Menunggu</span><h3 id="ticketStatWait" class="text-3xl font-black">0</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-blue-500">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Diproses</span><h3 id="ticketStatProcess" class="text-3xl font-black">0</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-emerald-500">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Selesai</span><h3 id="ticketStatDone" class="text-3xl font-black">0</h3></div>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Form Section -->
             <div class="lg:col-span-1">
                 <div class="glass p-8 md:p-10 rounded-[2rem] md:rounded-super-premium border-t-4 border-t-amber-500 shadow-2xl sticky top-32">
-                    <h2 class="text-2xl font-black mb-8">Buat Laporan</h2>
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter">Buat Laporan</h2>
                     <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
-                        <input list="assetList" id="ticketSubject" required placeholder="Subjek Kendala" class="w-full px-5 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all"><datalist id="assetList"><option value="AC / Pendingin Ruangan"><option value="WiFi"><option value="Listrik"></datalist>
-                        <textarea id="ticketDetail" placeholder="Detail masalah..." class="w-full px-5 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold min-h-[80px] focus:border-amber-500 outline-none transition-all"></textarea>
-                        <input type="text" id="ticketLocation" required placeholder="Lokasi" class="w-full px-5 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
-                        <div class="flex gap-2">
-                            <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary">NORMAL</button>
-                            <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400">DARURAT 🚨</button>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Nama Pelapor</label>
+                            <input type="text" id="reporterName" required placeholder="Nama Lengkap Karyawan" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
                         </div>
-                        <button type="submit" class="w-full bg-amber-500 text-white font-black py-5 md:py-6 rounded-2xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all uppercase tracking-widest text-xs pt-7 md:pt-8">Kirim Laporan</button>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Divisi / Unit / Tribe</label>
+                            <input type="text" id="reporterUnit" required placeholder="Contoh: IT / SIM" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Lokasi Area</label>
+                            <select id="ticketLocation" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                                <option value="">Pilih Lokasi...</option>
+                                <optgroup label="Witel">
+                                    <option>Witel Lantai 2</option><option>Witel Lantai 3</option><option>Witel Lantai 4</option>
+                                    <option>Witel Lantai 5</option><option>Witel Lantai 6</option><option>Witel Lantai 7</option>
+                                </optgroup>
+                                <optgroup label="OPMC">
+                                    <option>OPMC Lantai 2</option><option>OPMC Lantai 4</option><option>OPMC Lantai 5</option><option>OPMC Lantai 6</option>
+                                </optgroup>
+                                <optgroup label="STO KBB">
+                                    <option>STO KBB Lantai 1</option><option>STO KBB Lantai 2</option><option>STO KBB Lantai 3</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Jenis Keluhan</label>
+                            <select id="ticketType" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                                <option value="">Pilih Jenis...</option>
+                                <option>AC / Pendingin Ruangan</option><option>Jaringan Internet</option><option>Toilet</option><option>Furniture</option><option>Yang lain</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Deskripsi Keluhan</label>
+                            <textarea id="ticketDetail" required placeholder="Jelaskan detail kerusakan..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold min-h-[100px] focus:border-amber-500 outline-none transition-all"></textarea>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Tingkat Urgensi</label>
+                            <div class="flex gap-2">
+                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary">NORMAL</button>
+                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400">DARURAT 🚨</button>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Kontak (WhatsApp)</label>
+                            <input type="tel" id="reporterContact" required placeholder="0812..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Waktu Kejadian</label>
+                            <input type="date" id="eventDate" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
+                        </div>
+                        <button type="submit" id="submitBtn" class="w-full bg-amber-500 text-white font-black py-6 rounded-2xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all uppercase tracking-widest text-xs pt-8">Kirim Laporan</button>
                     </form>
                 </div>
             </div>
+
+            <!-- Ticket List Section -->
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass p-6 rounded-premium shadow-sm mb-8 border-l-4 border-l-primary flex gap-4 items-center animate-premium">
                     <div class="flex-1 relative w-full">
                         <i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari ID atau Kata Kunci..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
+                        <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari laporan atau lokasi..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
                     </div>
                 </div>
-                <div id="ticketList" class="space-y-6"></div>
+                <div id="ticketList" class="space-y-6">
+                    <!-- Tickets will be rendered here -->
+                </div>
             </div>
         </div>
     </main>
 
-    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[160] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl z-[170] p-8 md:p-12 transform scale-95 transition-all text-center"><img src="assets/branding/logo-k-refined.png" class="h-12 w-auto mx-auto mb-6"><h2 class="text-2xl font-black">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5 mt-8"><input type="email" id="loginEmail" required placeholder="Email Admin" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl pt-7">Masuk Sekarang</button></form></div></div>
-    <div id="confirmModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[180] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl p-10 transform scale-95 text-center"><h2 id="confirmTitle" class="text-2xl font-black mb-2">Konfirmasi</h2><p id="confirmMessage" class="text-xs font-bold text-slate-400 mb-10">Yakin?</p><div class="flex gap-3"><button id="confirmCancel" class="flex-1 py-4 glass text-slate-400 font-black rounded-2xl">Batal</button><button id="confirmOk" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl">Lanjut</button></div></div></div>
+    <!-- Auth Modal -->
+    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[160] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl z-[170] p-8 md:p-12 transform scale-95 transition-all text-center"><img src="assets/branding/logo-k-refined.png" class="h-12 w-auto mx-auto mb-6"><h2 class="text-2xl font-black tracking-tighter uppercase">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5 mt-8"><input type="email" id="loginEmail" required placeholder="Email Admin" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl pt-7 shadow-lg shadow-primary/20">Masuk Sekarang</button></form></div></div>
+    <div id="confirmModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[180] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl p-10 transform scale-95 text-center"><h2 id="confirmTitle" class="text-2xl font-black mb-2">Konfirmasi</h2><p id="confirmMessage" class="text-xs font-bold text-slate-400 mb-10 uppercase tracking-widest">Apakah Anda yakin?</p><div class="flex gap-3"><button id="confirmCancel" class="flex-1 py-4 glass text-slate-400 font-black rounded-2xl">Batal</button><button id="confirmOk" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-lg">Lanjut</button></div></div></div>
 
     <script>
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
@@ -124,27 +184,114 @@
 
         async function checkAuth() { const { data: { session } } = await _supabase.auth.getSession(); updateUIForAuth(session?.user || null); _supabase.auth.onAuthStateChange((_e, s) => updateUIForAuth(s?.user || null)); }
         function updateUIForAuth(u) { currentUser = u; const loginBtn = document.getElementById('loginBtn'), up = document.getElementById('userProfile'); if(u) { loginBtn.classList.add('hidden'); up.classList.remove('hidden'); document.getElementById('userInitial').innerText = u.email.charAt(0).toUpperCase(); } else { loginBtn.classList.remove('hidden'); up.classList.add('hidden'); } renderTickets(allTickets); }
-        async function handleLogin(e) { e.preventDefault(); const em = document.getElementById('loginEmail').value, pw = document.getElementById('loginPassword').value; const { error } = await _supabase.auth.signInWithPassword({ email: em, password: pw }); if (error) alert("Gagal"); else toggleAuthModal(); }
-        async function handleLogout() { showConfirm('Log Out', 'Keluar?', async () => { await _supabase.auth.signOut(); }); }
+        async function handleLogin(e) { e.preventDefault(); const em = document.getElementById('loginEmail').value, pw = document.getElementById('loginPassword').value; const { error } = await _supabase.auth.signInWithPassword({ email: em, password: pw }); if (error) alert("Gagal Login"); else toggleAuthModal(); }
+        async function handleLogout() { showConfirm('Log Out', 'Keluar dari sistem admin?', async () => { await _supabase.auth.signOut(); }); }
         function toggleAuthModal() { const m = document.getElementById('authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
         function showConfirm(t, msg, onOk) { const m = document.getElementById('confirmModal'); document.getElementById('confirmTitle').innerText = t; document.getElementById('confirmMessage').innerText = msg; m.classList.remove('opacity-0', 'pointer-events-none'); const ok = document.getElementById('confirmOk'), can = document.getElementById('confirmCancel'), clean = () => { m.classList.add('opacity-0', 'pointer-events-none'); ok.onclick = null; can.onclick = null; }; ok.onclick = () => { clean(); onOk(); }; can.onclick = clean; }
 
         async function fetchTickets() { const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }); if (!error) { allTickets = data || []; if(!document.getElementById('searchTicketInput').value) renderTickets(allTickets); } }
+        
         function renderTickets(tickets) {
             document.getElementById('ticketStatWait').innerText = allTickets.filter(t => t.status === 'MENUNGGU').length;
             document.getElementById('ticketStatProcess').innerText = allTickets.filter(t => t.status === 'DIPROSES').length;
             document.getElementById('ticketStatDone').innerText = allTickets.filter(t => t.status === 'SELESAI').length;
             document.getElementById('ticketList').innerHTML = tickets.map(t => {
                 const date = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'long', hour: '2-digit', minute: '2-digit' }).format(new Date(t.created_at));
-                return `<div class="glass p-6 md:p-8 rounded-premium shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 spring-card"><div class="w-16 h-16 md:w-20 md:h-20 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">${t.status === 'SELESAI' ? '<i class="fa-solid fa-circle-check text-2xl md:text-3xl text-emerald-500"></i>' : '<i class="fa-solid fa-file-invoice text-2xl md:text-3xl opacity-20"></i>'}</div><div class="flex-1"><div class="flex justify-between items-start mb-4"><span class="badge badge-${t.status.toLowerCase()}">${t.status}</span><div class="text-right"><span class="text-[9px] font-black text-slate-300 block">ID #${t.id.toString().slice(0,8)}</span><span class="text-[9px] font-black text-primary block mt-1"><i class="fa-solid fa-calendar-day mr-1"></i>${date} WIB</span></div></div><h3 class="text-xl font-black mb-2">${t.subject}</h3><div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest"><span><i class="fa-solid fa-location-dot mr-1.5 text-primary"></i>${t.location}</span>${t.urgency === 'DARURAT' ? '<span class="text-red-500 font-black animate-pulse">DARURAT</span>' : ''}</div>${currentUser ? `<div class="flex gap-2 mt-6">${t.status === 'MENUNGGU' ? `<button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-2 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl">PROSES</button>` : ''}${t.status !== 'SELESAI' ? `<button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-2 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl">SELESAI</button>` : ''}<button onclick="deleteTicket('${t.id}')" class="px-5 py-2 bg-red-50 text-red-500 text-[9px] font-black rounded-xl">HAPUS</button></div>` : ''}</div></div>`;
+                return `
+                <div class="glass p-6 md:p-8 rounded-premium shadow-sm flex flex-col md:flex-row gap-6 md:gap-8 spring-card transition-all border border-slate-200/50 dark:border-white/5">
+                    <div class="w-16 h-16 md:w-20 md:h-20 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        ${t.status === 'SELESAI' ? '<i class="fa-solid fa-circle-check text-2xl md:text-3xl text-emerald-500"></i>' : '<i class="fa-solid fa-file-invoice text-2xl md:text-3xl opacity-20"></i>'}
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="badge badge-${t.status.toLowerCase()}">${t.status}</span>
+                            <div class="text-right">
+                                <span class="text-[9px] font-black text-slate-300 block">ID #${t.id.toString().slice(0,8)}</span>
+                                <span class="text-[9px] font-black text-primary block mt-1 uppercase tracking-widest italic"><i class="fa-solid fa-calendar-day mr-1"></i>${date} WIB</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-black mb-2 tracking-tight">${t.subject}</h3>
+                        <div class="flex flex-wrap items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-primary"></i>${t.location}</span>
+                            ${t.urgency === 'DARURAT' ? '<span class="text-red-500 font-black animate-pulse bg-red-500/10 px-2 py-0.5 rounded-lg border border-red-500/20">🚨 DARURAT</span>' : ''}
+                        </div>
+                        ${currentUser ? `
+                        <div class="flex gap-2 mt-6">
+                            ${t.status === 'MENUNGGU' ? `<button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-2 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl hover:bg-blue-600 hover:text-white transition-all uppercase tracking-widest">PROSES</button>` : ''}
+                            ${t.status !== 'SELESAI' ? `<button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-2 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest">SELESAI</button>` : ''}
+                            <button onclick="deleteTicket('${t.id}')" class="px-5 py-2 bg-red-50 text-red-500 text-[9px] font-black rounded-xl hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest">HAPUS</button>
+                        </div>` : ''}
+                    </div>
+                </div>`;
             }).join('');
         }
 
-        async function handleTicketSubmit(e) { e.preventDefault(); const asset = document.getElementById('ticketSubject').value, detail = document.getElementById('ticketDetail').value, sub = detail ? `${asset}: ${detail}` : asset, loc = document.getElementById('ticketLocation').value, urg = ticketUrgensi; try { const { error } = await _supabase.from('office_tickets').insert([{ subject: sub, location: loc, urgency: urg, status: 'MENUNGGU' }]); if(!error) { alert("Laporan Berhasil Terkirim!"); e.target.reset(); fetchTickets(); } } catch(e) {} }
-        function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; }
-        function handleTicketSearch() { const i = document.getElementById('searchTicketInput').value.toLowerCase().trim(); if(!i) { renderTickets(allTickets); return; } const filtered = allTickets.filter(t => t.id.toString().toLowerCase().includes(i.replace('#','')) || t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i)); renderTickets(filtered); }
+        async function handleTicketSubmit(e) { 
+            e.preventDefault(); 
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "Mengirim...";
+
+            const name = document.getElementById('reporterName').value,
+                  unit = document.getElementById('reporterUnit').value,
+                  loc = document.getElementById('ticketLocation').value,
+                  type = document.getElementById('ticketType').value,
+                  detail = document.getElementById('ticketDetail').value,
+                  contact = document.getElementById('reporterContact').value,
+                  date = document.getElementById('eventDate').value,
+                  urg = ticketUrgensi;
+
+            const fullSubject = `${type}: ${detail}`;
+
+            try { 
+                // Placeholder for Google Form Sync
+                // const formUrl = "https://docs.google.com/forms/d/e/[FORM_ID]/formResponse";
+                // const params = new URLSearchParams();
+                // params.append('entry.[ID_NAME]', name);
+                // params.append('entry.[ID_UNIT]', unit);
+                // params.append('entry.[ID_LOC]', loc);
+                // params.append('entry.[ID_TYPE]', type);
+                // params.append('entry.[ID_DETAIL]', detail);
+                // params.append('entry.[ID_URG]', urg);
+                // params.append('entry.[ID_CONTACT]', contact);
+                // params.append('entry.[ID_DATE]', date);
+                // await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
+
+                const { error } = await _supabase.from('office_tickets').insert([{ 
+                    subject: fullSubject, 
+                    location: loc, 
+                    urgency: urg, 
+                    status: 'MENUNGGU' 
+                }]); 
+
+                if(!error) { 
+                    alert("Laporan Berhasil Terkirim ke Database!"); 
+                    e.target.reset(); 
+                    fetchTickets(); 
+                } 
+            } catch(e) {
+                alert("Terjadi kesalahan: " + e.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "Kirim Laporan";
+            }
+        }
+
+        function setUrgensi(v) { 
+            ticketUrgensi = v; 
+            document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; 
+            document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; 
+        }
+
+        function handleTicketSearch() { 
+            const i = document.getElementById('searchTicketInput').value.toLowerCase().trim(); 
+            if(!i) { renderTickets(allTickets); return; } 
+            const filtered = allTickets.filter(t => t.id.toString().toLowerCase().includes(i.replace('#','')) || t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i)); 
+            renderTickets(filtered); 
+        }
+
         async function updateTicketStatus(id, s) { await _supabase.from('office_tickets').update({ status: s }).eq('id', id); fetchTickets(); }
-        async function deleteTicket(id) { showConfirm('Hapus', 'Hapus riwayat?', async () => { await _supabase.from('office_tickets').delete().eq('id', id); fetchTickets(); }); }
+        async function deleteTicket(id) { showConfirm('Hapus', 'Hapus riwayat laporan ini?', async () => { await _supabase.from('office_tickets').delete().eq('id', id); fetchTickets(); }); }
     </script>
 </body>
 </html>
