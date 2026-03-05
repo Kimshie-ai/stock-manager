@@ -124,26 +124,26 @@
                         <div class="space-y-3">
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="typeContainer">
-                                <div onclick="selectType('AC/ Pendingin Ruangan')" class="type-card" data-val="AC/ Pendingin Ruangan">
+                                <button type="button" onclick="selectType('AC/ Pendingin Ruangan')" class="type-card" data-val="AC/ Pendingin Ruangan">
                                     <i class="fa-solid fa-snowflake"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">AC</span>
-                                </div>
-                                <div onclick="selectType('Jaringan Internet')" class="type-card" data-val="Jaringan Internet">
+                                </button>
+                                <button type="button" onclick="selectType('Jaringan Internet')" class="type-card" data-val="Jaringan Internet">
                                     <i class="fa-solid fa-wifi"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span>
-                                </div>
-                                <div onclick="selectType('Toilet')" class="type-card" data-val="Toilet">
+                                </button>
+                                <button type="button" onclick="selectType('Toilet')" class="type-card" data-val="Toilet">
                                     <i class="fa-solid fa-restroom"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span>
-                                </div>
-                                <div onclick="selectType('Furniture')" class="type-card" data-val="Furniture">
+                                </button>
+                                <button type="button" onclick="selectType('Furniture')" class="type-card" data-val="Furniture">
                                     <i class="fa-solid fa-chair"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Mebel</span>
-                                </div>
-                                <div onclick="selectType('Yang lain')" class="type-card" data-val="Yang lain">
+                                </button>
+                                <button type="button" onclick="selectType('Yang lain')" class="type-card" data-val="Yang lain">
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span>
-                                </div>
+                                </button>
                             </div>
                             <input type="hidden" id="ticketType" required>
                         </div>
