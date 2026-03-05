@@ -32,13 +32,11 @@
             .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100; }
             
             .type-card { @apply relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 transition-all cursor-pointer hover:border-amber-500/50 outline-none; }
-            .type-card.selected { @apply border-amber-500 bg-amber-50 dark:bg-amber-500/10 shadow-lg shadow-amber-500/10 scale-[1.05]; }
-            .type-card i, .type-card span { @apply pointer-events-none; }
-            .type-card i { @apply text-2xl mb-2 transition-transform duration-300; }
-            .type-card.selected i { @apply scale-110 text-amber-500; }
-            
-            .checkmark-icon { @apply absolute top-3 right-3 text-amber-500 text-base scale-0 transition-transform duration-300 z-10; }
-            .type-card.selected .checkmark-icon { @apply scale-100; }
+            .type-card.selected { @apply border-amber-500 bg-white dark:bg-white/5 shadow-2xl shadow-amber-500/10 scale-[1.05]; }
+            .type-card i, .type-card span { @apply pointer-events-none transition-colors duration-300; }
+            .type-card i { @apply text-2xl mb-2; }
+            .type-card.selected i { @apply text-amber-500 scale-110; }
+            .type-card.selected span { @apply text-amber-500; }
         }
         .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, transparent 70%); opacity: 0.08; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
         .dark .hero-gradient { opacity: 0.15; }
@@ -129,27 +127,22 @@
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="typeContainer">
                                 <button type="button" onclick="selectType('AC/ Pendingin Ruangan')" class="type-card group" data-val="AC/ Pendingin Ruangan">
-                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-snowflake"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">AC</span>
                                 </button>
                                 <button type="button" onclick="selectType('Jaringan Internet')" class="type-card group" data-val="Jaringan Internet">
-                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-wifi"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span>
                                 </button>
                                 <button type="button" onclick="selectType('Toilet')" class="type-card group" data-val="Toilet">
-                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-restroom"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span>
                                 </button>
                                 <button type="button" onclick="selectType('Furniture')" class="type-card group" data-val="Furniture">
-                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-chair"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Mebel</span>
                                 </button>
                                 <button type="button" onclick="selectType('Yang lain')" class="type-card group" data-val="Yang lain">
-                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span>
                                 </button>
@@ -338,7 +331,7 @@
             const fullSubject = `[${name}] ${type}: ${detail}`;
 
             try { 
-                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51)M7FzXIQ/formResponse";
                 const params = new URLSearchParams();
                 params.append('entry.1583149329', name);
                 params.append('entry.2060003782', unit);
