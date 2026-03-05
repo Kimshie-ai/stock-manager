@@ -33,6 +33,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -132,13 +133,33 @@
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Tanggal Meeting</label>
                             <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
                         </div>
+                        
+                        <!-- 24h Time Start -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Mulai</label>
-                            <input type="time" id="bookingStart" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Mulai (24H)</label>
+                            <div class="flex items-center gap-3">
+                                <select id="startHour" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
+                                    <option value="">Jam</option>
+                                </select>
+                                <span class="font-black text-slate-600">:</span>
+                                <select id="startMinute" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
+                                    <option value="">Menit</option>
+                                </select>
+                            </div>
                         </div>
+
+                        <!-- 24h Time End -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Selesai</label>
-                            <input type="time" id="bookingEnd" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Selesai (24H)</label>
+                            <div class="flex items-center gap-3">
+                                <select id="endHour" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
+                                    <option value="">Jam</option>
+                                </select>
+                                <span class="font-black text-slate-600">:</span>
+                                <select id="endMinute" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
+                                    <option value="">Menit</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
                     <div class="space-y-2">
@@ -213,7 +234,30 @@
             ]
         };
 
-        window.onload = () => { renderRooms(); checkAuth(); };
+        window.onload = () => { renderRooms(); checkAuth(); populateTimePickers(); };
+
+        function populateTimePickers() {
+            const hSelects = [document.getElementById('startHour'), document.getElementById('endHour')];
+            const mSelects = [document.getElementById('startMinute'), document.getElementById('endMinute')];
+            
+            hSelects.forEach(s => {
+                for(let i=0; i<24; i++) {
+                    let val = i < 10 ? '0'+i : i;
+                    let opt = new Option(val, val);
+                    opt.className = "bg-dark-card text-white";
+                    s.add(opt);
+                }
+            });
+
+            mSelects.forEach(s => {
+                for(let i=0; i<60; i+=5) {
+                    let val = i < 10 ? '0'+i : i;
+                    let opt = new Option(val, val);
+                    opt.className = "bg-dark-card text-white";
+                    s.add(opt);
+                }
+            });
+        }
 
         function renderRooms() {
             const grid = document.getElementById('roomGrid');
@@ -255,12 +299,13 @@
                   wa = document.getElementById('bookingWA').value, 
                   unit = document.getElementById('bookingUnit').value, 
                   date = document.getElementById('bookingDate').value, 
-                  start = document.getElementById('bookingStart').value, 
-                  end = document.getElementById('bookingEnd').value, 
                   agenda = document.getElementById('bookingAgenda').value; 
 
+            // Combine Time
+            const start = document.getElementById('startHour').value + ":" + document.getElementById('startMinute').value;
+            const end = document.getElementById('endHour').value + ":" + document.getElementById('endMinute').value;
+
             try { 
-                // Target: Google Form OPMC
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdIZCuT97e75fYmdok39kgU8YwJ7bo7JEV2xkrAqyiZZaiZFQ/formResponse"; 
                 const params = new URLSearchParams(); 
                 params.append('entry.1461043353', name); 
@@ -274,7 +319,6 @@
 
                 await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
                 
-                // Backup to Supabase
                 await _supabase.from('office_tickets').insert([{ 
                     subject: `RESERVASI OPMC: ${room} - ${agenda}`, 
                     location: room, 
