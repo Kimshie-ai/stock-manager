@@ -65,18 +65,18 @@
 
     <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 md:px-6">
-            <div class="flex justify-between h-16 md:h-20 items-center">
-                <a href="index.html" class="flex items-center space-x-2 md:space-x-4">
-                    <img src="assets/branding/logo-k-refined.png" alt="Logo" class="h-8 md:h-10 w-auto">
-                    <span class="text-lg md:text-xl font-extrabold tracking-tighter uppercase">Office<span class="text-primary">Manager</span></span>
+            <div class="flex justify-between h-16 md:h-20 items-center gap-2">
+                <a href="index.html" class="flex items-center gap-2 md:gap-4 min-w-0 flex-shrink">
+                    <img src="assets/branding/logo-k-refined.png" alt="Logo" class="h-7 md:h-10 w-auto">
+                    <span class="text-sm md:text-xl font-extrabold tracking-tighter uppercase truncate">Office<span class="text-primary">Manager</span></span>
                 </a>
-                <div class="flex items-center space-x-4">
-                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
+                <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
                         <i id="themeIcon" class="fa-solid fa-moon"></i>
                     </button>
-                    <div id="authSection" class="flex items-center space-x-4">
-                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-5 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl">Login</button>
-                        <div id="userProfile" class="hidden flex items-center space-x-3">
+                    <div id="authSection" class="flex items-center gap-2 md:gap-4">
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-4 md:px-5 py-2 md:py-2.5 bg-primary text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl">Login</button>
+                        <div id="userProfile" class="hidden flex items-center gap-2 md:gap-3">
                             <span id="userInitial" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">A</span>
                             <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
                         </div>
