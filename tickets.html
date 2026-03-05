@@ -8,6 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -39,6 +40,21 @@
     <div class="hero-gradient"></div>
     <div id="toast-container" class="fixed top-6 right-6 z-[200] flex flex-col gap-3"></div>
     
+    <!-- Success Modal Overlay -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="glass max-w-lg w-full rounded-[3rem] p-12 text-center shadow-2xl border-t-4 border-t-amber-500 transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <i class="fa-solid fa-paper-plane text-4xl"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter">Laporan Terkirim!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Laporan Anda telah berhasil dicatat dan akan segera ditindaklanjuti oleh tim fasilitas. 🛠️✨</p>
+            <div class="space-y-4">
+                <button onclick="closeSuccessModal()" class="w-full bg-amber-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-amber-500/30 hover:bg-amber-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest italic">Data tersinkronisasi secara real-time</p>
+            </div>
+        </div>
+    </div>
+
     <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm">
         <div class="max-w-7xl mx-auto px-4 md:px-6">
             <div class="flex justify-between h-16 md:h-20 items-center">
@@ -68,7 +84,6 @@
             <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg">Laporkan keluhan atau kerusakan fasilitas kantor dengan cepat. 🛠️</p>
         </div>
 
-        <!-- Stats Section -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-premium">
             <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-amber-500">
                 <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
@@ -85,7 +100,6 @@
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
-            <!-- Form Section -->
             <div class="lg:col-span-1">
                 <div class="glass p-8 md:p-10 rounded-[2rem] md:rounded-super-premium border-t-4 border-t-amber-500 shadow-2xl sticky top-32">
                     <h2 class="text-2xl font-black mb-8 tracking-tighter">Buat Laporan</h2>
@@ -118,7 +132,11 @@
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Jenis Keluhan</label>
                             <select id="ticketType" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none transition-all">
                                 <option value="">Pilih Jenis...</option>
-                                <option>AC / Pendingin Ruangan</option><option>Jaringan Internet</option><option>Toilet</option><option>Furniture</option><option>Yang lain</option>
+                                <option value="AC/ Pendingin Ruangan">AC/ Pendingin Ruangan</option>
+                                <option>Jaringan Internet</option>
+                                <option>Toilet</option>
+                                <option>Furniture</option>
+                                <option>Yang lain</option>
                             </select>
                         </div>
                         <div class="space-y-2">
@@ -128,8 +146,8 @@
                         <div class="space-y-2">
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-4">Tingkat Urgensi</label>
                             <div class="flex gap-2">
-                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary">NORMAL</button>
-                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400">DARURAT 🚨</button>
+                                <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all">NORMAL</button>
+                                <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all">DARURAT 🚨</button>
                             </div>
                         </div>
                         <div class="space-y-2">
@@ -145,7 +163,6 @@
                 </div>
             </div>
 
-            <!-- Ticket List Section -->
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass p-6 rounded-premium shadow-sm mb-8 border-l-4 border-l-primary flex gap-4 items-center animate-premium">
                     <div class="flex-1 relative w-full">
@@ -153,14 +170,11 @@
                         <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari laporan atau lokasi..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold">
                     </div>
                 </div>
-                <div id="ticketList" class="space-y-6">
-                    <!-- Tickets will be rendered here -->
-                </div>
+                <div id="ticketList" class="space-y-6"></div>
             </div>
         </div>
     </main>
 
-    <!-- Auth Modal -->
     <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[160] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl z-[170] p-8 md:p-12 transform scale-95 transition-all text-center"><img src="assets/branding/logo-k-refined.png" class="h-12 w-auto mx-auto mb-6"><h2 class="text-2xl font-black tracking-tighter uppercase">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5 mt-8"><input type="email" id="loginEmail" required placeholder="Email Admin" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl pt-7 shadow-lg shadow-primary/20">Masuk Sekarang</button></form></div></div>
     <div id="confirmModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[180] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl p-10 transform scale-95 text-center"><h2 id="confirmTitle" class="text-2xl font-black mb-2">Konfirmasi</h2><p id="confirmMessage" class="text-xs font-bold text-slate-400 mb-10 uppercase tracking-widest">Apakah Anda yakin?</p><div class="flex gap-3"><button id="confirmCancel" class="flex-1 py-4 glass text-slate-400 font-black rounded-2xl">Batal</button><button id="confirmOk" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-lg">Lanjut</button></div></div></div>
 
@@ -173,13 +187,41 @@
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
             }
+            updateThemeIcon();
             checkAuth(); fetchTickets(); 
         };
         
         function toggleDarkMode() {
             const isDark = document.documentElement.classList.toggle('dark');
             localStorage.theme = isDark ? 'dark' : 'light';
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
             document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+        }
+
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const card = document.getElementById('successCard');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#f59e0b', '#0056B3', '#ffffff'] });
+            }, 10);
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const card = document.getElementById('successCard');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
         }
 
         async function checkAuth() { const { data: { session } } = await _supabase.auth.getSession(); updateUIForAuth(session?.user || null); _supabase.auth.onAuthStateChange((_e, s) => updateUIForAuth(s?.user || null)); }
@@ -244,7 +286,6 @@
             const fullSubject = `${type}: ${detail}`;
 
             try { 
-                // Google Form OPMC Sync
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
                 const params = new URLSearchParams();
                 params.append('entry.1583149329', name);
@@ -252,7 +293,7 @@
                 params.append('entry.500437345', loc);
                 params.append('entry.1468393946', type);
                 params.append('entry.1935726494', detail);
-                params.append('entry.1369886363', urg.charAt(0) + urg.slice(1).toLowerCase()); // Normalize to Title Case (Normal/Darurat)
+                params.append('entry.1369886363', urg.charAt(0) + urg.slice(1).toLowerCase());
                 params.append('entry.1349422186', contact);
                 params.append('entry.180278682', date);
                 
@@ -266,9 +307,9 @@
                 }]); 
 
                 if(!error) { 
-                    alert("Laporan Berhasil Terkirim & Tersinkronisasi!"); 
                     e.target.reset(); 
                     fetchTickets(); 
+                    showSuccessModal();
                 } 
             } catch(e) {
                 alert("Terjadi kesalahan: " + e.message);
@@ -280,8 +321,8 @@
 
         function setUrgensi(v) { 
             ticketUrgensi = v; 
-            document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; 
-            document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; 
+            document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
+            document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 transition-all" : "flex-1 py-3 text-[10px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all"; 
         }
 
         function handleTicketSearch() { 
