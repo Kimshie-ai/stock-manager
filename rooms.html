@@ -8,6 +8,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
@@ -36,11 +38,29 @@
         .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
+        
+        /* Modal Animation */
+        .modal-enter { opacity: 0; transform: scale(0.9) translateY(20px); }
+        .modal-enter-active { opacity: 1; transform: scale(1) translateY(0); transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
     </style>
 </head>
 <body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white selection:bg-primary/20">
     <div class="hero-gradient"></div>
-    <div id="toast-container" class="fixed top-6 right-6 z-[200]"></div>
+    
+    <!-- Success Modal Overlay -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="glass max-w-lg w-full rounded-[3rem] p-12 text-center shadow-2xl border-t-4 border-t-emerald-500 transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner">
+                <i class="fa-solid fa-check-double text-4xl"></i>
+            </div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter">Reservasi Berhasil!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Data Anda telah aman tersinkronisasi ke sistem Google Sheets OPMC & Database Kimshie. 🏢✨</p>
+            <div class="space-y-4">
+                <button onclick="closeSuccessModal()" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-emerald-500/30 hover:bg-emerald-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Konfirmasi otomatis akan segera diproses</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
@@ -52,11 +72,9 @@
                     <span class="text-xl font-extrabold tracking-tighter uppercase">Office<span class="text-primary">Manager</span></span>
                 </a>
                 <div class="flex items-center space-x-4">
-                    <!-- Theme Toggle -->
                     <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
                         <i id="themeIcon" class="fa-solid fa-moon text-slate-500 dark:text-slate-400"></i>
                     </button>
-
                     <div id="authSection" class="flex items-center space-x-4">
                         <button id="loginBtn" onclick="toggleAuthModal()" class="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">Login</button>
                         <div id="userProfile" class="hidden flex items-center space-x-3">
@@ -85,22 +103,16 @@
     </header>
 
     <main class="max-w-7xl mx-auto px-6 pb-32 relative z-10">
-        <!-- Room Grid -->
-        <div id="roomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-premium" style="animation-delay: 0.2s;">
-            <!-- Rendered by JS -->
-        </div>
+        <div id="roomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 animate-premium" style="animation-delay: 0.2s;"></div>
 
-        <!-- Booking Form Section -->
         <div id="bookingContainer" class="hidden mt-20 animate-premium">
             <div class="max-w-3xl mx-auto glass p-12 rounded-super-premium border-t-4 border-t-primary relative shadow-2xl overflow-hidden">
                 <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
                 <button onclick="closeBooking()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
-                
                 <div class="text-center mb-12">
                     <h2 class="text-4xl font-black mb-2 tracking-tighter">Form Reservasi</h2>
                     <p id="bookingRoomLabel" class="text-xs font-black text-primary uppercase tracking-[0.3em]">NAMA RUANGAN</p>
                 </div>
-
                 <form id="roomBookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-8 relative z-10">
                     <input type="hidden" id="bookingRoomName">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -149,7 +161,6 @@
             </div>
         </div>
 
-        <!-- PIC Section -->
         <section class="mt-32 max-w-7xl mx-auto px-6">
             <h3 class="text-2xl font-black mb-8 tracking-tighter">Contact PIC</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -193,7 +204,6 @@
         };
 
         window.onload = () => { 
-            // Default to Dark Mode if previously set
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
                 document.documentElement.classList.add('dark');
             } else {
@@ -264,6 +274,43 @@
 
         function closeBooking() { document.getElementById('bookingContainer').classList.add('hidden'); }
 
+        function showSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const card = document.getElementById('successCard');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            setTimeout(() => {
+                card.classList.remove('scale-95', 'opacity-0');
+                card.classList.add('scale-100', 'opacity-100');
+                
+                // Trigger Confetti
+                const duration = 3 * 1000;
+                const animationEnd = Date.now() + duration;
+                const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 400 };
+
+                function randomInRange(min, max) { return Math.random() * (max - min) + min; }
+
+                const interval = setInterval(function() {
+                    const timeLeft = animationEnd - Date.now();
+                    if (timeLeft <= 0) return clearInterval(interval);
+                    const particleCount = 50 * (timeLeft / duration);
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } }));
+                    confetti(Object.assign({}, defaults, { particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } }));
+                }, 250);
+            }, 10);
+        }
+
+        function closeSuccessModal() {
+            const modal = document.getElementById('successModal');
+            const card = document.getElementById('successCard');
+            card.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 300);
+        }
+
         async function handleBookingSubmit(e) { 
             e.preventDefault(); 
             const submitBtn = document.getElementById('submitBtn');
@@ -283,8 +330,9 @@
                 params.append('entry.1461043353', name); params.append('entry.1698919406', wa); params.append('entry.396930152', unit); params.append('entry.1898527006', room); params.append('entry.971478253', date); params.append('entry.410139192', start); params.append('entry.2096536293', end); params.append('entry.252694942', agenda); 
                 await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
                 await _supabase.from('office_tickets').insert([{ subject: `RESERVASI OPMC: ${room} - ${agenda}`, location: room, status: 'MENUNGGU' }]); 
-                alert("Reservasi Berhasil Dikirim!"); 
-                closeBooking(); 
+                
+                closeBooking();
+                showSuccessModal();
             } catch(e) { alert("Terjadi kesalahan: " + e.message); } finally { submitBtn.disabled = false; submitBtn.innerText = "Konfirmasi Reservasi Sekarang"; }
         }
 
