@@ -244,18 +244,19 @@
             const fullSubject = `${type}: ${detail}`;
 
             try { 
-                // Placeholder for Google Form Sync
-                // const formUrl = "https://docs.google.com/forms/d/e/[FORM_ID]/formResponse";
-                // const params = new URLSearchParams();
-                // params.append('entry.[ID_NAME]', name);
-                // params.append('entry.[ID_UNIT]', unit);
-                // params.append('entry.[ID_LOC]', loc);
-                // params.append('entry.[ID_TYPE]', type);
-                // params.append('entry.[ID_DETAIL]', detail);
-                // params.append('entry.[ID_URG]', urg);
-                // params.append('entry.[ID_CONTACT]', contact);
-                // params.append('entry.[ID_DATE]', date);
-                // await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
+                // Google Form OPMC Sync
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
+                const params = new URLSearchParams();
+                params.append('entry.1583149329', name);
+                params.append('entry.2060003782', unit);
+                params.append('entry.500437345', loc);
+                params.append('entry.1468393946', type);
+                params.append('entry.1935726494', detail);
+                params.append('entry.1369886363', urg.charAt(0) + urg.slice(1).toLowerCase()); // Normalize to Title Case (Normal/Darurat)
+                params.append('entry.1349422186', contact);
+                params.append('entry.180278682', date);
+                
+                await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
 
                 const { error } = await _supabase.from('office_tickets').insert([{ 
                     subject: fullSubject, 
@@ -265,7 +266,7 @@
                 }]); 
 
                 if(!error) { 
-                    alert("Laporan Berhasil Terkirim ke Database!"); 
+                    alert("Laporan Berhasil Terkirim & Tersinkronisasi!"); 
                     e.target.reset(); 
                     fetchTickets(); 
                 } 
