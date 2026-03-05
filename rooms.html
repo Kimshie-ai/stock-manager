@@ -25,36 +25,43 @@
     </script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050505; color: white; -webkit-font-smoothing: antialiased; }
-        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, #050505 70%); opacity: 0.15; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.4s ease; -webkit-font-smoothing: antialiased; }
+        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.2); }
+        .dark .glass { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, transparent 70%); opacity: 0.08; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
+        .dark .hero-gradient { opacity: 0.15; }
         .spring-card { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .spring-card:hover { transform: translateY(-8px) scale(1.01); background: rgba(255, 255, 255, 0.06); border-color: #0056B3; }
+        .spring-card:hover { transform: translateY(-8px) scale(1.01); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="min-h-screen bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white selection:bg-primary/20">
     <div class="hero-gradient"></div>
     <div id="toast-container" class="fixed top-6 right-6 z-[200]"></div>
 
     <!-- Navigation -->
-    <nav class="glass sticky top-0 z-50 border-b border-white/5 shadow-2xl">
+    <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm dark:shadow-2xl">
         <div class="max-w-7xl mx-auto px-6">
             <div class="flex justify-between h-20 items-center">
                 <a href="index.html" class="flex items-center space-x-4">
                     <img src="assets/branding/logo-k-refined.png" alt="Kimshie Logo" class="h-10 w-auto">
-                    <div class="h-6 w-[1px] bg-white/10 mx-2"></div>
+                    <div class="h-6 w-[1px] bg-slate-200 dark:bg-white/10 mx-2"></div>
                     <span class="text-xl font-extrabold tracking-tighter uppercase">Office<span class="text-primary">Manager</span></span>
                 </a>
-                <div class="flex items-center space-x-6">
-                    <div id="authSection">
+                <div class="flex items-center space-x-4">
+                    <!-- Theme Toggle -->
+                    <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all">
+                        <i id="themeIcon" class="fa-solid fa-moon text-slate-500 dark:text-slate-400"></i>
+                    </button>
+
+                    <div id="authSection" class="flex items-center space-x-4">
                         <button id="loginBtn" onclick="toggleAuthModal()" class="px-6 py-2.5 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-700 transition-all">Login</button>
                         <div id="userProfile" class="hidden flex items-center space-x-3">
                             <span id="userInitial" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black border border-white/20 shadow-lg shadow-primary/20">A</span>
-                            <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-white/5 text-red-400 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
+                            <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
                         </div>
                     </div>
                 </div>
@@ -66,11 +73,11 @@
         <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
                 <h1 class="text-6xl font-black tracking-tighter mb-4">Pesan Ruangan</h1>
-                <p class="text-slate-500 text-lg">Witel OPMC - Booking ruang rapat secepat kilat. 🏢⚡</p>
+                <p class="text-slate-500 dark:text-slate-400 text-lg">Witel OPMC - Booking ruang rapat secepat kilat. 🏢⚡</p>
             </div>
             <div class="flex gap-3">
-                <div class="glass px-6 py-4 rounded-2xl border-l-4 border-l-primary">
-                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1">Total Ruangan</p>
+                <div class="glass px-6 py-4 rounded-2xl border-l-4 border-l-primary shadow-sm">
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1">Total Ruangan</p>
                     <p class="text-xl font-black" id="roomCount">--</p>
                 </div>
             </div>
@@ -87,7 +94,7 @@
         <div id="bookingContainer" class="hidden mt-20 animate-premium">
             <div class="max-w-3xl mx-auto glass p-12 rounded-super-premium border-t-4 border-t-primary relative shadow-2xl overflow-hidden">
                 <div class="absolute -top-24 -right-24 w-64 h-64 bg-primary/10 rounded-full blur-3xl"></div>
-                <button onclick="closeBooking()" class="absolute top-8 right-8 text-slate-500 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+                <button onclick="closeBooking()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
                 
                 <div class="text-center mb-12">
                     <h2 class="text-4xl font-black mb-2 tracking-tighter">Form Reservasi</h2>
@@ -98,73 +105,44 @@
                     <input type="hidden" id="bookingRoomName">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Nama Lengkap</label>
-                            <input type="text" id="bookingName" required placeholder="Contoh: Abigail" class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Nama Lengkap</label>
+                            <input type="text" id="bookingName" required placeholder="Contoh: Abigail" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">WhatsApp</label>
-                            <input type="tel" id="bookingWA" required placeholder="0812..." class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">WhatsApp</label>
+                            <input type="tel" id="bookingWA" required placeholder="0812..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Bidang / Unit</label>
-                            <select id="bookingUnit" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
-                                <option value="" class="bg-dark-card text-white">Pilih Unit...</option>
-                                <option class="bg-dark-card text-white">PAM</option>
-                                <option class="bg-dark-card text-white">SIM</option>
-                                <option class="bg-dark-card text-white">GEA</option>
-                                <option class="bg-dark-card text-white">DGM</option>
-                                <option class="bg-dark-card text-white">DPS</option>
-                                <option class="bg-dark-card text-white">AIX</option>
-                                <option class="bg-dark-card text-white">DIS</option>
-                                <option class="bg-dark-card text-white">DOA</option>
-                                <option class="bg-dark-card text-white">DPE</option>
-                                <option class="bg-dark-card text-white">TRS</option>
-                                <option class="bg-dark-card text-white">SSO</option>
-                                <option class="bg-dark-card text-white">BIG</option>
-                                <option class="bg-dark-card text-white">DGP</option>
-                                <option class="bg-dark-card text-white">GDD</option>
-                                <option class="bg-dark-card text-white">VID</option>
-                                <option class="bg-dark-card text-white">GTP</option>
-                                <option class="bg-dark-card text-white">PAS</option>
-                                <option class="bg-dark-card text-white">SMB</option>
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Bidang / Unit</label>
+                            <select id="bookingUnit" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                                <option value="" class="bg-white dark:bg-dark-card">Pilih Unit...</option>
+                                <option class="bg-white dark:bg-dark-card">PAM</option><option class="bg-white dark:bg-dark-card">SIM</option><option class="bg-white dark:bg-dark-card">GEA</option><option class="bg-white dark:bg-dark-card">DGM</option><option class="bg-white dark:bg-dark-card">DPS</option><option class="bg-white dark:bg-dark-card">AIX</option><option class="bg-white dark:bg-dark-card">DIS</option><option class="bg-white dark:bg-dark-card">DOA</option><option class="bg-white dark:bg-dark-card">DPE</option><option class="bg-white dark:bg-dark-card">TRS</option><option class="bg-white dark:bg-dark-card">SSO</option><option class="bg-white dark:bg-dark-card">BIG</option><option class="bg-white dark:bg-dark-card">DGP</option><option class="bg-white dark:bg-dark-card">GDD</option><option class="bg-white dark:bg-dark-card">VID</option><option class="bg-white dark:bg-dark-card">GTP</option><option class="bg-white dark:bg-dark-card">PAS</option><option class="bg-white dark:bg-dark-card">SMB</option>
                             </select>
                         </div>
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Tanggal Meeting</label>
-                            <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Tanggal Meeting</label>
+                            <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all">
                         </div>
-                        
-                        <!-- 24h Time Start -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Mulai (24H)</label>
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Waktu Mulai (24H)</label>
                             <div class="flex items-center gap-3">
-                                <select id="startHour" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
-                                    <option value="">Jam</option>
-                                </select>
-                                <span class="font-black text-slate-600">:</span>
-                                <select id="startMinute" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
-                                    <option value="">Menit</option>
-                                </select>
+                                <select id="startHour" required class="flex-1 px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center"></select>
+                                <span class="font-black text-slate-400">:</span>
+                                <select id="startMinute" required class="flex-1 px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center"></select>
                             </div>
                         </div>
-
-                        <!-- 24h Time End -->
                         <div class="space-y-2">
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Waktu Agenda Selesai (24H)</label>
+                            <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Waktu Selesai (24H)</label>
                             <div class="flex items-center gap-3">
-                                <select id="endHour" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
-                                    <option value="">Jam</option>
-                                </select>
-                                <span class="font-black text-slate-600">:</span>
-                                <select id="endMinute" required class="flex-1 px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center">
-                                    <option value="">Menit</option>
-                                </select>
+                                <select id="endHour" required class="flex-1 px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center"></select>
+                                <span class="font-black text-slate-400">:</span>
+                                <select id="endMinute" required class="flex-1 px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all text-center"></select>
                             </div>
                         </div>
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Keterangan Agenda</label>
-                        <textarea id="bookingAgenda" required rows="3" placeholder="Tuliskan tujuan rapat..." class="w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all"></textarea>
+                        <label class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-4">Keterangan Agenda</label>
+                        <textarea id="bookingAgenda" required rows="3" placeholder="Tuliskan tujuan rapat..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-primary outline-none transition-all"></textarea>
                     </div>
                     <button type="submit" id="submitBtn" class="w-full bg-primary text-white font-black py-6 rounded-2xl shadow-xl shadow-primary/30 hover:bg-blue-700 transition-all uppercase tracking-widest text-xs pt-8">Konfirmasi Reservasi Sekarang</button>
                 </form>
@@ -175,28 +153,28 @@
         <section class="mt-32 max-w-7xl mx-auto px-6">
             <h3 class="text-2xl font-black mb-8 tracking-tighter">Contact PIC</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-white/5">
+                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-slate-200 dark:border-white/5 shadow-sm">
                     <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
-                    <div><p class="text-[10px] font-black text-slate-500 uppercase">Gesang Istiyanto</p><p class="text-xs font-bold text-primary">081295312443</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Gesang Istiyanto</p><p class="text-xs font-bold text-primary">081295312443</p></div>
                 </div>
-                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-white/5">
+                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-slate-200 dark:border-white/5 shadow-sm">
                     <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
-                    <div><p class="text-[10px] font-black text-slate-500 uppercase">Apit Lesmana</p><p class="text-xs font-bold text-primary">082114705237</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Apit Lesmana</p><p class="text-xs font-bold text-primary">082114705237</p></div>
                 </div>
-                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-white/5">
+                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-slate-200 dark:border-white/5 shadow-sm">
                     <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
-                    <div><p class="text-[10px] font-black text-slate-500 uppercase">Naufal Ferdiyanto</p><p class="text-xs font-bold text-primary">081219064754</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Naufal Ferdiyanto</p><p class="text-xs font-bold text-primary">081219064754</p></div>
                 </div>
-                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-white/5">
+                <div class="glass p-6 rounded-2xl flex items-center gap-4 spring-card border border-slate-200 dark:border-white/5 shadow-sm">
                     <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
-                    <div><p class="text-[10px] font-black text-slate-500 uppercase">Muhammad Fathurrachman</p><p class="text-xs font-bold text-primary">081317947887</p></div>
+                    <div><p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase">Muhammad Fathurrachman</p><p class="text-xs font-bold text-primary">081317947887</p></div>
                 </div>
             </div>
         </section>
     </main>
 
-    <footer class="mt-24 text-center pb-12 border-t border-white/5 pt-12">
-        <p class="text-[10px] font-bold text-slate-600 uppercase tracking-[0.4em]">Powered by Kimshie AI • Office Manager 2026</p>
+    <footer class="mt-24 text-center pb-12 border-t border-slate-200 dark:border-white/5 pt-12">
+        <p class="text-[10px] font-bold text-slate-400 dark:text-slate-600 uppercase tracking-[0.4em]">Powered by Kimshie AI • Office Manager 2026</p>
     </footer>
 
     <script>
@@ -206,55 +184,57 @@
 
         const buildingData = {
             rooms: [
-                { 
-                    name: 'Lantai 2 Witel Ruang Colaboration (Kapasitas 40)', 
-                    floor: 2, cap: 40, 
-                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDpuJfxEMOP9ytsaI7jdxZsZJTGpO7Dnpxbe_Zy2pRkOwasCWkrFN1pehc4qWzCXHb7BfVpntePwdR5EeNZDcJ6EwU5GizbpAn6ZYVSoPRPJfQ3pNtTEtymODhYNQzFVaoPN4z1HnfjHclGcR7gzdilGBjFf4-XIx3fN2IyfTiJLBTE7Ja_A5J_ke0T1rrs0xM3HfySBnOV4RaQ=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
-                },
-                { 
-                    name: 'Lantai 4 OPMC Ruang Rapat Besar (Kapasitas 20)', 
-                    floor: 4, cap: 20, 
-                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVAJB0s0ZOZa6TRsQjldkS5L9fl7EzkM5bVvPts1NJDSbnvyICgwvV6R586xXEy_KQO9a2NA1slskirskK352PTjdPhXKHdlxN-5m7yzApiJRy1tdT7R8a1Yakh5RLULI482XHOkdmiCHQyYCG-oXM0UnyHWk14plQPwC0gnNfvZCUAbvoWhSjS0WOKkKxRDlAz2b1O2j09JHkfA=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
-                },
-                { 
-                    name: 'Lantai 7 Witel Spark room 1 (Kapasitas 20)', 
-                    floor: 7, cap: 20, 
-                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBMmQhG2tbAHySmpTA7DrQ79kgq4jtAUpmGQCYoc87sK4c2OILZtVIiYPW8tJ_CvQw3ZKG0hRbgwoOm4rYwwqhkZx3CNPp91eqbafBwN2voYxjc0lhxnLsi7yQ7QIgxRVb1Emr0vn2eHKHvMM1rUMngD3L-2irkLG-oIwZE7K87q5aZOzzG1VqQXlq_GmRh4yO83A4iZ0ZrJXIH=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
-                },
-                { 
-                    name: 'Lantai 7 Witel Spark room 2 (Kapasitas 16)', 
-                    floor: 7, cap: 16, 
-                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBfYRy8boG1dAuIqpM7FXv0NntAZIBrxKewFMhLe4VfqYEBijCsH0KqxI_Bm6YRAoAPMEdu3B2ICmiOoIurjc6srOfpzZD90nCM5ZWVnEE1hSgHtKklTKbb09X6Rn1yWNOaCUWw4jVzUW2XxUiDMAkvwDjg8FTxSOGNXLmyqET42iIFKZf7rtNvll-FTF8LmczsL8CJvG8D8skY=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
-                },
-                { 
-                    name: 'Lantai 7 Witel Mindspace 2 (Kapasitas 6)', 
-                    floor: 7, cap: 6, 
-                    img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBn1fk9qB14oFvtXeUydxt8rsLSkypFqS5OjQndLfm6owOWZnuRSZkssJ2LsyIR9T1RlD2WO7cFionD9CysRhXxuA7ntw5w0hCMwQWuwXdDxMbsFE2kuInSPz3r4lUc8aEmeD_foPZruBDzhG8JZsmYS991BfE3TQ4hmSBdmSUQJgjTf4tbOa5Aymp82U39HZx7IaUHzkhkPJ4b=w600?key=nJ46R7ZS1TueXAVPvww5Ig' 
-                }
+                { name: 'Lantai 2 Witel Ruang Colaboration (Kapasitas 40)', floor: 2, cap: 40, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDpuJfxEMOP9ytsaI7jdxZsZJTGpO7Dnpxbe_Zy2pRkOwasCWkrFN1pehc4qWzCXHb7BfVpntePwdR5EeNZDcJ6EwU5GizbpAn6ZYVSoPRPJfQ3pNtTEtymODhYNQzFVaoPN4z1HnfjHclGcR7gzdilGBjFf4-XIx3fN2IyfTiJLBTE7Ja_A5J_ke0T1rrs0xM3HfySBnOV4RaQ=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 4 OPMC Ruang Rapat Besar (Kapasitas 20)', floor: 4, cap: 20, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVAJB0s0ZOZa6TRsQjldkS5L9fl7EzkM5bVvPts1NJDSbnvyICgwvV6R586xXEy_KQO9a2NA1slskirskK352PTjdPhXKHdlxN-5m7yzApiJRy1tdT7R8a1Yakh5RLULI482XHOkdmiCHQyYCG-oXM0UnyHWk14plQPwC0gnNfvZCUAbvoWhSjS0WOKkKxRDlAz2b1O2j09JHkfA=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Spark room 1 (Kapasitas 20)', floor: 7, cap: 20, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBMmQhG2tbAHySmpTA7DrQ79kgq4jtAUpmGQCYoc87sK4c2OILZtVIiYPW8tJ_CvQw3ZKG0hRbgwoOm4rYwwqhkZx3CNPp91eqbafBwN2voYxjc0lhxnLsi7yQ7QIgxRVb1Emr0vn2eHKHvMM1rUMngD3L-2irkLG-oIwZE7K87q5aZOzzG1VqQXlq_GmRh4yO83A4iZ0ZrJXIH=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Spark room 2 (Kapasitas 16)', floor: 7, cap: 16, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBfYRy8boG1dAuIqpM7FXv0NntAZIBrxKewFMhLe4VfqYEBijCsH0KqxI_Bm6YRAoAPMEdu3B2ICmiOoIurjc6srOfpzZD90nCM5ZWVnEE1hSgHtKklTKbb09X6Rn1yWNOaCUWw4jVzUW2XxUiDMAkvwDjg8FTxSOGNXLmyqET42iIFKZf7rtNvll-FTF8LmczsL8CJvG8D8skY=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Mindspace 2 (Kapasitas 6)', floor: 7, cap: 6, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBn1fk9qB14oFvtXeUydxt8rsLSkypFqS5OjQndLfm6owOWZnuRSZkssJ2LsyIR9T1RlD2WO7cFionD9CysRhXxuA7ntw5w0hCMwQWuwXdDxMbsFE2kuInSPz3r4lUc8aEmeD_foPZruBDzhG8JZsmYS991BfE3TQ4hmSBdmSUQJgjTf4tbOa5Aymp82U39HZx7IaUHzkhkPJ4b=w600?key=nJ46R7ZS1TueXAVPvww5Ig' }
             ]
         };
 
-        window.onload = () => { renderRooms(); checkAuth(); populateTimePickers(); };
+        window.onload = () => { 
+            // Default to Dark Mode if previously set
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcon();
+            renderRooms(); 
+            checkAuth(); 
+            populateTimePickers(); 
+        };
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            updateThemeIcon();
+        }
+
+        function updateThemeIcon() {
+            const icon = document.getElementById('themeIcon');
+            if (document.documentElement.classList.contains('dark')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
 
         function populateTimePickers() {
             const hSelects = [document.getElementById('startHour'), document.getElementById('endHour')];
             const mSelects = [document.getElementById('startMinute'), document.getElementById('endMinute')];
-            
             hSelects.forEach(s => {
+                s.innerHTML = '<option value="">Jam</option>';
                 for(let i=0; i<24; i++) {
                     let val = i < 10 ? '0'+i : i;
-                    let opt = new Option(val, val);
-                    opt.className = "bg-dark-card text-white";
-                    s.add(opt);
+                    s.add(new Option(val, val));
                 }
             });
-
             mSelects.forEach(s => {
+                s.innerHTML = '<option value="">Menit</option>';
                 for(let i=0; i<60; i+=5) {
                     let val = i < 10 ? '0'+i : i;
-                    let opt = new Option(val, val);
-                    opt.className = "bg-dark-card text-white";
-                    s.add(opt);
+                    s.add(new Option(val, val));
                 }
             });
         }
@@ -262,19 +242,15 @@
         function renderRooms() {
             const grid = document.getElementById('roomGrid');
             document.getElementById('roomCount').innerText = buildingData.rooms.length;
-            
             grid.innerHTML = buildingData.rooms.map(room => `
-                <div class="glass-card glass p-8 rounded-super-premium flex flex-col group spring-card border border-white/5">
-                    <div class="h-48 rounded-premium overflow-hidden mb-6 relative bg-slate-900 border border-white/10">
-                        ${room.img ? 
-                            `<img src="${room.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">` : 
-                            `<div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-800 to-slate-950 opacity-50"><i class="fa-solid fa-building text-4xl text-slate-700"></i></div>`
-                        }
-                        <div class="absolute top-4 left-4 bg-primary/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest shadow-lg border border-white/10">Lantai ${room.floor}</div>
+                <div class="glass-card glass p-8 rounded-super-premium flex flex-col group spring-card border border-slate-200 dark:border-white/5 shadow-sm dark:shadow-none">
+                    <div class="h-48 rounded-premium overflow-hidden mb-6 relative bg-slate-200 dark:bg-slate-900 border border-slate-300 dark:border-white/10">
+                        ${room.img ? `<img src="${room.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">` : `<div class="w-full h-full flex items-center justify-center opacity-50"><i class="fa-solid fa-building text-4xl"></i></div>`}
+                        <div class="absolute top-4 left-4 bg-primary/90 backdrop-blur-md px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-white shadow-lg border border-white/10">Lantai ${room.floor}</div>
                     </div>
                     <h3 class="text-xl font-black mb-1 tracking-tight">${room.name}</h3>
-                    <p class="text-slate-500 text-xs mb-8 flex items-center"><i class="fa-solid fa-users mr-2 text-primary"></i> Kapasitas ${room.cap || 'N/A'} Orang</p>
-                    <button onclick="openBooking('${room.name}')" class="mt-auto w-full bg-white/5 hover:bg-primary text-[10px] font-black uppercase py-4 rounded-2xl transition-all tracking-widest border border-white/10 hover:border-transparent hover:shadow-lg hover:shadow-primary/30">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></button>
+                    <p class="text-slate-500 dark:text-slate-400 text-xs mb-8 flex items-center"><i class="fa-solid fa-users mr-2 text-primary"></i> Kapasitas ${room.cap || 'N/A'} Orang</p>
+                    <button onclick="openBooking('${room.name}')" class="mt-auto w-full bg-slate-100 dark:bg-white/5 hover:bg-primary hover:text-white text-[10px] font-black uppercase py-4 rounded-2xl transition-all tracking-widest border border-slate-200 dark:border-white/10 hover:border-transparent hover:shadow-lg hover:shadow-primary/30">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></button>
                 </div>
             `).join('');
         }
@@ -293,46 +269,23 @@
             const submitBtn = document.getElementById('submitBtn');
             submitBtn.disabled = true;
             submitBtn.innerText = "Mengirim...";
-
             const room = document.getElementById('bookingRoomName').value, 
                   name = document.getElementById('bookingName').value, 
                   wa = document.getElementById('bookingWA').value, 
                   unit = document.getElementById('bookingUnit').value, 
                   date = document.getElementById('bookingDate').value, 
                   agenda = document.getElementById('bookingAgenda').value; 
-
-            // Combine Time
             const start = document.getElementById('startHour').value + ":" + document.getElementById('startMinute').value;
             const end = document.getElementById('endHour').value + ":" + document.getElementById('endMinute').value;
-
             try { 
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdIZCuT97e75fYmdok39kgU8YwJ7bo7JEV2xkrAqyiZZaiZFQ/formResponse"; 
                 const params = new URLSearchParams(); 
-                params.append('entry.1461043353', name); 
-                params.append('entry.1698919406', wa); 
-                params.append('entry.396930152', unit); 
-                params.append('entry.1898527006', room); 
-                params.append('entry.971478253', date); 
-                params.append('entry.410139192', start); 
-                params.append('entry.2096536293', end); 
-                params.append('entry.252694942', agenda); 
-
+                params.append('entry.1461043353', name); params.append('entry.1698919406', wa); params.append('entry.396930152', unit); params.append('entry.1898527006', room); params.append('entry.971478253', date); params.append('entry.410139192', start); params.append('entry.2096536293', end); params.append('entry.252694942', agenda); 
                 await fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
-                
-                await _supabase.from('office_tickets').insert([{ 
-                    subject: `RESERVASI OPMC: ${room} - ${agenda}`, 
-                    location: room, 
-                    status: 'MENUNGGU' 
-                }]); 
-
-                alert("Reservasi Berhasil Dikirim ke Google Sheets!"); 
+                await _supabase.from('office_tickets').insert([{ subject: `RESERVASI OPMC: ${room} - ${agenda}`, location: room, status: 'MENUNGGU' }]); 
+                alert("Reservasi Berhasil Dikirim!"); 
                 closeBooking(); 
-            } catch(e) {
-                alert("Terjadi kesalahan: " + e.message);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerText = "Konfirmasi Reservasi Sekarang";
-            }
+            } catch(e) { alert("Terjadi kesalahan: " + e.message); } finally { submitBtn.disabled = false; submitBtn.innerText = "Konfirmasi Reservasi Sekarang"; }
         }
 
         async function checkAuth() { 
