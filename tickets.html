@@ -36,6 +36,9 @@
             .type-card i, .type-card span { @apply pointer-events-none; }
             .type-card i { @apply text-2xl mb-2 transition-transform duration-300; }
             .type-card.selected i { @apply scale-110 text-amber-500; }
+            
+            .checkmark-icon { @apply absolute top-3 right-3 text-amber-500 text-base scale-0 transition-transform duration-300 z-10; }
+            .type-card.selected .checkmark-icon { @apply scale-100; }
         }
         .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, transparent 70%); opacity: 0.08; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
         .dark .hero-gradient { opacity: 0.15; }
@@ -126,37 +129,27 @@
                             <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
                             <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="typeContainer">
                                 <button type="button" onclick="selectType('AC/ Pendingin Ruangan')" class="type-card group" data-val="AC/ Pendingin Ruangan">
-                                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] scale-0 group-[.selected]:scale-100 transition-transform duration-300 shadow-lg border-2 border-white dark:border-[#121212] z-10">
-                                        <i class="fa-solid fa-check"></i>
-                                    </div>
+                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-snowflake"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">AC</span>
                                 </button>
                                 <button type="button" onclick="selectType('Jaringan Internet')" class="type-card group" data-val="Jaringan Internet">
-                                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] scale-0 group-[.selected]:scale-100 transition-transform duration-300 shadow-lg border-2 border-white dark:border-[#121212] z-10">
-                                        <i class="fa-solid fa-check"></i>
-                                    </div>
+                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-wifi"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span>
                                 </button>
                                 <button type="button" onclick="selectType('Toilet')" class="type-card group" data-val="Toilet">
-                                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] scale-0 group-[.selected]:scale-100 transition-transform duration-300 shadow-lg border-2 border-white dark:border-[#121212] z-10">
-                                        <i class="fa-solid fa-check"></i>
-                                    </div>
+                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-restroom"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span>
                                 </button>
                                 <button type="button" onclick="selectType('Furniture')" class="type-card group" data-val="Furniture">
-                                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] scale-0 group-[.selected]:scale-100 transition-transform duration-300 shadow-lg border-2 border-white dark:border-[#121212] z-10">
-                                        <i class="fa-solid fa-check"></i>
-                                    </div>
+                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-chair"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Mebel</span>
                                 </button>
                                 <button type="button" onclick="selectType('Yang lain')" class="type-card group" data-val="Yang lain">
-                                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-amber-500 text-white rounded-full flex items-center justify-center text-[10px] scale-0 group-[.selected]:scale-100 transition-transform duration-300 shadow-lg border-2 border-white dark:border-[#121212] z-10">
-                                        <i class="fa-solid fa-check"></i>
-                                    </div>
+                                    <div class="checkmark-icon"><i class="fa-solid fa-check"></i></div>
                                     <i class="fa-solid fa-ellipsis"></i>
                                     <span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span>
                                 </button>
