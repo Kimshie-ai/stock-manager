@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kimshie Portal - Light Mode Preview</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #F8FAFC; color: #0F172A; overflow-x: hidden; }
+        
+        .glow-mesh {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: 
+                radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.05) 0%, transparent 40%);
+            z-index: -1;
+        }
+
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 2rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        .bento-card:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(59, 130, 246, 0.3);
+            transform: translateY(-5px) scale(1.01);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        }
+
+        .glow-border::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 2rem; padding: 2px;
+            background: linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.4), transparent);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor; mask-composite: exclude;
+            opacity: 0; transition: opacity 0.5s;
+        }
+
+        .bento-card:hover.glow-border::before { opacity: 1; }
+
+        @keyframes pulse-soft { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.8; } }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); animation: pulse-soft 2s infinite; }
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-12 lg:p-20">
+    <div class="glow-mesh"></div>
+
+    <!-- Header Section -->
+    <header class="max-w-7xl mx-auto mb-16 flex flex-col md:flex-row items-center justify-between gap-8">
+        <div class="flex items-center gap-6">
+            <div class="relative">
+                <div class="absolute -inset-2 bg-blue-400 blur-xl opacity-20 rounded-full"></div>
+                <img src="assets/branding/logo-k-refined.png" alt="Logo" class="h-16 w-16 relative grayscale hover:grayscale-0 transition-all">
+            </div>
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter uppercase italic text-slate-900">Kimshie<span class="text-blue-600">OS</span></h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <div class="status-dot"></div>
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">System Online: Witel OPMC</span>
+                </div>
+            </div>
+        </div>
+        <div class="hidden md:block text-right">
+            <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.4em]">Integrated Management Ecosystem</p>
+            <p class="text-xs font-medium text-slate-500 mt-1">Thursday, 05 March 2026</p>
+        </div>
+    </header>
+
+    <!-- Bento Grid -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        
+        <!-- Large Card: Room Booking (Highlighted) -->
+        <div class="md:col-span-2 lg:col-span-3 bento-card p-10 group glow-border h-[450px] flex flex-col justify-between border-emerald-100 bg-white">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-building-circle-check text-4xl"></i>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="text-[10px] font-black py-1 px-4 bg-emerald-50 text-emerald-700 rounded-full border border-emerald-100 uppercase tracking-widest">Priority System</span>
+                    <div class="flex gap-1.5 px-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                        <div class="w-2 h-2 rounded-full bg-slate-200"></div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase italic text-slate-900">Room <span class="text-emerald-600">Booking</span></h2>
+                <p class="text-base text-slate-500 font-medium leading-relaxed max-w-md mb-8 italic">Reservasi instan ruang rapat Witel OPMC dengan sistem kartu premium dan monitoring jadwal terpusat.</p>
+                <a href="rooms.html" class="inline-flex items-center gap-4 text-sm font-black uppercase tracking-[0.3em] text-emerald-600 hover:text-emerald-800 transition-all group-hover:gap-6">
+                    Book a Room <i class="fa-solid fa-calendar-check text-xl"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Large Card: Emergency Hub (Highlighted) -->
+        <div class="md:col-span-2 lg:col-span-3 bento-card p-10 group glow-border h-[450px] flex flex-col justify-between border-amber-100 bg-white">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-3xl bg-amber-50 flex items-center justify-center text-amber-600 group-hover:bg-amber-600 group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-screwdriver-wrench text-4xl"></i>
+                </div>
+                <div class="flex flex-col items-end gap-2">
+                    <span class="text-[10px] font-black py-1 px-4 bg-amber-50 text-amber-700 rounded-full border border-amber-100 uppercase tracking-widest animate-pulse">24/7 Support</span>
+                </div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase italic text-slate-900">Emergency <span class="text-amber-600">Hub</span></h2>
+                <p class="text-base text-slate-500 font-medium leading-relaxed max-w-md mb-8 italic">Pusat pelaporan kendala operasional cepat. Respon bot Kimshie otomatis dalam 30 detik via Telegram.</p>
+                <a href="tickets.html" class="inline-flex items-center gap-4 text-sm font-black uppercase tracking-[0.3em] text-amber-600 hover:text-amber-800 transition-all group-hover:gap-6">
+                    Send Report <i class="fa-solid fa-headset text-xl"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Medium Card: Stats Peek -->
+        <div class="md:col-span-2 lg:col-span-4 bento-card p-8 flex flex-col justify-between bg-white">
+            <div class="flex justify-between items-center mb-6">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-chart-line text-blue-600"></i>
+                    <h3 class="text-xs font-black uppercase tracking-widest text-slate-500 italic">Global System Analytics</h3>
+                </div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Live Updates</div>
+            </div>
+            <div class="flex-grow flex items-center justify-center py-4">
+                <canvas id="miniChart" height="150"></canvas>
+            </div>
+            <div class="grid grid-cols-3 gap-8 mt-6">
+                <div class="text-center border-r border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-tighter">Total Assets</p>
+                    <p class="text-2xl font-black italic text-blue-600">1,248</p>
+                </div>
+                <div class="text-center border-r border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-tighter">Open Tickets</p>
+                    <p class="text-2xl font-black italic text-amber-600">03</p>
+                </div>
+                <div class="text-center">
+                    <p class="text-[9px] font-bold text-slate-400 uppercase mb-1 tracking-tighter">Network</p>
+                    <p class="text-2xl font-black italic text-emerald-600">Optimal</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Small Card: Office Manager (Admin Section) -->
+        <div class="md:col-span-2 lg:col-span-2 bento-card p-8 group glow-border flex flex-col justify-between bg-slate-50 border-slate-200 shadow-none">
+            <div class="flex justify-between items-start">
+                <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 flex items-center justify-center text-slate-400 group-hover:bg-blue-600 group-hover:text-white group-hover:border-blue-600 transition-all shadow-sm">
+                    <i class="fa-solid fa-lock text-xl"></i>
+                </div>
+                <span class="text-[8px] font-black py-0.5 px-2 bg-slate-200 text-slate-600 rounded border border-slate-300 uppercase tracking-widest italic">Admin Tool</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black mb-1 tracking-tight uppercase italic text-slate-700">Office Manager</h2>
+                <p class="text-[10px] text-slate-500 font-medium italic mb-4">Stock control and asset tracking console.</p>
+                <a href="assets.html" class="text-[9px] font-black uppercase tracking-widest text-blue-600/60 group-hover:text-blue-600">Enter Admin Portal <i class="fa-solid fa-arrow-right-long ml-1"></i></a>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-20 pt-10 border-t border-slate-200 flex flex-col md:flex-row items-center justify-between gap-6 opacity-60 hover:opacity-100 transition-opacity duration-700">
+        <p class="text-[9px] font-black uppercase tracking-[0.5em] italic text-slate-500">Kimshie Bot AI 🌸 | Build 2026.03.05</p>
+        <div class="flex gap-8">
+            <a href="#" class="text-[9px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">Documentation</a>
+            <a href="#" class="text-[9px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">Security</a>
+            <a href="#" class="text-[9px] font-bold uppercase tracking-widest text-slate-400 hover:text-blue-600 transition-colors">API v1.0</a>
+        </div>
+    </footer>
+
+    <script>
+        const ctx = document.getElementById('miniChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Asset Activity',
+                    data: [12, 19, 15, 25, 22, 30, 28],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 3,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { 
+                    x: { display: false }, 
+                    y: { display: false } 
+                }
+            }
+        });
+    </script>
+</body>
+</html>
