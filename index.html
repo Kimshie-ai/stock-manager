@@ -30,6 +30,7 @@
             position: relative;
             overflow: hidden;
             box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+            cursor: pointer;
         }
 
         .bento-card:hover {
@@ -87,7 +88,7 @@
     <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-8">
         
         <!-- Large Card: Room Booking -->
-        <div class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[450px] flex flex-col justify-between">
+        <div onclick="window.location.href='rooms.html'" class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[450px] flex flex-col justify-between">
             <div class="flex justify-between items-start">
                 <div class="w-24 h-24 rounded-[2rem] bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-700 shadow-sm">
                     <i class="fa-solid fa-building-circle-check text-5xl"></i>
@@ -107,7 +108,7 @@
         </div>
 
         <!-- Large Card: Emergency Hub -->
-        <div class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[450px] flex flex-col justify-between">
+        <div onclick="window.location.href='tickets.html'" class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[450px] flex flex-col justify-between">
             <div class="flex justify-between items-start">
                 <div class="w-24 h-24 rounded-[2rem] bg-red-50 flex items-center justify-center highlight-red group-hover:bg-red-600 group-hover:text-white transition-all duration-700 shadow-sm">
                     <i class="fa-solid fa-headset text-5xl"></i>
@@ -124,7 +125,7 @@
         </div>
 
         <!-- Medium Card: Stats Peek -->
-        <div class="md:col-span-2 lg:col-span-4 bento-card p-10 flex flex-col justify-between bg-white overflow-hidden group/chart">
+        <div onclick="window.location.href='tickets.html'" class="md:col-span-2 lg:col-span-4 bento-card p-10 flex flex-col justify-between bg-white overflow-hidden group/chart">
             <div class="flex justify-between items-center mb-6">
                 <div class="flex items-center gap-4">
                     <div class="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center shadow-inner"><i class="fa-solid fa-chart-line highlight-red"></i></div>
@@ -168,7 +169,7 @@
         </div>
 
         <!-- Small Card: Office Manager (Admin Section) -->
-        <div class="md:col-span-2 lg:col-span-2 bento-card p-10 group flex flex-col justify-between bg-slate-50 border-none shadow-none grayscale hover:grayscale-0 transition-all">
+        <div onclick="window.location.href='assets.html'" class="md:col-span-2 lg:col-span-2 bento-card p-10 group flex flex-col justify-between bg-slate-50 border-none shadow-none grayscale hover:grayscale-0 transition-all">
             <div class="flex justify-between items-start">
                 <div class="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-slate-300 group-hover:highlight-red transition-all shadow-sm">
                     <i class="fa-solid fa-key text-xl"></i>
