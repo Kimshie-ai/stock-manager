@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview: Emergency Hub Pro - Office Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { primary: '#0056B3', amber: { 500: '#f59e0b' } },
+                    borderRadius: { 'premium': '1.5rem' }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        .glass { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .upload-area { border: 2px dashed #cbd5e1; transition: all 0.3s ease; }
+        .upload-area:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+    </style>
+</head>
+<body class="p-6 md:p-12">
+    <div class="max-w-md mx-auto">
+        <div class="mb-8 text-center">
+            <span class="px-4 py-1 bg-amber-100 text-amber-600 text-[10px] font-black uppercase tracking-widest rounded-full">Preview Mode</span>
+            <h1 class="text-3xl font-black mt-4 tracking-tighter uppercase italic">PRO <span class="text-amber-500">REPORTING</span></h1>
+        </div>
+
+        <div class="glass p-8 rounded-[2.5rem] shadow-2xl border-t-4 border-t-amber-500">
+            <h2 class="text-xl font-black mb-6 flex items-center gap-3">
+                <i class="fa-solid fa-camera text-amber-500"></i> Form Laporan Pro
+            </h2>
+            
+            <form class="space-y-5">
+                <!-- Data Pelapor (Simplified for Preview) -->
+                <div>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2 mb-2 block">Nama & Unit</label>
+                    <input type="text" placeholder="Tuan Muda - Digital Product" class="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl font-bold outline-none focus:border-amber-500 transition-all text-sm" disabled>
+                </div>
+
+                <!-- NEW: PRO PHOTO UPLOAD -->
+                <div class="space-y-3">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2 block">Bukti Foto Kerusakan</label>
+                    <div class="upload-area rounded-2xl p-6 text-center cursor-pointer relative overflow-hidden group" id="dropZone">
+                        <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="previewImage(this)">
+                        <div id="uploadPlaceholder">
+                            <i class="fa-solid fa-cloud-arrow-up text-3xl text-slate-300 group-hover:text-amber-500 mb-2 transition-colors"></i>
+                            <p class="text-[10px] font-bold text-slate-400">Klik atau seret foto ke sini</p>
+                            <p class="text-[8px] text-slate-300 mt-1 uppercase">Max 5MB (JPG/PNG)</p>
+                        </div>
+                        <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
+                        <div id="removeBtn" class="hidden absolute top-2 right-2 w-8 h-8 bg-red-500 text-white rounded-xl items-center justify-center shadow-lg hover:bg-red-600 transition-all z-10" onclick="resetUpload(event)">
+                            <i class="fa-solid fa-trash-can text-xs"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NEW: TELEGRAM NOTIFICATION TOGGLE -->
+                <div class="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-blue-500 text-white rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20">
+                            <i class="fa-brands fa-telegram text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-[10px] font-black text-blue-600 uppercase tracking-tighter leading-none">Instant Alert</p>
+                            <p class="text-[8px] text-blue-400 font-bold mt-1">Kirim notifikasi ke Grup Fasilitas</p>
+                        </div>
+                    </div>
+                    <div class="relative inline-block w-10 align-middle select-none">
+                        <input type="checkbox" checked class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-blue-500 appearance-none cursor-pointer right-0 transition-all"/>
+                        <label class="toggle-label block overflow-hidden h-5 rounded-full bg-blue-500 cursor-pointer"></label>
+                    </div>
+                </div>
+
+                <button type="button" class="w-full bg-amber-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-amber-500/20 uppercase tracking-widest text-[10px] pt-7">
+                    Kirim Laporan Pro
+                </button>
+            </form>
+        </div>
+
+        <div class="mt-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 italic">Alur Kerja Sistem:</h3>
+            <div class="space-y-4">
+                <div class="flex gap-4">
+                    <div class="text-xs font-black text-amber-500">01</div>
+                    <p class="text-[10px] font-bold text-slate-600 leading-relaxed">User upload foto kerusakan & tekan kirim.</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="text-xs font-black text-blue-500">02</div>
+                    <p class="text-[10px] font-bold text-slate-600 leading-relaxed">Sistem simpan foto ke Cloud Storage (Supabase).</p>
+                </div>
+                <div class="flex gap-4">
+                    <div class="text-xs font-black text-emerald-500">03</div>
+                    <p class="text-[10px] font-bold text-slate-600 leading-relaxed">Kimshie Bot kirim link foto & detail ke Telegram Tim.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('dropZone').onclick = () => document.getElementById('photoInput').click();
+
+        function previewImage(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    document.getElementById('removeBtn').classList.remove('hidden');
+                    document.getElementById('removeBtn').classList.add('flex');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function resetUpload(e) {
+            e.stopPropagation();
+            document.getElementById('photoInput').value = '';
+            document.getElementById('imagePreview').src = '';
+            document.getElementById('imagePreview').classList.add('hidden');
+            document.getElementById('uploadPlaceholder').classList.remove('hidden');
+            document.getElementById('removeBtn').classList.add('hidden');
+            document.getElementById('removeBtn').classList.remove('flex');
+        }
+    </script>
+</body>
+</html>
