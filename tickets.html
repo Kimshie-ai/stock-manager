@@ -208,6 +208,12 @@
                     <div class="flex-1 relative w-full"><i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari laporan atau lokasi..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold text-xs italic uppercase"></div>
                 </div>
                 <div id="ticketList" class="space-y-6"></div>
+                <!-- Pagination Controls -->
+                <div id="paginationControls" class="flex items-center justify-center gap-6 pt-8 animate-premium">
+                    <button onclick="prevPage()" id="btnPrev" class="px-6 py-3 glass rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 transition-all hover:bg-primary hover:text-white">← Prev</button>
+                    <span id="pageInfo" class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Halaman 1</span>
+                    <button onclick="nextPage()" id="btnNext" class="px-6 py-3 glass rounded-2xl text-[10px] font-black uppercase tracking-widest disabled:opacity-30 transition-all hover:bg-primary hover:text-white">Next →</button>
+                </div>
             </div>
         </div>
     </main>
@@ -219,6 +225,7 @@
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
         let allTickets = [], currentUser = null, ticketUrgensi = 'NORMAL';
+        let currentPage = 1, itemsPerPage = 5;
 
         window.onload = () => { 
             if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
@@ -236,16 +243,32 @@
         async function handleLogout() { showConfirm('Log Out', 'Keluar?', async () => { await _supabase.auth.signOut(); }); }
         function toggleAuthModal() { const m = document.getElementById('authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
         function showConfirm(t, msg, onOk) { const m = document.getElementById('confirmModal'); document.getElementById('confirmTitle').innerText = t; document.getElementById('confirmMessage').innerText = msg; m.classList.remove('opacity-0', 'pointer-events-none'); const ok = document.getElementById('confirmOk'), can = document.getElementById('confirmCancel'), clean = () => { m.classList.add('opacity-0', 'pointer-events-none'); ok.onclick = null; can.onclick = null; }; ok.onclick = () => { clean(); onOk(); }; can.onclick = clean; }
-        async function fetchTickets() { const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }); if (!error) { allTickets = data || []; renderTickets(allTickets); } }
+        async function fetchTickets() { const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }); if (!error) { allTickets = data || []; currentPage = 1; renderTickets(allTickets); } }
+        
         function renderTickets(tickets) {
+            // Update Stats
             document.getElementById('ticketStatWait').innerText = allTickets.filter(t => t.status === 'MENUNGGU').length;
             document.getElementById('ticketStatProcess').innerText = allTickets.filter(t => t.status === 'DIPROSES').length;
             document.getElementById('ticketStatDone').innerText = allTickets.filter(t => t.status === 'SELESAI').length;
-            document.getElementById('ticketList').innerHTML = tickets.map(t => {
+
+            // Pagination Logic
+            const totalPages = Math.ceil(tickets.length / itemsPerPage);
+            if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+            
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginatedItems = tickets.slice(start, start + itemsPerPage);
+
+            // Update UI Controls
+            document.getElementById('pageInfo').innerText = `Halaman ${currentPage} dari ${totalPages || 1}`;
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnNext').disabled = currentPage === totalPages || totalPages === 0;
+
+            document.getElementById('ticketList').innerHTML = paginatedItems.map(t => {
                 const rawDate = new Date(t.created_at);
                 const id = t.id.toString().toUpperCase().substring(0,8);
                 const jam = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(rawDate);
                 const tgl = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' }).format(rawDate);
+                
                 return `
                 <div class="glass p-6 md:p-8 rounded-premium shadow-sm flex flex-col md:flex-row gap-6 border border-slate-200/50 dark:border-white/5 animate-premium">
                     <div class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
@@ -264,10 +287,28 @@
                             <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-primary"></i>${t.location}</span>
                             ${t.urgency === 'DARURAT' ? '<span class="text-red-500 font-black animate-pulse">🚨 DARURAT</span>' : ''}
                         </div>
+                        ${currentUser ? `
+                        <div class="flex gap-2 mt-6">
+                            ${t.status === 'MENUNGGU' ? `<button onclick="updateTicketStatus('${t.id}', 'DIPROSES')" class="px-5 py-3 bg-blue-50 text-blue-600 text-[9px] font-black rounded-xl hover:bg-blue-600 hover:text-white transition-all uppercase tracking-widest border border-blue-100">PROSES</button>` : ''}
+                            ${t.status !== 'SELESAI' ? `<button onclick="updateTicketStatus('${t.id}', 'SELESAI')" class="px-5 py-3 bg-emerald-50 text-emerald-600 text-[9px] font-black rounded-xl hover:bg-emerald-600 hover:text-white transition-all uppercase tracking-widest border border-emerald-100">SELESAI</button>` : ''}
+                            <button onclick="deleteTicket('${t.id}')" class="px-5 py-3 bg-red-50 text-red-500 text-[9px] font-black rounded-xl hover:bg-red-600 hover:text-white transition-all uppercase tracking-widest border border-red-100">HAPUS</button>
+                        </div>` : ''}
                     </div>
                 </div>`;
             }).join('');
         }
+
+        function nextPage() { currentPage++; renderTickets(allTickets); window.scrollTo({ top: document.getElementById('ticketList').offsetTop - 100, behavior: 'smooth' }); }
+        function prevPage() { currentPage--; renderTickets(allTickets); window.scrollTo({ top: document.getElementById('ticketList').offsetTop - 100, behavior: 'smooth' }); }
+        async function updateTicketStatus(id, s) { 
+            const { error } = await _supabase.from('office_tickets').update({ status: s }).eq('id', id); 
+            if (!error) { 
+                if(s === 'SELESAI') confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+                fetchTickets(); 
+            } 
+        }
+        async function deleteTicket(id) { showConfirm('Hapus', 'Hapus riwayat laporan ini?', async () => { await _supabase.from('office_tickets').delete().eq('id', id); fetchTickets(); }); }
+
         async function handleTicketSubmit(e) { 
             e.preventDefault(); const type = document.getElementById('ticketType').value; if(!type) return alert("Pilih Jenis Keluhan!");
             const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Mengirim...";
@@ -368,7 +409,7 @@
             } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
         }
         function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 animate-pulse" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; }
-        function handleTicketSearch() { const i = document.getElementById('searchTicketInput').value.toLowerCase().trim(); renderTickets(allTickets.filter(t => t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i))); }
+        function handleTicketSearch() { const i = document.getElementById('searchTicketInput').value.toLowerCase().trim(); currentPage = 1; renderTickets(allTickets.filter(t => t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i))); }
     </script>
 </body>
 </html>
