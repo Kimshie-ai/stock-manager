@@ -305,8 +305,6 @@
                     }
                 }
 
-                const finalDetail = detail + (photoUrl ? `\n\nLink Foto: ${photoUrl}` : "");
-
                 // 2. Metode Pengiriman: Hidden Form ke Google Form (Sinkron ke Sheet)
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
                 const iframe = document.createElement('iframe');
@@ -324,8 +322,9 @@
                     'entry.2060003782': unit,
                     'entry.500437345': loc,
                     'entry.1468393946': type,
-                    'entry.1935726494': finalDetail,
+                    'entry.1935726494': detail,
                     'entry.1369886363': urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase(),
+                    'entry.1677811046': photoUrl,
                     'entry.1349422186': contact,
                     'entry.180278682': date
                 };
