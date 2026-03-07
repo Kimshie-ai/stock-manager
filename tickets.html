@@ -281,12 +281,24 @@
                   urg = ticketUrgensi;
 
             try { 
-                // Kirim ke Google Form
-                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSd_ZOnIn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn/formResponse"; // Link ini perlu disesuaikan dengan formId Tuan Muda
-                // Namun karena Kimshie belum punya ID entry resminya dari Tuan Muda, Kimshie siapkan logikanya dulu.
-                // Untuk sementara, kita pastikan data tersimpan di Database Utama (Supabase)
+                // Kirim ke Google Form (Sync ke Google Sheet)
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
+                const params = new URLSearchParams();
+                params.append('entry.1583149329', name);
+                params.append('entry.2060003782', unit);
+                params.append('entry.500437345', loc);
+                params.append('entry.1468393946', type);
+                params.append('entry.1935726494', detail);
+                params.append('entry.1369886363', urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase());
+                params.append('entry.1349422186', contact);
+                params.append('entry.180278682', date);
                 
+                // Gunakan mode no-cors karena Google Form tidak mendukung CORS penuh untuk direct fetch
+                fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
+
+                // Simpan ke Database Internal (Backup & Live Feed)
                 const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg, status: 'MENUNGGU' }]); 
+                
                 if(!error) { e.target.reset(); document.getElementById('imagePreview').classList.add('hidden'); fetchTickets(); showSuccessModal(); } 
             } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
         }
