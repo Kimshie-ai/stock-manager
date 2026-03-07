@@ -287,15 +287,21 @@
                 // 1. Upload Foto ke Supabase Storage (jika ada)
                 if (photoFile) {
                     const fileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                    const { data, error: uploadError } = await _supabase.storage
-                        .from('ticket-photo')
-                        .upload(fileName, photoFile);
-                    
-                    if (!uploadError) {
-                        const { data: { publicUrl } } = _supabase.storage
+                    try {
+                        const { data, error: uploadError } = await _supabase.storage
                             .from('ticket-photo')
-                            .getPublicUrl(fileName);
-                        photoUrl = publicUrl;
+                            .upload(fileName, photoFile);
+                        
+                        if (uploadError) {
+                            console.warn("Upload foto gagal, lanjut kirim teks saja:", uploadError.message);
+                        } else {
+                            const { data: { publicUrl } } = _supabase.storage
+                                .from('ticket-photo')
+                                .getPublicUrl(fileName);
+                            photoUrl = publicUrl;
+                        }
+                    } catch (e) {
+                        console.warn("Kesalahan koneksi storage:", e);
                     }
                 }
 
@@ -305,7 +311,6 @@
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
                 const iframe = document.createElement('iframe');
                 iframe.name = "hidden_iframe";
-                iframe.id = "hidden_iframe";
                 iframe.style.display = "none";
                 document.body.appendChild(iframe);
 
@@ -337,14 +342,17 @@
                 form.submit();
 
                 // 3. Simpan ke Database Internal (Supabase)
-                const { error } = await _supabase.from('office_tickets').insert([{ 
+                const { error: dbError } = await _supabase.from('office_tickets').insert([{ 
                     subject: `[${name}] ${type}: ${detail}${photoUrl ? ' (Ada Foto)' : ''}`, 
                     location: loc, 
                     urgency: urg, 
                     status: 'MENUNGGU' 
                 }]); 
                 
-                if(!error) { 
+                if(dbError) {
+                    console.error("Gagal simpan database:", dbError.message);
+                    alert("Database menolak laporan: " + dbError.message + "\n\nPastikan kebijakan RLS di Supabase sudah mengizinkan INSERT publik.");
+                } else { 
                     setTimeout(() => {
                         e.target.reset(); 
                         document.getElementById('imagePreview').classList.add('hidden'); 
@@ -356,8 +364,8 @@
                     }, 500);
                 } 
             } catch (err) {
-                console.error(err);
-                alert("Gagal mengirim laporan. Silakan coba lagi.");
+                console.error("System Error:", err);
+                alert("Terjadi kesalahan sistem. Silakan cek koneksi atau hubungi admin.");
             } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
         }
         function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 animate-pulse" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; }
