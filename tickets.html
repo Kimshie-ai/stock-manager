@@ -288,12 +288,12 @@
                 if (photoFile) {
                     const fileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                     const { data, error: uploadError } = await _supabase.storage
-                        .from('ticket-photos')
+                        .from('ticket-photo')
                         .upload(fileName, photoFile);
                     
                     if (!uploadError) {
                         const { data: { publicUrl } } = _supabase.storage
-                            .from('ticket-photos')
+                            .from('ticket-photo')
                             .getPublicUrl(fileName);
                         photoUrl = publicUrl;
                     }
