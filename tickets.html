@@ -271,8 +271,22 @@
         async function handleTicketSubmit(e) { 
             e.preventDefault(); const type = document.getElementById('ticketType').value; if(!type) return alert("Pilih Jenis Keluhan!");
             const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Mengirim...";
+
+            const name = document.getElementById('reporterName').value,
+                  unit = document.getElementById('reporterUnit').value,
+                  loc = document.getElementById('ticketLocation').value,
+                  detail = document.getElementById('ticketDetail').value,
+                  contact = document.getElementById('reporterContact').value,
+                  date = document.getElementById('eventDate').value,
+                  urg = ticketUrgensi;
+
             try { 
-                const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${document.getElementById('reporterName').value}] ${type}: ${document.getElementById('ticketDetail').value}`, location: document.getElementById('ticketLocation').value, urgency: ticketUrgensi, status: 'MENUNGGU' }]); 
+                // Kirim ke Google Form
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSd_ZOnIn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn_vAn/formResponse"; // Link ini perlu disesuaikan dengan formId Tuan Muda
+                // Namun karena Kimshie belum punya ID entry resminya dari Tuan Muda, Kimshie siapkan logikanya dulu.
+                // Untuk sementara, kita pastikan data tersimpan di Database Utama (Supabase)
+                
+                const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg, status: 'MENUNGGU' }]); 
                 if(!error) { e.target.reset(); document.getElementById('imagePreview').classList.add('hidden'); fetchTickets(); showSuccessModal(); } 
             } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
         }
