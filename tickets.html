@@ -281,25 +281,57 @@
                   urg = ticketUrgensi;
 
             try { 
-                // Kirim ke Google Form (Sync ke Google Sheet)
+                // Metode Pengiriman Teruji: Hidden Form ke Google Form
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
-                const params = new URLSearchParams();
-                params.append('entry.1583149329', name);
-                params.append('entry.2060003782', unit);
-                params.append('entry.500437345', loc);
-                params.append('entry.1468393946', type);
-                params.append('entry.1935726494', detail);
-                params.append('entry.1369886363', urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase());
-                params.append('entry.1349422186', contact);
-                params.append('entry.180278682', date);
-                
-                // Gunakan mode no-cors karena Google Form tidak mendukung CORS penuh untuk direct fetch
-                fetch(formUrl, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: params.toString() }); 
+                const iframe = document.createElement('iframe');
+                iframe.name = "hidden_iframe";
+                iframe.id = "hidden_iframe";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
 
-                // Simpan ke Database Internal (Backup & Live Feed)
+                const form = document.createElement('form');
+                form.action = formUrl;
+                form.method = "POST";
+                form.target = "hidden_iframe";
+
+                const fields = {
+                    'entry.1583149329': name,
+                    'entry.2060003782': unit,
+                    'entry.500437345': loc,
+                    'entry.1468393946': type,
+                    'entry.1935726494': detail,
+                    'entry.1369886363': urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase(),
+                    'entry.1349422186': contact,
+                    'entry.180278682': date
+                };
+
+                for (const key in fields) {
+                    const input = document.createElement('input');
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = fields[key];
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit(); // Kirim ke Google Form
+
+                // Simpan ke Database Internal (Supabase)
                 const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg, status: 'MENUNGGU' }]); 
                 
-                if(!error) { e.target.reset(); document.getElementById('imagePreview').classList.add('hidden'); fetchTickets(); showSuccessModal(); } 
+                if(!error) { 
+                    setTimeout(() => {
+                        e.target.reset(); 
+                        document.getElementById('imagePreview').classList.add('hidden'); 
+                        fetchTickets(); 
+                        showSuccessModal();
+                        document.body.removeChild(form);
+                        document.body.removeChild(iframe);
+                    }, 500);
+                } 
+            } catch (err) {
+                console.error(err);
+                alert("Gagal mengirim laporan. Silakan coba lagi.");
             } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
         }
         function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 animate-pulse" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; }
