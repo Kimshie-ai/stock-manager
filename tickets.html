@@ -278,10 +278,30 @@
                   detail = document.getElementById('ticketDetail').value,
                   contact = document.getElementById('reporterContact').value,
                   date = document.getElementById('eventDate').value,
-                  urg = ticketUrgensi;
+                  urg = ticketUrgensi,
+                  photoFile = document.getElementById('photoInput').files[0];
+
+            let photoUrl = "";
 
             try { 
-                // Metode Pengiriman Teruji: Hidden Form ke Google Form
+                // 1. Upload Foto ke Supabase Storage (jika ada)
+                if (photoFile) {
+                    const fileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                    const { data, error: uploadError } = await _supabase.storage
+                        .from('ticket-photos')
+                        .upload(fileName, photoFile);
+                    
+                    if (!uploadError) {
+                        const { data: { publicUrl } } = _supabase.storage
+                            .from('ticket-photos')
+                            .getPublicUrl(fileName);
+                        photoUrl = publicUrl;
+                    }
+                }
+
+                const finalDetail = detail + (photoUrl ? `\n\nLink Foto: ${photoUrl}` : "");
+
+                // 2. Metode Pengiriman: Hidden Form ke Google Form (Sinkron ke Sheet)
                 const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
                 const iframe = document.createElement('iframe');
                 iframe.name = "hidden_iframe";
@@ -299,7 +319,7 @@
                     'entry.2060003782': unit,
                     'entry.500437345': loc,
                     'entry.1468393946': type,
-                    'entry.1935726494': detail,
+                    'entry.1935726494': finalDetail,
                     'entry.1369886363': urg.charAt(0).toUpperCase() + urg.slice(1).toLowerCase(),
                     'entry.1349422186': contact,
                     'entry.180278682': date
@@ -314,19 +334,25 @@
                 }
 
                 document.body.appendChild(form);
-                form.submit(); // Kirim ke Google Form
+                form.submit();
 
-                // Simpan ke Database Internal (Supabase)
-                const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg, status: 'MENUNGGU' }]); 
+                // 3. Simpan ke Database Internal (Supabase)
+                const { error } = await _supabase.from('office_tickets').insert([{ 
+                    subject: `[${name}] ${type}: ${detail}${photoUrl ? ' (Ada Foto)' : ''}`, 
+                    location: loc, 
+                    urgency: urg, 
+                    status: 'MENUNGGU' 
+                }]); 
                 
                 if(!error) { 
                     setTimeout(() => {
                         e.target.reset(); 
                         document.getElementById('imagePreview').classList.add('hidden'); 
+                        document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
                         fetchTickets(); 
                         showSuccessModal();
-                        document.body.removeChild(form);
-                        document.body.removeChild(iframe);
+                        if (document.body.contains(form)) document.body.removeChild(form);
+                        if (document.body.contains(iframe)) document.body.removeChild(iframe);
                     }, 500);
                 } 
             } catch (err) {
