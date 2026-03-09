@@ -331,7 +331,7 @@
 
                 // 3. internal DB
                 await _supabase.from('office_tickets').insert([{ 
-                    subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg.toUpperCase(), status: 'MENUNGGU' 
+                    subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg.toUpperCase(), status: 'MENUNGGU', photo_url: photoUrl
                 }]); 
                 
                 setTimeout(() => {
