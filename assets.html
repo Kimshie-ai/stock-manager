@@ -213,7 +213,18 @@
         function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB'; }
         function toggleLoginModal() { const m = document.getElementById('loginModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
         function toggleAddModal() { const m = document.getElementById('addModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
-        async function handleLogin(e) { e.preventDefault(); await _supabase.auth.signInWithPassword({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }); window.location.reload(); }
+        async function handleLogin(e) { 
+            e.preventDefault(); 
+            const btn = e.target.querySelector('button');
+            btn.disabled = true; btn.innerText = "Checking...";
+            const { error } = await _supabase.auth.signInWithPassword({ 
+                email: document.getElementById('loginEmail').value, 
+                password: document.getElementById('loginPassword').value 
+            }); 
+            if(error) alert("Login Gagal: " + error.message);
+            else window.location.reload(); 
+            btn.disabled = false; btn.innerText = "Masuk";
+        }
         async function handleLogout() { await _supabase.auth.signOut(); window.location.reload(); }
         
         async function checkAuth() { 
