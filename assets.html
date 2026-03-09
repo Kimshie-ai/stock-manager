@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management - Office Manager</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#EE1E24', 
+                        dark: { bg: '#050505', card: '#121212', border: '#222222' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient { background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .dark .glass-nav { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
+        .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        table { @apply w-full text-left border-separate border-spacing-y-4; }
+        th { @apply text-[10px] font-black uppercase tracking-widest text-slate-400 px-6; }
+        td { @apply py-4 px-6 bg-white/50 dark:bg-white/5 border-y border-slate-100 dark:border-white/5 first:border-l first:rounded-l-2xl last:border-r last:rounded-r-2xl text-xs font-bold; }
+        .admin-blur { filter: blur(8px); pointer-events: none; user-select: none; }
+    </style>
+</head>
+<body class="min-h-screen bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+
+    <!-- Admin Only Access Overlay -->
+    <div id="adminOverlay" class="fixed inset-0 z-[150] flex items-center justify-center p-6 bg-slate-900/40 backdrop-blur-md hidden">
+        <div class="bento-card max-w-sm w-full p-12 text-center shadow-2xl border-t-4 border-t-[#EE1E24]">
+            <div class="w-20 h-20 bg-red-500/10 text-[#EE1E24] rounded-full flex items-center justify-center mx-auto mb-6"><i class="fa-solid fa-lock text-3xl"></i></div>
+            <h2 class="text-2xl font-black mb-4 tracking-tighter uppercase italic">Akses Terbatas</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-8 text-xs font-bold uppercase tracking-widest">Halaman ini hanya dapat diakses oleh Admin FM DDP.</p>
+            <button onclick="toggleLoginModal()" class="w-full bg-[#EE1E24] text-white font-black py-4 rounded-2xl shadow-lg shadow-red-500/20 uppercase text-[10px] tracking-widest pt-6">Login Admin</button>
+            <a href="index.html" class="block mt-6 text-[9px] font-black text-slate-400 hover:text-[#EE1E24] uppercase tracking-widest transition-all">Kembali ke Beranda</a>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="bento-card max-w-lg w-full p-12 text-center shadow-2xl border-t-4 border-t-emerald-500 transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-check-double text-4xl"></i></div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase">Berhasil!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Data aset telah berhasil disimpan di database sistem. 📦✨</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-emerald-500/30 hover:bg-emerald-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                    <i class="fa-solid fa-house-chimney text-[#EE1E24] text-xs"></i>
+                </a>
+                <h1 class="text-xl font-black tracking-tighter uppercase">ASSET <span class="glow-text-red">MANAGEMENT</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="clock" class="text-xs font-black italic tracking-widest text-slate-400">00:00 WIB</div>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
+                </button>
+                <div id="userProfile" class="hidden flex items-center gap-2">
+                    <span id="userInitial" class="w-8 h-8 rounded-full bg-[#EE1E24] text-white flex items-center justify-center text-[10px] font-black shadow-lg">A</span>
+                    <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-[10px]"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main id="mainContent" class="max-w-7xl mx-auto p-6 md:p-12">
+        <header class="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">
+            <div>
+                <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-4 italic">Daftar <span class="glow-text-red">Aset</span></h2>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] italic">Inventaris Digital Facility Management</p>
+            </div>
+            <div class="flex gap-4">
+                <button onclick="toggleAddModal()" id="addBtn" class="hidden px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[10px] uppercase rounded-2xl tracking-widest pt-5 hover:bg-[#EE1E24] transition-all">Tambah Aset</button>
+                <button id="loginBtn" onclick="toggleLoginModal()" class="px-8 py-4 bg-[#EE1E24] text-white font-black text-[10px] uppercase rounded-2xl tracking-widest pt-5">Admin</button>
+            </div>
+        </header>
+
+        <!-- Asset Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-[#EE1E24]">
+                <div class="w-16 h-16 rounded-2xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center text-2xl"><i class="fa-solid fa-boxes-stacked"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Total Aset</span><h3 id="statTotal" class="text-3xl font-black italic">0</h3></div>
+            </div>
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-emerald-500">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-2xl"><i class="fa-solid fa-square-check"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Kondisi Baik</span><h3 id="statPerfek" class="text-3xl font-black italic">0</h3></div>
+            </div>
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-amber-500">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Maintenance</span><h3 id="statMaint" class="text-3xl font-black italic">0</h3></div>
+            </div>
+        </div>
+
+        <!-- Table Card -->
+        <div class="bento-card p-10 overflow-hidden flex flex-col">
+            <div class="flex items-center gap-4 mb-8 bg-slate-100 dark:bg-white/5 p-4 rounded-2xl">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2"></i>
+                <input type="text" id="assetSearch" onkeyup="filterAssets()" placeholder="Cari Kode atau Nama Aset..." class="w-full bg-transparent outline-none font-bold text-xs uppercase italic">
+            </div>
+            <div class="overflow-x-auto">
+                <table id="assetTable">
+                    <thead>
+                        <tr>
+                            <th>Asset Code</th>
+                            <th>Name</th>
+                            <th>Location</th>
+                            <th>Condition</th>
+                            <th class="admin-only hidden">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="assetBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[200] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleLoginModal()"></div><div class="bento-card w-full max-w-sm p-12 text-center transform scale-95 transition-all"><h2 class="text-2xl font-black tracking-tighter uppercase italic mb-8">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5"><input type="email" id="loginEmail" required placeholder="Email" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"><button type="submit" class="w-full bg-[#EE1E24] text-white font-black py-5 rounded-2xl pt-7">Masuk</button></form></div></div>
+
+    <!-- Add Asset Modal -->
+    <div id="addModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[200] transition-all duration-500 p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAddModal()"></div>
+        <div class="bento-card w-full max-w-lg p-12 transform scale-95 transition-all relative">
+            <button onclick="toggleAddModal()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+            <h2 class="text-3xl font-black tracking-tighter uppercase italic mb-8 text-center">Tambah <span class="glow-text-red">Aset Baru</span></h2>
+            <form id="addAssetForm" onsubmit="handleAddAsset(event)" class="space-y-6">
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Kode Aset</label>
+                    <input type="text" id="assetCode" required placeholder="Contoh: AC-OPMC-01" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Aset</label>
+                    <input type="text" id="assetName" required placeholder="Contoh: AC Split LG 2PK" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Lokasi</label>
+                    <input type="text" id="assetLoc" required placeholder="Contoh: Lantai 4 OPMC" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                </div>
+                <div class="space-y-2">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Kondisi</label>
+                    <select id="assetCond" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                        <option value="PERFEK">PERFEK</option>
+                        <option value="MAINTENANCE">MAINTENANCE</option>
+                        <option value="RUSAK">RUSAK</option>
+                    </select>
+                </div>
+                <button type="submit" id="saveAssetBtn" class="w-full bg-[#EE1E24] text-white font-black py-5 rounded-2xl pt-7 shadow-lg shadow-red-500/20">Simpan Aset</button>
+            </form>
+        </div>
+    </div>
+
+    <footer id="footerContent" class="mt-24 text-center pb-12 border-t border-slate-100 dark:border-white/5 pt-12">
+        <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.6em] italic">Infinite Productivity Powered by FM DDP</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentUser = null, allAssets = [];
+
+        window.onload = () => {
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+            updateThemeIcon(); checkAuth(); fetchAssets(); updateClock(); setInterval(updateClock, 1000);
+        };
+        function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateThemeIcon(); }
+        function updateThemeIcon() { const isDark = document.documentElement.classList.contains('dark'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-[#EE1E24] text-xs' : 'fa-solid fa-moon text-[#EE1E24] text-xs'; }
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB'; }
+        function toggleLoginModal() { const m = document.getElementById('loginModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
+        function toggleAddModal() { const m = document.getElementById('addModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
+        async function handleLogin(e) { e.preventDefault(); await _supabase.auth.signInWithPassword({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }); window.location.reload(); }
+        async function handleLogout() { await _supabase.auth.signOut(); window.location.reload(); }
+        
+        async function checkAuth() { 
+            const { data: { session } } = await _supabase.auth.getSession(); 
+            currentUser = session?.user || null;
+            const main = document.getElementById('mainContent'), 
+                  footer = document.getElementById('footerContent'),
+                  overlay = document.getElementById('adminOverlay');
+
+            if(currentUser) {
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('addBtn').classList.remove('hidden');
+                document.getElementById('userProfile').classList.remove('hidden');
+                const initial = document.getElementById('userInitial');
+                if (initial) initial.innerText = currentUser.email.charAt(0).toUpperCase();
+                document.querySelectorAll('.admin-only').forEach(el => el.classList.remove('hidden'));
+                
+                main.classList.remove('admin-blur');
+                footer.classList.remove('admin-blur');
+                overlay.classList.add('hidden');
+            } else {
+                main.classList.add('admin-blur');
+                footer.classList.add('admin-blur');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        async function fetchAssets() {
+            const { data } = await _supabase.from('office_assets').select('*').order('code');
+            if(data) {
+                allAssets = data;
+                renderAssets(data);
+                updateStats(data);
+            }
+        }
+
+        function updateStats(data) {
+            document.getElementById('statTotal').innerText = data.length;
+            document.getElementById('statPerfek').innerText = data.filter(a => a.condition === 'PERFEK').length;
+            document.getElementById('statMaint').innerText = data.filter(a => a.condition !== 'PERFEK').length;
+        }
+
+        function renderAssets(assets) {
+            document.getElementById('assetBody').innerHTML = assets.map(a => `
+                <tr>
+                    <td class="glow-text-red font-black uppercase italic">${a.code}</td>
+                    <td class="uppercase italic">${a.name}</td>
+                    <td class="text-slate-500 uppercase italic">${a.location}</td>
+                    <td><span class="px-3 py-1 ${a.condition === 'PERFEK' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} dark:bg-white/5 rounded-full text-[9px] font-black tracking-widest uppercase italic">${a.condition}</span></td>
+                    ${currentUser ? `<td class="admin-only"><button onclick="deleteAsset('${a.id}')" class="text-red-500 hover:text-red-700 transition-colors"><i class="fa-solid fa-trash-can"></i></button></td>` : ''}
+                </tr>
+            `).join('');
+        }
+
+        function filterAssets() {
+            const query = document.getElementById('assetSearch').value.toLowerCase();
+            const filtered = allAssets.filter(a => a.code.toLowerCase().includes(query) || a.name.toLowerCase().includes(query));
+            renderAssets(filtered);
+        }
+
+        async function deleteAsset(id) { if(confirm('Hapus aset ini?')) { await _supabase.from('office_assets').delete().eq('id', id); fetchAssets(); } }
+        
+        async function handleAddAsset(e) {
+            e.preventDefault();
+            const btn = document.getElementById('saveAssetBtn'); btn.disabled = true; btn.innerText = "Menyimpan...";
+            const data = {
+                code: document.getElementById('assetCode').value,
+                name: document.getElementById('assetName').value,
+                location: document.getElementById('assetLoc').value,
+                condition: document.getElementById('assetCond').value
+            };
+            const { error } = await _supabase.from('office_assets').insert([data]);
+            if(!error) { 
+                e.target.reset(); 
+                toggleAddModal(); 
+                fetchAssets(); 
+                showSuccessModal();
+            } else { 
+                alert("Gagal simpan: " + error.message); 
+            }
+            btn.disabled = false; btn.innerText = "Simpan Aset";
+        }
+
+        function showSuccessModal() {
+            const m = document.getElementById('successModal'), c = document.getElementById('successCard');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => { 
+                c.classList.remove('scale-95', 'opacity-0'); 
+                c.classList.add('scale-100', 'opacity-100'); 
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#EE1E24', '#ffffff'] });
+            }, 10);
+        }
+
+        function closeSuccessModal() { 
+            const m = document.getElementById('successModal'), c = document.getElementById('successCard');
+            c.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+        }
+    </script>
+</body>
+</html>

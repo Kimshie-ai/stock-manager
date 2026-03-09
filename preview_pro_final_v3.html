@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCY HUB - Telkom Indonesia</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#0056B3', dark: { bg: '#050505', card: '#121212', border: '#222222' } },
+                    borderRadius: { 'premium': '1.5rem', 'super-premium': '2.5rem' }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply font-['Plus_Jakarta_Sans'] antialiased transition-all duration-500 bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white; }
+        }
+        @layer components {
+            .glass { @apply bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/5; }
+            .badge { @apply px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
+            .badge-menunggu { @apply bg-amber-50 text-amber-600 border-amber-100; }
+            .badge-diproses { @apply bg-blue-50 text-blue-600 border-blue-100; }
+            .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100; }
+            
+            .type-card { @apply relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 transition-all cursor-pointer hover:border-amber-500/50 outline-none; }
+            .type-card.selected { @apply border-amber-500 bg-white dark:bg-white/5 shadow-2xl shadow-amber-500/10 scale-[1.05]; }
+            .type-card i, .type-card span { @apply pointer-events-none transition-colors duration-300; }
+            .type-card i { @apply text-2xl mb-2; }
+            .type-card.selected i { @apply text-amber-500 scale-110; }
+            .type-card.selected span { @apply text-amber-500; }
+        }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, transparent 70%); opacity: 0.08; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
+        .dark .hero-gradient { opacity: 0.15; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .upload-area { border: 2px dashed #cbd5e1; @apply transition-all duration-300; }
+        .upload-area:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="hero-gradient"></div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="glass max-w-lg w-full rounded-[3rem] p-12 text-center shadow-2xl border-t-4 border-t-amber-500 transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-paper-plane text-4xl"></i></div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter italic uppercase">Terkirim!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Laporan Tuan Muda telah berhasil dicatat. 🛠️✨</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-amber-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-amber-500/30 hover:bg-amber-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+        </div>
+    </div>
+
+    <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div class="flex justify-between h-16 md:h-20 items-center gap-4">
+                <div class="flex items-center gap-2 md:gap-6 flex-1 min-w-0">
+                    <a href="index.html" class="group flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all flex-shrink-0">
+                        <i class="fa-solid fa-house-chimney text-xs group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase tracking-widest hidden sm:inline">Portal</span>
+                    </a>
+                    <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 flex-shrink-0"></div>
+                    <div class="flex items-center min-w-0 pr-4">
+                        <!-- NAVBAR TITLE STAYS LAPOR FM DDP -->
+                        <span class="text-sm md:text-xl font-black tracking-tight uppercase italic truncate block py-1 pr-4">LAPOR <span class="text-primary">FM DDP</span></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+                    <div id="authSection" class="flex items-center gap-2 md:gap-4">
+                        <button id="loginBtn" onclick="toggleAuthModal()" class="px-4 md:px-5 py-2 md:py-2.5 bg-primary text-white text-[9px] md:text-[10px] font-black uppercase tracking-widest rounded-xl">Admin</button>
+                        <div id="userProfile" class="hidden flex items-center gap-2 md:gap-3">
+                            <span id="userInitial" class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-black">A</span>
+                            <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xs"><i class="fa-solid fa-power-off"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 animate-premium">
+        <!-- MAIN TITLE REVERTED TO EMERGENCY HUB -->
+        <div class="text-center mb-12 md:mb-20">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase italic">EMERGENCY <span class="text-amber-500">HUB</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg italic font-medium italic">Laporkan keluhan atau kerusakan fasilitas kantor dengan cepat. 🛠️</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-premium">
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-amber-500">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Menunggu</span><h3 id="ticketStatWait" class="text-3xl font-black italic">12</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-blue-500">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Diproses</span><h3 id="ticketStatProcess" class="text-3xl font-black italic">5</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-emerald-500">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Selesai</span><h3 id="ticketStatDone" class="text-3xl font-black italic">124</h3></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div class="lg:col-span-1">
+                <div class="glass p-8 md:p-10 rounded-[2rem] md:rounded-super-premium border-t-4 border-t-amber-500 shadow-2xl sticky top-32">
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter uppercase italic text-slate-800 dark:text-white">Buat Laporan <span class="text-amber-500">Baru</span></h2>
+                    <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Pelapor</label>
+                                <input type="text" id="reporterName" required placeholder="Nama" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs transition-all">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Divisi</label>
+                                <input type="text" id="reporterUnit" required placeholder="Divisi" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs transition-all">
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3" id="typeContainer">
+                                <button type="button" onclick="selectType('Listrik')" class="type-card group" data-val="Listrik"><i class="fa-solid fa-bolt-lightning"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Listrik</span></button>
+                                <button type="button" onclick="selectType('AC/ Pendingin Ruangan')" class="type-card group" data-val="AC/ Pendingin Ruangan"><i class="fa-solid fa-snowflake"></i><span class="text-[9px] font-bold uppercase tracking-tighter">AC</span></button>
+                                <button type="button" onclick="selectType('Jaringan Internet')" class="type-card group" data-val="Jaringan Internet"><i class="fa-solid fa-wifi"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span></button>
+                                <button type="button" onclick="selectType('Toilet')" class="type-card group" data-val="Toilet"><i class="fa-solid fa-restroom"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span></button>
+                                <button type="button" onclick="selectType('Furniture')" class="type-card group" data-val="Furniture"><i class="fa-solid fa-chair"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Furnitur</span></button>
+                                <button type="button" onclick="selectType('Yang lain')" class="type-card group" data-val="Yang lain"><i class="fa-solid fa-ellipsis"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span></button>
+                            </div>
+                            <input type="hidden" id="ticketType" required>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Lokasi Area</label>
+                            <select id="ticketLocation" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs transition-all">
+                                <option value="">Pilih Lokasi...</option>
+                                <optgroup label="OPMC"><option>OPMC Lantai 2</option><option>OPMC Lantai 4</option><option>OPMC Lantai 5</option></optgroup>
+                                <optgroup label="Witel"><option>Witel Lantai 2</option><option>Witel Lantai 5</option></optgroup>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Deskripsi Keluhan</label>
+                            <textarea id="ticketDetail" required placeholder="Jelaskan detail kerusakan..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold min-h-[100px] focus:border-amber-500 outline-none text-xs transition-all"></textarea>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Bukti Foto Kerusakan</label>
+                            <div class="upload-area rounded-2xl p-6 text-center cursor-pointer relative overflow-hidden group" onclick="document.getElementById('photoInput').click()">
+                                <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="previewImg(this)">
+                                <div id="uploadPlaceholder"><i class="fa-solid fa-camera text-2xl text-slate-300 group-hover:text-amber-500 transition-colors mb-1"></i><p class="text-[9px] font-bold text-slate-400 uppercase">Ambil / Upload Foto</p></div>
+                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Urgensi</label>
+                                <div class="flex gap-2">
+                                    <button type="button" onclick="setUrgensi('NORMAL')" id="btnUrgensiNormal" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all">NORMAL</button>
+                                    <button type="button" onclick="setUrgensi('DARURAT')" id="btnUrgensiDarurat" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 transition-all uppercase tracking-tighter">DARURAT 🚨</button>
+                                </div>
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Waktu Kejadian</label>
+                                <input type="date" id="eventDate" required class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-[10px] transition-all">
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">WhatsApp</label>
+                            <input type="tel" id="reporterContact" required placeholder="0812..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs transition-all">
+                        </div>
+
+                        <button type="submit" id="submitBtn" class="w-full bg-amber-500 text-white font-black py-6 rounded-2xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all uppercase tracking-[0.2em] text-[10px] pt-8">Kirim Laporan</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass p-6 rounded-premium shadow-sm mb-8 border-l-4 border-l-primary flex gap-4 items-center animate-premium">
+                    <div class="flex-1 relative w-full"><i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari laporan atau lokasi..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold text-xs italic uppercase"></div>
+                </div>
+                <div id="ticketList" class="space-y-6"></div>
+            </div>
+        </div>
+    </main>
+
+    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[160] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl z-[170] p-8 md:p-12 transform scale-95 transition-all text-center"><img src="assets/branding/logo-k-refined.png" class="h-12 w-auto mx-auto mb-6"><h2 class="text-2xl font-black tracking-tighter uppercase italic text-slate-800 dark:text-white">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5 mt-8"><input type="email" id="loginEmail" required placeholder="Email Admin" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold"><button type="submit" class="w-full bg-primary text-white font-black py-5 rounded-2xl pt-7 shadow-lg shadow-primary/20">Masuk Sekarang</button></form></div></div>
+    <div id="confirmModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[180] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md"></div><div class="glass w-full max-w-sm mx-auto rounded-super-premium shadow-2xl p-10 transform scale-95 text-center"><h2 id="confirmTitle" class="text-2xl font-black mb-2">Konfirmasi</h2><p id="confirmMessage" class="text-xs font-bold text-slate-400 mb-10 uppercase tracking-widest">Yakin?</p><div class="flex gap-3"><button id="confirmCancel" class="flex-1 py-4 glass text-slate-400 font-black rounded-2xl">Batal</button><button id="confirmOk" class="flex-1 py-4 bg-primary text-white font-black rounded-2xl shadow-lg">Lanjut</button></div></div></div>
+
+    <script>
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let allTickets = [], currentUser = null, ticketUrgensi = 'NORMAL';
+
+        window.onload = () => { 
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+            updateThemeIcon(); checkAuth(); fetchTickets(); document.getElementById('eventDate').valueAsDate = new Date();
+        };
+        function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateThemeIcon(); }
+        function updateThemeIcon() { const isDark = document.documentElement.classList.contains('dark'); document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; }
+        function selectType(val) { document.getElementById('ticketType').value = val; document.querySelectorAll('.type-card').forEach(c => c.classList.toggle('selected', c.getAttribute('data-val') === val)); }
+        function previewImg(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const img = document.getElementById('imagePreview'); img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('uploadPlaceholder').classList.add('opacity-0'); }; reader.readAsDataURL(input.files[0]); } }
+        function showSuccessModal() { const m = document.getElementById('successModal'), c = document.getElementById('successCard'); m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#f59e0b', '#0056B3', '#ffffff'] }); }, 10); }
+        function closeSuccessModal() { const m = document.getElementById('successModal'), c = document.getElementById('successCard'); c.classList.add('scale-95', 'opacity-0'); setTimeout(() => { m.classList.add('hidden'); m.classList.remove('flex'); }, 300); }
+        async function checkAuth() { const { data: { session } } = await _supabase.auth.getSession(); updateUIForAuth(session?.user || null); _supabase.auth.onAuthStateChange((_e, s) => updateUIForAuth(s?.user || null)); }
+        function updateUIForAuth(u) { currentUser = u; const loginBtn = document.getElementById('loginBtn'), up = document.getElementById('userProfile'); if(u) { loginBtn.classList.add('hidden'); up.classList.remove('hidden'); document.getElementById('userInitial').innerText = u.email.charAt(0).toUpperCase(); } else { loginBtn.classList.remove('hidden'); up.classList.add('hidden'); } renderTickets(allTickets); }
+        async function handleLogin(e) { e.preventDefault(); const { error } = await _supabase.auth.signInWithPassword({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }); if (!error) toggleAuthModal(); }
+        async function handleLogout() { showConfirm('Log Out', 'Keluar?', async () => { await _supabase.auth.signOut(); }); }
+        function toggleAuthModal() { const m = document.getElementById('authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
+        function showConfirm(t, msg, onOk) { const m = document.getElementById('confirmModal'); document.getElementById('confirmTitle').innerText = t; document.getElementById('confirmMessage').innerText = msg; m.classList.remove('opacity-0', 'pointer-events-none'); const ok = document.getElementById('confirmOk'), can = document.getElementById('confirmCancel'), clean = () => { m.classList.add('opacity-0', 'pointer-events-none'); ok.onclick = null; can.onclick = null; }; ok.onclick = () => { clean(); onOk(); }; can.onclick = clean; }
+        async function fetchTickets() { const { data, error } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }); if (!error) { allTickets = data || []; renderTickets(allTickets); } }
+        function renderTickets(tickets) {
+            document.getElementById('ticketStatWait').innerText = allTickets.filter(t => t.status === 'MENUNGGU').length;
+            document.getElementById('ticketStatProcess').innerText = allTickets.filter(t => t.status === 'DIPROSES').length;
+            document.getElementById('ticketStatDone').innerText = allTickets.filter(t => t.status === 'SELESAI').length;
+            document.getElementById('ticketList').innerHTML = tickets.map(t => {
+                const rawDate = new Date(t.created_at);
+                const id = t.id.toString().toUpperCase().substring(0,8);
+                const jam = new Intl.DateTimeFormat('id-ID', { hour: '2-digit', minute: '2-digit' }).format(rawDate);
+                const tgl = new Intl.DateTimeFormat('id-ID', { day: '2-digit', month: 'short' }).format(rawDate);
+                return `
+                <div class="glass p-6 md:p-8 rounded-premium shadow-sm flex flex-col md:flex-row gap-6 border border-slate-200/50 dark:border-white/5 animate-premium">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0">
+                        <i class="fa-solid fa-file-invoice text-2xl opacity-20"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="badge badge-${t.status.toLowerCase()}">${t.status}</span>
+                            <div class="text-right">
+                                <span class="text-[9px] font-black text-slate-300 block italic">ID #${id}</span>
+                                <span class="text-[9px] font-black text-primary block mt-1 uppercase tracking-widest italic"><i class="fa-solid fa-clock mr-1"></i>${jam} | ${tgl}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-black mb-2 italic uppercase tracking-tighter">${t.subject}</h3>
+                        <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-primary"></i>${t.location}</span>
+                            ${t.urgency === 'DARURAT' ? '<span class="text-red-500 font-black animate-pulse">🚨 DARURAT</span>' : ''}
+                        </div>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        async function handleTicketSubmit(e) { 
+            e.preventDefault(); const type = document.getElementById('ticketType').value; if(!type) return alert("Pilih Jenis Keluhan!");
+            const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Mengirim...";
+            try { 
+                const { error } = await _supabase.from('office_tickets').insert([{ subject: `[${document.getElementById('reporterName').value}] ${type}: ${document.getElementById('ticketDetail').value}`, location: document.getElementById('ticketLocation').value, urgency: ticketUrgensi, status: 'MENUNGGU' }]); 
+                if(!error) { e.target.reset(); document.getElementById('imagePreview').classList.add('hidden'); fetchTickets(); showSuccessModal(); } 
+            } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
+        }
+        function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'NORMAL' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-primary bg-blue-50 text-primary transition-all" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; document.getElementById('btnUrgensiDarurat').className = v === 'DARURAT' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 animate-pulse" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400"; }
+        function handleTicketSearch() { const i = document.getElementById('searchTicketInput').value.toLowerCase().trim(); renderTickets(allTickets.filter(t => t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i))); }
+    </script>
+</body>
+</html>

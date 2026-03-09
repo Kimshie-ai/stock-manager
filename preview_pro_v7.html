@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAPOR FM DDP - Office Manager</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { primary: '#0056B3', dark: { bg: '#050505', card: '#121212', border: '#222222' } },
+                    borderRadius: { 'premium': '1.5rem', 'super-premium': '2.5rem' }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply font-['Plus_Jakarta_Sans'] antialiased transition-all duration-500 bg-slate-50 text-slate-900 dark:bg-[#050505] dark:text-white; }
+        }
+        @layer components {
+            .glass { @apply bg-white/70 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/5; }
+            .badge { @apply px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest border; }
+            .badge-menunggu { @apply bg-amber-50 text-amber-600 border-amber-100; }
+            .badge-diproses { @apply bg-blue-50 text-blue-600 border-blue-100; }
+            .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100; }
+            
+            .type-card { @apply relative flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 transition-all cursor-pointer hover:border-amber-500/50 outline-none; }
+            .type-card.selected { @apply border-amber-500 bg-white dark:bg-white/5 shadow-2xl shadow-amber-500/10 scale-[1.05]; }
+            .type-card i, .type-card span { @apply pointer-events-none transition-colors duration-300; }
+            .type-card i { @apply text-2xl mb-2; }
+            .type-card.selected i { @apply text-amber-500 scale-110; }
+            .type-card.selected span { @apply text-amber-500; }
+        }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, transparent 70%); opacity: 0.08; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
+        .dark .hero-gradient { opacity: 0.15; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-premium { animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .upload-area { border: 2px dashed #cbd5e1; @apply transition-all duration-300; }
+        .upload-area:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.05); }
+        select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='currentColor'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1rem; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="hero-gradient"></div>
+    
+    <nav class="glass sticky top-0 z-50 border-b border-slate-200 dark:border-white/5 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 md:px-6">
+            <div class="flex justify-between h-16 md:h-20 items-center gap-4">
+                <div class="flex items-center gap-2 md:gap-6 flex-1 min-w-0">
+                    <a href="index.html" class="group flex items-center gap-2 px-3 py-2 bg-slate-100 dark:bg-white/5 rounded-xl border border-slate-200 dark:border-white/10 hover:bg-primary hover:text-white transition-all flex-shrink-0">
+                        <i class="fa-solid fa-house-chimney text-xs group-hover:scale-110 transition-transform"></i>
+                        <span class="text-[9px] font-black uppercase tracking-widest hidden sm:inline">Portal</span>
+                    </a>
+                    <div class="h-6 w-[1px] bg-slate-200 dark:bg-slate-800 flex-shrink-0"></div>
+                    <!-- Fixed Text Clipping with Padding Right -->
+                    <div class="flex items-center min-w-0 pr-4">
+                        <span class="text-sm md:text-xl font-black tracking-tight uppercase italic truncate block py-1 pr-2">LAPOR <span class="text-primary">FM DDP</span></span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                    <button onclick="toggleDarkMode()" class="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center hover:bg-slate-200 dark:hover:bg-white/5 transition-all"><i id="themeIcon" class="fa-solid fa-moon"></i></button>
+                    <div id="authSection" class="flex items-center gap-2">
+                        <button class="px-4 py-2 bg-primary text-white text-[9px] font-black uppercase tracking-widest rounded-xl">Login</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-12 md:py-20 animate-premium">
+        <div class="text-center mb-12 md:mb-20">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase italic">LAPOR <span class="text-primary">FM DDP</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg italic font-medium">"Digitalizing Facility Care for Infinite Productivity."</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 animate-premium">
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-amber-500">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Menunggu</span><h3 class="text-3xl font-black italic">12</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-blue-500">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Diproses</span><h3 class="text-3xl font-black italic">5</h3></div>
+            </div>
+            <div class="glass p-8 rounded-premium shadow-sm flex items-center gap-6 border-l-4 border-l-emerald-500">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Selesai</span><h3 class="text-3xl font-black italic">124</h3></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <div class="lg:col-span-1">
+                <div class="glass p-8 md:p-10 rounded-[2rem] md:rounded-super-premium border-t-4 border-t-amber-500 shadow-2xl sticky top-32">
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter uppercase italic text-slate-800 dark:text-white">Buat Laporan <span class="text-amber-500">Baru</span></h2>
+                    <form class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Pelapor</label>
+                                <input type="text" placeholder="Nama" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs">
+                            </div>
+                            <div class="space-y-2">
+                                <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Divisi</label>
+                                <input type="text" placeholder="Divisi" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-amber-500 outline-none text-xs">
+                            </div>
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] ml-2">Jenis Keluhan</label>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                <button type="button" class="type-card"><i class="fa-solid fa-bolt-lightning text-amber-500"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Listrik</span></button>
+                                <button type="button" class="type-card"><i class="fa-solid fa-snowflake"></i><span class="text-[9px] font-bold uppercase tracking-tighter">AC</span></button>
+                                <button type="button" class="type-card"><i class="fa-solid fa-wifi"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Internet</span></button>
+                                <button type="button" class="type-card"><i class="fa-solid fa-restroom"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Toilet</span></button>
+                                <button type="button" class="type-card"><i class="fa-solid fa-chair"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Furnitur</span></button>
+                                <button type="button" class="type-card"><i class="fa-solid fa-ellipsis"></i><span class="text-[9px] font-bold uppercase tracking-tighter">Lainnya</span></button>
+                            </div>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Bukti Foto</label>
+                            <div class="upload-area rounded-2xl p-6 text-center cursor-pointer relative overflow-hidden group" onclick="document.getElementById('photoInput').click()">
+                                <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="previewImg(this)">
+                                <div id="uploadPlaceholder"><i class="fa-solid fa-camera text-2xl text-slate-300 group-hover:text-amber-500 transition-colors mb-1"></i><p class="text-[9px] font-bold text-slate-400 uppercase">Ambil / Upload Foto</p></div>
+                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl">
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-amber-500 text-white font-black py-6 rounded-2xl shadow-xl shadow-amber-500/20 hover:bg-amber-600 transition-all uppercase tracking-[0.2em] text-[10px] pt-8">Kirim Laporan</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass p-6 rounded-premium shadow-sm border-l-4 border-l-primary flex gap-4 items-center">
+                    <div class="flex-1 relative w-full"><i class="fa-solid fa-magnifying-glass absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i><input type="text" placeholder="Cari laporan..." class="w-full pl-14 pr-14 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl outline-none font-bold text-xs italic uppercase"></div>
+                </div>
+                <div class="space-y-6">
+                    <div class="glass p-6 md:p-8 rounded-premium shadow-sm border border-slate-200/50 dark:border-white/5 animate-premium">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="badge badge-menunggu">MENUNGGU</span>
+                            <span class="text-[9px] font-black text-slate-300 italic">ID #85377A2</span>
+                        </div>
+                        <h3 class="text-xl font-black mb-2 italic uppercase tracking-tighter text-slate-800 dark:text-white">Gangguan Kelistrikan Ruang OPMC</h3>
+                        <div class="flex items-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest italic">
+                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-location-dot text-primary"></i>OPMC Lantai 2</span>
+                            <span class="text-red-500 font-black animate-pulse">🚨 DARURAT</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function previewImg(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    document.getElementById('uploadPlaceholder').classList.add('opacity-0');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); document.getElementById('themeIcon').className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon'; }
+    </script>
+</body>
+</html>

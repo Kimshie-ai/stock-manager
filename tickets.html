@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMERGENCY HUB - Telkom Indonesia</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#EE1E24', 
+                        dark: { bg: '#050505', card: '#121212', border: '#222222' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient { background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .dark .glass-nav { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
+        .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .type-card { @apply relative flex flex-col items-center justify-center p-4 rounded-2xl border border-slate-100 dark:border-white/5 bg-white dark:bg-white/5 transition-all cursor-pointer hover:border-[#EE1E24] outline-none; }
+        .type-card.selected { background-color: #EE1E24 !important; border-color: #EE1E24 !important; color: white !important; box-shadow: 0 20px 25px -5px rgba(238, 30, 36, 0.2); transform: scale(1.05); }
+        .type-card.selected i, .type-card.selected span { color: white !important; }
+        .type-card i { @apply text-2xl mb-2 text-slate-400 transition-all duration-300; }
+        .badge { @apply px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border; }
+        .badge-menunggu { @apply bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10; }
+        .badge-diproses { @apply bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10; }
+        .badge-selesai { @apply bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10; }
+        .upload-area { border: 2px dashed #cbd5e1; @apply transition-all duration-300 rounded-2xl p-6 text-center cursor-pointer relative overflow-hidden group; }
+        .upload-area:hover { border-color: #EE1E24; background: rgba(238, 30, 36, 0.05); }
+    </style>
+</head>
+<body class="min-h-screen bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="bento-card max-w-lg w-full p-12 text-center shadow-2xl border-t-4 border-t-[#EE1E24] transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-red-500/10 text-[#EE1E24] rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-paper-plane text-4xl"></i></div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase">Terkirim!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Laporan Tuan Muda telah berhasil dicatat di Google Sheets & Database. 🛠️✨</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-[#EE1E24] text-white font-black py-5 rounded-2xl shadow-xl shadow-red-500/30 hover:bg-red-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                    <i class="fa-solid fa-house-chimney text-[#EE1E24] text-xs"></i>
+                </a>
+                <h1 class="text-xl font-black tracking-tighter uppercase">EMERGENCY <span class="glow-text-red">HUB</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="clock" class="text-xs font-black italic tracking-widest text-slate-400">00:00 WIB</div>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
+                </button>
+                <div id="authSection" class="flex items-center gap-2">
+                    <button id="loginBtn" onclick="toggleAuthModal()" class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-[#EE1E24] transition-all">Admin</button>
+                    <div id="userProfile" class="hidden flex items-center gap-2">
+                        <span id="userInitial" class="w-8 h-8 rounded-full bg-[#EE1E24] text-white flex items-center justify-center text-[10px] font-black shadow-lg">A</span>
+                        <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-[10px]"><i class="fa-solid fa-power-off"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-6 py-12 md:py-20 animate-premium">
+        <div class="text-center mb-12 md:mb-20">
+            <h1 class="text-4xl md:text-6xl font-black tracking-tighter mb-4 uppercase">EMERGENCY <span class="glow-text-red">HUB</span></h1>
+            <p class="text-slate-500 dark:text-slate-400 text-base md:text-lg font-medium">Laporkan keluhan atau kerusakan fasilitas kantor dengan cepat. 🛠️</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-amber-500">
+                <div class="w-16 h-16 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Menunggu</span><h3 id="ticketStatWait" class="text-3xl font-black">0</h3></div>
+            </div>
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-blue-500">
+                <div class="w-16 h-16 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-gears"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Diproses</span><h3 id="ticketStatProcess" class="text-3xl font-black">0</h3></div>
+            </div>
+            <div class="bento-card p-8 flex items-center gap-6 border-l-4 border-l-emerald-500">
+                <div class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-2xl"><i class="fa-solid fa-check-double"></i></div>
+                <div><span class="text-[10px] font-black uppercase text-slate-400 block">Selesai</span><h3 id="ticketStatDone" class="text-3xl font-black">0</h3></div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Form -->
+            <div class="lg:col-span-1">
+                <div class="bento-card p-10 border-t-4 border-t-[#EE1E24] shadow-2xl sticky top-32">
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter uppercase">Buat <span class="glow-text-red">Laporan</span></h2>
+                    <form id="addTicketForm" onsubmit="handleTicketSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-2 gap-4">
+                            <input type="text" id="reporterName" required placeholder="Pelapor" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                            <input type="text" id="reporterUnit" required placeholder="Divisi" class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase focus:border-[#EE1E24] outline-none">
+                        </div>
+
+                        <div class="space-y-3">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Jenis Keluhan</label>
+                            <div class="grid grid-cols-3 gap-3" id="typeContainer">
+                                <button type="button" onclick="selectType('Listrik')" class="type-card group" data-val="Listrik"><i class="fa-solid fa-bolt-lightning"></i><span class="text-[8px] font-bold uppercase">Listrik</span></button>
+                                <button type="button" onclick="selectType('AC / Pendingin Ruangan')" class="type-card group" data-val="AC / Pendingin Ruangan"><i class="fa-solid fa-snowflake"></i><span class="text-[8px] font-bold uppercase">AC</span></button>
+                                <button type="button" onclick="selectType('Jaringan Internet')" class="type-card group" data-val="Jaringan Internet"><i class="fa-solid fa-wifi"></i><span class="text-[8px] font-bold uppercase">WiFi</span></button>
+                                <button type="button" onclick="selectType('Toilet')" class="type-card group" data-val="Toilet"><i class="fa-solid fa-restroom"></i><span class="text-[8px] font-bold uppercase">Toilet</span></button>
+                                <button type="button" onclick="selectType('Furniture')" class="type-card group" data-val="Furniture"><i class="fa-solid fa-chair"></i><span class="text-[8px] font-bold uppercase">Furnitur</span></button>
+                                <button type="button" onclick="selectType('Yang lain')" class="type-card group" data-val="Yang lain"><i class="fa-solid fa-ellipsis"></i><span class="text-[8px] font-bold uppercase">Dll</span></button>
+                            </div>
+                            <input type="hidden" id="ticketType" required>
+                        </div>
+
+                        <select id="ticketLocation" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs uppercase outline-none focus:border-[#EE1E24]">
+                            <option value="">Pilih Lokasi...</option>
+                            <optgroup label="Witel">
+                                <option>Witel Lantai 2</option>
+                                <option>Witel Lantai 3</option>
+                                <option>Witel Lantai 4</option>
+                                <option>Witel Lantai 5</option>
+                                <option>Witel Lantai 6</option>
+                                <option>Witel Lantai 7</option>
+                            </optgroup>
+                            <optgroup label="OPMC">
+                                <option>OPMC Lantai 2</option>
+                                <option>OPMC Lantai 4</option>
+                                <option>OPMC Lantai 5</option>
+                                <option>OPMC Lantai 6</option>
+                            </optgroup>
+                            <optgroup label="STO KBB">
+                                <option>STO KBB Lantai 1</option>
+                                <option>STO KBB Lantai 2</option>
+                                <option>STO KBB Lantai 3</option>
+                            </optgroup>
+                        </select>
+
+                        <textarea id="ticketDetail" required placeholder="Detail kerusakan..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold min-h-[100px] text-xs uppercase focus:border-[#EE1E24] outline-none"></textarea>
+
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Bukti Foto</label>
+                            <div class="upload-area h-32 flex flex-col items-center justify-center relative" onclick="document.getElementById('photoInput').click()">
+                                <input type="file" id="photoInput" class="hidden" accept="image/*" onchange="previewImg(this)">
+                                <div id="uploadPlaceholder" class="flex flex-col items-center">
+                                    <i class="fa-solid fa-camera text-2xl text-slate-300 group-hover:text-[#EE1E24] transition-colors mb-1"></i>
+                                    <p class="text-[8px] font-bold text-slate-400 uppercase">Upload Foto</p>
+                                </div>
+                                <img id="imagePreview" class="hidden absolute inset-0 w-full h-full object-contain p-2 bg-slate-50 dark:bg-dark-card rounded-2xl">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="flex gap-2">
+                                <button type="button" onclick="setUrgensi('Normal')" id="btnUrgensiNormal" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-900 bg-slate-900 text-white dark:bg-white dark:text-black uppercase">Normal</button>
+                                <button type="button" onclick="setUrgensi('Darurat')" id="btnUrgensiDarurat" class="flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 uppercase">Darurat 🚨</button>
+                            </div>
+                            <input type="date" id="eventDate" required class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-[10px] outline-none">
+                        </div>
+
+                        <input type="tel" id="reporterContact" required placeholder="WhatsApp (0812...)" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs outline-none focus:border-[#EE1E24]">
+
+                        <button type="submit" id="submitBtn" class="w-full bg-[#EE1E24] text-white font-black py-6 rounded-2xl shadow-xl shadow-red-500/20 hover:bg-red-600 transition-all uppercase tracking-[0.2em] text-[10px] pt-8">Kirim Laporan</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Ticket List -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="bento-card p-6 flex items-center gap-4 border-l-4 border-l-slate-900 dark:border-l-white">
+                    <i class="fa-solid fa-magnifying-glass ml-4 text-slate-400"></i>
+                    <input type="text" id="searchTicketInput" onkeyup="handleTicketSearch()" placeholder="Cari laporan..." class="w-full px-4 py-2 bg-transparent outline-none font-bold text-xs uppercase">
+                </div>
+                <div id="ticketList" class="space-y-6"></div>
+                <div id="paginationControls" class="flex items-center justify-center gap-6 pt-8">
+                    <button onclick="prevPage()" id="btnPrev" class="px-6 py-3 bento-card text-[10px] font-black uppercase tracking-widest disabled:opacity-30">← Prev</button>
+                    <span id="pageInfo" class="text-[10px] font-black uppercase tracking-widest text-slate-400">Halaman 1</span>
+                    <button onclick="nextPage()" id="btnNext" class="px-6 py-3 bento-card text-[10px] font-black uppercase tracking-widest disabled:opacity-30">Next →</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[160] transition-all duration-500 p-4"><div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div><div class="bento-card w-full max-w-sm p-12 text-center transform scale-95 transition-all"><img src="assets/branding/logo-k-refined.png" class="h-10 mx-auto mb-6 opacity-50"><h2 class="text-2xl font-black tracking-tighter uppercase mb-8">Admin Access</h2><form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5"><input type="email" id="loginEmail" required placeholder="Email" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"><input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"><button type="submit" class="w-full bg-[#EE1E24] text-white font-black py-5 rounded-2xl pt-7">Masuk</button></form></div></div>
+
+    <script>
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let allTickets = [], currentUser = null, ticketUrgensi = 'Normal', currentPage = 1, itemsPerPage = 5;
+
+        window.onload = () => { 
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.documentElement.classList.add('dark');
+            document.getElementById('eventDate').valueAsDate = new Date();
+            updateThemeIcon(); checkAuth(); fetchTickets(); updateClock(); setInterval(updateClock, 1000);
+        };
+        function toggleDarkMode() { const isDark = document.documentElement.classList.toggle('dark'); localStorage.theme = isDark ? 'dark' : 'light'; updateThemeIcon(); }
+        function updateThemeIcon() { const isDark = document.documentElement.classList.contains('dark'); document.getElementById('theme-icon').className = isDark ? 'fa-solid fa-sun text-[#EE1E24] text-xs' : 'fa-solid fa-moon text-[#EE1E24] text-xs'; }
+        function updateClock() { document.getElementById('clock').innerText = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB'; }
+        function selectType(val) { document.getElementById('ticketType').value = val; document.querySelectorAll('.type-card').forEach(c => c.classList.toggle('selected', c.getAttribute('data-val') === val)); }
+        function previewImg(input) { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { const img = document.getElementById('imagePreview'); img.src = e.target.result; img.classList.remove('hidden'); document.getElementById('uploadPlaceholder').classList.add('opacity-0'); }; reader.readAsDataURL(input.files[0]); } }
+        function setUrgensi(v) { ticketUrgensi = v; document.getElementById('btnUrgensiNormal').className = v === 'Normal' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-900 bg-slate-900 text-white dark:bg-white dark:text-black uppercase" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 uppercase"; document.getElementById('btnUrgensiDarurat').className = v === 'Darurat' ? "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-red-500 bg-red-50 text-red-600 animate-pulse uppercase" : "flex-1 py-4 text-[9px] font-black rounded-xl border-2 border-slate-100 text-slate-400 uppercase"; }
+        function toggleAuthModal() { const m = document.getElementById('authModal'); m.classList.toggle('opacity-0'); m.classList.toggle('pointer-events-none'); }
+        async function checkAuth() { const { data: { session } } = await _supabase.auth.getSession(); updateUIForAuth(session?.user || null); }
+        function updateUIForAuth(u) { currentUser = u; if(u) { document.getElementById('loginBtn').classList.add('hidden'); document.getElementById('userProfile').classList.remove('hidden'); document.getElementById('userInitial').innerText = u.email.charAt(0).toUpperCase(); } else { document.getElementById('loginBtn').classList.remove('hidden'); document.getElementById('userProfile').classList.add('hidden'); } renderTickets(allTickets); }
+        async function handleLogin(e) { e.preventDefault(); await _supabase.auth.signInWithPassword({ email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value }); window.location.reload(); }
+        async function handleLogout() { await _supabase.auth.signOut(); window.location.reload(); }
+        async function fetchTickets() { const { data } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }); if(data) { allTickets = data; renderTickets(data); } }
+        function handleTicketSearch() { const i = document.getElementById('searchTicketInput').value.toLowerCase(); renderTickets(allTickets.filter(t => t.subject.toLowerCase().includes(i) || t.location.toLowerCase().includes(i))); }
+
+        function renderTickets(tickets) {
+            document.getElementById('ticketStatWait').innerText = allTickets.filter(t => t.status === 'MENUNGGU').length;
+            document.getElementById('ticketStatProcess').innerText = allTickets.filter(t => t.status === 'DIPROSES').length;
+            document.getElementById('ticketStatDone').innerText = allTickets.filter(t => t.status === 'SELESAI').length;
+            
+            const totalPages = Math.ceil(tickets.length / itemsPerPage);
+            const start = (currentPage - 1) * itemsPerPage;
+            const paginated = tickets.slice(start, start + itemsPerPage);
+            
+            document.getElementById('pageInfo').innerText = `Halaman ${currentPage} dari ${totalPages || 1}`;
+            document.getElementById('btnPrev').disabled = currentPage === 1;
+            document.getElementById('btnNext').disabled = currentPage >= totalPages;
+
+            document.getElementById('ticketList').innerHTML = paginated.map(t => `
+                <div class="bento-card p-6 md:p-8 flex flex-col md:flex-row gap-6 border border-slate-200/50 dark:border-white/5">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-invoice text-2xl opacity-20"></i></div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="badge badge-${t.status.toLowerCase()}">${t.status}</span>
+                            <div class="text-right">
+                                <span class="text-[9px] font-black text-slate-300 block leading-tight">ID #${t.id.toString().substring(0,8)}</span>
+                                <span class="text-[8px] font-bold text-slate-400 uppercase tracking-tighter leading-tight">${t.created_at ? new Date(t.created_at).toLocaleString('id-ID', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }).replace(/\./g, ':') : 'Baru Saja'}</span>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-black mb-2 uppercase">${t.subject}</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase italic flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-[#EE1E24]"></i> ${t.location}
+                            ${t.urgency === 'Darurat' ? '<span class="text-red-500 font-black animate-pulse">🚨 DARURAT</span>' : ''}
+                        </p>
+                        ${currentUser ? `<div class="flex gap-2 mt-6">
+                            ${t.status === 'MENUNGGU' ? `<button onclick=\"updateTicketStatus('${t.id}', 'DIPROSES')\" class=\"px-4 py-2 bg-blue-50 text-blue-600 text-[8px] font-black rounded-xl\">PROSES</button>` : ''}
+                            ${t.status !== 'SELESAI' ? `<button onclick=\"updateTicketStatus('${t.id}', 'SELESAI')\" class=\"px-4 py-2 bg-emerald-50 text-emerald-600 text-[8px] font-black rounded-xl\">SELESAI</button>` : ''}
+                            <button onclick=\"deleteTicket('${t.id}')\" class=\"px-4 py-2 bg-red-50 text-red-500 text-[8px] font-black rounded-xl\">HAPUS</button>
+                        </div>` : ''}
+                    </div>
+                </div>`).join('');
+        }
+
+        async function updateTicketStatus(id, s) { await _supabase.from('office_tickets').update({ status: s }).eq('id', id); fetchTickets(); }
+        async function deleteTicket(id) { await _supabase.from('office_tickets').delete().eq('id', id); fetchTickets(); }
+        function prevPage() { if(currentPage > 1) { currentPage--; renderTickets(allTickets); } }
+        function nextPage() { currentPage++; renderTickets(allTickets); }
+
+        async function handleTicketSubmit(e) { 
+            e.preventDefault(); const type = document.getElementById('ticketType').value; if(!type) return alert("Pilih Jenis Keluhan!");
+            const btn = document.getElementById('submitBtn'); btn.disabled = true; btn.innerText = "Mengirim...";
+
+            const name = document.getElementById('reporterName').value,
+                  unit = document.getElementById('reporterUnit').value,
+                  loc = document.getElementById('ticketLocation').value,
+                  detail = document.getElementById('ticketDetail').value,
+                  contact = document.getElementById('reporterContact').value,
+                  date = document.getElementById('eventDate').value,
+                  urg = ticketUrgensi,
+                  photoFile = document.getElementById('photoInput').files[0];
+
+            let photoUrl = "";
+
+            try { 
+                if (photoFile) {
+                    const fileName = `${Date.now()}_${photoFile.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                    const { data: uploadData } = await _supabase.storage.from('ticket-photo').upload(fileName, photoFile);
+                    if (uploadData) {
+                        const { data: { publicUrl } } = _supabase.storage.from('ticket-photo').getPublicUrl(fileName);
+                        photoUrl = publicUrl;
+                    }
+                }
+
+                // 2. Sync to Google Form
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSfR_kFbgFEAsMTjWhedK3AF_pcdvgnZDU5gxxYnw51M7FzXIQ/formResponse";
+                const iframe = document.createElement('iframe');
+                iframe.name = "hidden_iframe_ticket";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+
+                const form = document.createElement('form');
+                form.action = formUrl; form.method = "POST"; form.target = "hidden_iframe_ticket";
+
+                const fields = {
+                    'entry.1583149329': name, 
+                    'entry.2060003782': unit, 
+                    'entry.500437345': loc,
+                    'entry.1468393946': type, 
+                    'entry.1935726494': detail,
+                    'entry.1369886363': urg, 
+                    'entry.1677811046': photoUrl, 
+                    'entry.1349422186': contact, 
+                    'entry.180278682': date
+                };
+
+                for (const key in fields) {
+                    const input = document.createElement('input');
+                    input.type = "hidden"; input.name = key; input.value = fields[key];
+                    form.appendChild(input);
+                }
+                document.body.appendChild(form); form.submit();
+
+                // 3. internal DB
+                await _supabase.from('office_tickets').insert([{ 
+                    subject: `[${name}] ${type}: ${detail}`, location: loc, urgency: urg.toUpperCase(), status: 'MENUNGGU' 
+                }]); 
+                
+                setTimeout(() => {
+                    e.target.reset(); 
+                    document.getElementById('imagePreview').classList.add('hidden'); 
+                    document.getElementById('uploadPlaceholder').classList.remove('opacity-0');
+                    fetchTickets(); showSuccessModal();
+                    if (document.body.contains(form)) document.body.removeChild(form);
+                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                }, 500);
+            } catch (err) { alert("System Error: " + err.message); } finally { btn.disabled = false; btn.innerText = "Kirim Laporan"; }
+        }
+        function showSuccessModal() { const m = document.getElementById('successModal'), c = document.getElementById('successCard'); m.classList.remove('hidden'); m.classList.add('flex'); setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } }); }, 10); }
+        function closeSuccessModal() { const m = document.getElementById('successModal'), c = document.getElementById('successCard'); c.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300); }
+    </script>
+</body>
+</html>

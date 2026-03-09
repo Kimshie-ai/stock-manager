@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Booking - Office Manager</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#EE1E24', 
+                        dark: { bg: '#050505', card: '#121212', border: '#222222' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient { background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .dark .glass-nav { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
+        .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    </style>
+</head>
+<body class="min-h-screen bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+    
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 z-[300] hidden items-center justify-center p-6 bg-slate-900/60 backdrop-blur-xl">
+        <div class="bento-card max-w-lg w-full p-12 text-center shadow-2xl border-t-4 border-t-emerald-500 transform transition-all duration-500 scale-95 opacity-0" id="successCard">
+            <div class="w-24 h-24 bg-emerald-500/10 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-8 shadow-inner"><i class="fa-solid fa-check-double text-4xl"></i></div>
+            <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase">Berhasil!</h2>
+            <p class="text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">Reservasi Anda telah tersinkronisasi ke Google Sheets OPMC & Database Kimshie. 🏢✨</p>
+            <button onclick="closeSuccessModal()" class="w-full bg-emerald-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-emerald-500/30 hover:bg-emerald-600 transition-all uppercase tracking-widest text-[11px] pt-7">Selesai & Tutup</button>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                    <i class="fa-solid fa-house-chimney text-[#EE1E24] text-xs"></i>
+                </a>
+                <h1 class="text-xl font-black tracking-tighter uppercase">ROOM <span class="glow-text-red">BOOKING</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="clock" class="text-xs font-black italic tracking-widest text-slate-400">00:00 WIB</div>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
+                </button>
+                <div id="userProfile" class="hidden flex items-center gap-2">
+                    <span id="userInitial" class="w-8 h-8 rounded-full bg-[#EE1E24] text-white flex items-center justify-center text-[10px] font-black shadow-lg">A</span>
+                    <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-[10px]"><i class="fa-solid fa-power-off"></i></button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+        <header class="mb-16">
+            <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase mb-4">Pesan <span class="glow-text-red">Ruangan</span></h2>
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em]">Witel OPMC • Reservasi Cepat & Akurat</p>
+                <div class="bg-white/50 dark:bg-white/5 px-6 py-3 rounded-2xl border border-slate-100 dark:border-white/5">
+                    <p class="text-[8px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Ruangan</p>
+                    <p class="text-lg font-black glow-text-red" id="roomCount">--</p>
+                </div>
+            </div>
+        </header>
+
+        <div id="roomGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+
+        <!-- Booking Form Container -->
+        <div id="bookingContainer" class="hidden mt-20">
+            <div class="max-w-3xl mx-auto bento-card p-12 border-t-4 border-t-[#EE1E24] relative shadow-2xl overflow-hidden">
+                <button onclick="closeBooking()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+                <div class="text-center mb-12">
+                    <h2 class="text-4xl font-black mb-2 tracking-tighter uppercase">Form <span class="glow-text-red">Reservasi</span></h2>
+                    <p id="bookingRoomLabel" class="text-[10px] font-black text-[#EE1E24] uppercase tracking-[0.3em]">NAMA RUANGAN</p>
+                </div>
+                <form id="roomBookingForm" onsubmit="handleBookingSubmit(event)" class="space-y-8 relative z-10">
+                    <input type="hidden" id="bookingRoomName">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Nama Lengkap</label>
+                            <input type="text" id="bookingName" required placeholder="Contoh: Abigail" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-[#EE1E24] outline-none transition-all text-xs uppercase">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Nomor WhatsApp</label>
+                            <input type="tel" id="bookingWA" required placeholder="0812..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-[#EE1E24] outline-none transition-all text-xs">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Bidang</label>
+                            <select id="bookingUnit" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-[#EE1E24] outline-none transition-all text-xs uppercase">
+                                <option value="">Pilih Bidang...</option>
+                                <option>PAM</option><option>SIM</option><option>GEA</option><option>DGM</option><option>DPS</option><option>AIX</option><option>DIS</option><option>DOA</option><option>DPE</option><option>TRS</option><option>SSO</option><option>BIG</option><option>DGP</option><option>GDD</option><option>VID</option><option>GTP</option><option>PAS</option><option>SMB</option>
+                            </select>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Tanggal Pemakaian</label>
+                            <input type="date" id="bookingDate" required class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-[#EE1E24] outline-none transition-all text-xs">
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Waktu Agenda Mulai (24H)</label>
+                            <div class="flex items-center gap-2">
+                                <select id="startHour" required class="flex-1 px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"></select>
+                                <span class="font-black text-slate-400">:</span>
+                                <select id="startMinute" required class="flex-1 px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"></select>
+                            </div>
+                        </div>
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Waktu Agenda Selesai (24H)</label>
+                            <div class="flex items-center gap-2">
+                                <select id="endHour" required class="flex-1 px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"></select>
+                                <span class="font-black text-slate-400">:</span>
+                                <select id="endMinute" required class="flex-1 px-4 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs"></select>
+                            </div>
+                        </div>
+                        <div class="space-y-2 md:col-span-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-4">Keterangan Agenda</label>
+                            <textarea id="bookingAgenda" required placeholder="Tuliskan tujuan rapat..." class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold focus:border-[#EE1E24] outline-none transition-all text-xs uppercase min-h-[100px]"></textarea>
+                        </div>
+                    </div>
+                    <button type="submit" id="submitBtn" class="w-full bg-[#EE1E24] text-white font-black py-6 rounded-2xl shadow-xl shadow-red-500/20 hover:bg-red-600 transition-all uppercase tracking-[0.2em] text-[10px] pt-8">Konfirmasi Reservasi Sekarang</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Contact PIC Section -->
+        <section class="mt-32 max-w-7xl mx-auto px-6">
+            <h3 class="text-2xl font-black mb-8 tracking-tighter uppercase">Contact <span class="glow-text-red">PIC</span></h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bento-card p-6 flex items-center gap-4 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase">Gesang Istiyanto</p><p class="text-xs font-bold text-[#EE1E24]">081295312443</p></div>
+                </div>
+                <div class="bento-card p-6 flex items-center gap-4 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase">Apit Lesmana</p><p class="text-xs font-bold text-[#EE1E24]">082114705237</p></div>
+                </div>
+                <div class="bento-card p-6 flex items-center gap-4 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase">Naufal Ferdiyanto</p><p class="text-xs font-bold text-[#EE1E24]">081219064754</p></div>
+                </div>
+                <div class="bento-card p-6 flex items-center gap-4 border border-slate-100 dark:border-white/5 shadow-sm">
+                    <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center"><i class="fa-solid fa-user-tie text-xl"></i></div>
+                    <div><p class="text-[10px] font-black text-slate-400 uppercase">Fathurrachman</p><p class="text-xs font-bold text-[#EE1E24]">081317947887</p></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="mt-24 text-center pb-12 border-t border-slate-100 dark:border-white/5 pt-12">
+        <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.6em]">Infinite Productivity Powered by FM DDP</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', 
+              SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const buildingData = {
+            rooms: [
+                { name: 'Lantai 2 Witel Ruang Colaboration (Kapasitas 40)', floor: 2, cap: 40, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVDpuJfxEMOP9ytsaI7jdxZsZJTGpO7Dnpxbe_Zy2pRkOwasCWkrFN1pehc4qWzCXHb7BfVpntePwdR5EeNZDcJ6EwU5GizbpAn6ZYVSoPRPJfQ3pNtTEtymODhYNQzFVaoPN4z1HnfjHclGcR7gzdilGBjFf4-XIx3fN2IyfTiJLBTE7Ja_A5J_ke0T1rrs0xM3HfySBnOV4RaQ=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 4 OPMC Ruang Rapat Besar (Kapasitas 20)', floor: 4, cap: 20, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVAJB0s0ZOZa6TRsQjldkS5L9fl7EzkM5bVvPts1NJDSbnvyICgwvV6R586xXEy_KQO9a2NA1slskirskK352PTjdPhXKHdlxN-5m7yzApiJRy1tdT7R8a1Yakh5RLULI482XHOkdmiCHQyYCG-oXM0UnyHWk14plQPwC0gnNfvZCUAbvoWhSjS0WOKkKxRDlAz2b1O2j09JHkfA=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Spark room 1 (Kapasitas 20)', floor: 7, cap: 20, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBMmQhG2tbAHySmpTA7DrQ79kgq4jtAUpmGQCYoc87sK4c2OILZtVIiYPW8tJ_CvQw3ZKG0hRbgwoOm4rYwwqhkZx3CNPp91eqbafBwN2voYxjc0lhxnLsi7yQ7QIgxRVb1Emr0vn2eHKHvMM1rUMngD3L-2irkLG-oIwZE7K87q5aZOzzG1VqQXlq_GmRh4yO83A4iZ0ZrJXIH=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Spark room 2 (Kapasitas 16)', floor: 7, cap: 16, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBfYRy8boG1dAuIqpM7FXv0NntAZIBrxKewFMhLe4VfqYEBijCsH0KqxI_Bm6YRAoAPMEdu3B2ICmiOoIurjc6srOfpzZD90nCM5ZWVnEE1hSgHtKklTKbb09X6Rn1yWNOaCUWw4jVzUW2XxUiDMAkvwDjg8FTxSOGNXLmyqET42iIFKZf7rtNvll-FTF8LmczsL8CJvG8D8skY=w600?key=nJ46R7ZS1TueXAVPvww5Ig' },
+                { name: 'Lantai 7 Witel Mindspace 2 (Kapasitas 6)', floor: 7, cap: 6, img: 'https://lh7-rt.googleusercontent.com/formsz/AN7BsVBn1fk9qB14oFvtXeUydxt8rsLSkypFqS5OjQndLfm6owOWZnuRSZkssJ2LsyIR9T1RlD2WO7cFionD9CysRhXxuA7ntw5w0hCMwQWuwXdDxMbsFE2kuInSPz3r4lUc8aEmeD_foPZruBDzhG8JZsmYS991BfE3TQ4hmSBdmSUQJgjTf4tbOa5Aymp82U39HZx7IaUHzkhkPJ4b=w600?key=nJ46R7ZS1TueXAVPvww5Ig' }
+            ]
+        };
+
+        window.onload = () => { 
+            if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
+            }
+            renderRooms(); checkAuth(); populateTimePickers(); updateClock(); setInterval(updateClock, 1000);
+        };
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+                else icon.classList.replace('fa-sun', 'fa-moon');
+            }
+        }
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB';
+        }
+
+        function populateTimePickers() {
+            const hSelects = [document.getElementById('startHour'), document.getElementById('endHour')];
+            const mSelects = [document.getElementById('startMinute'), document.getElementById('endMinute')];
+            hSelects.forEach(s => {
+                s.innerHTML = '<option value="">Jam</option>';
+                for(let i=0; i<24; i++) {
+                    let val = i < 10 ? '0'+i : i;
+                    s.add(new Option(val, val));
+                }
+            });
+            mSelects.forEach(s => {
+                s.innerHTML = '<option value="">Menit</option>';
+                for(let i=0; i<60; i+=5) {
+                    let val = i < 10 ? '0'+i : i;
+                    s.add(new Option(val, val));
+                }
+            });
+        }
+
+        function renderRooms() {
+            const grid = document.getElementById('roomGrid');
+            if (!grid) return;
+            document.getElementById('roomCount').innerText = buildingData.rooms.length;
+            grid.innerHTML = buildingData.rooms.map(room => `
+                <div class="bento-card p-8 group flex flex-col">
+                    <div class="h-48 rounded-[2rem] overflow-hidden mb-6 relative bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10">
+                        ${room.img ? `<img src="${room.img}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100">` : `<div class="w-full h-full flex items-center justify-center opacity-50"><i class="fa-solid fa-building text-4xl"></i></div>`}
+                        <div class="absolute top-4 left-4 bg-[#EE1E24] px-4 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest text-white shadow-lg">Lantai ${room.floor}</div>
+                    </div>
+                    <h3 class="text-xl font-black mb-1 tracking-tight uppercase">${room.name}</h3>
+                    <p class="text-slate-500 dark:text-slate-400 text-[10px] font-bold uppercase tracking-widest mb-8 flex items-center"><i class="fa-solid fa-users mr-2 text-[#EE1E24]"></i> Kapasitas ${room.cap || 'N/A'} Orang</p>
+                    <button onclick="openBooking('${room.name}')" class="mt-auto w-full bg-slate-900 text-white dark:bg-white dark:text-black text-[10px] font-black uppercase py-4 rounded-2xl transition-all tracking-widest hover:bg-[#EE1E24] dark:hover:bg-[#EE1E24] dark:hover:text-white pt-5">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i></button>
+                </div>
+            `).join('');
+        }
+
+        function openBooking(room) { 
+            document.getElementById('bookingContainer').classList.remove('hidden');
+            document.getElementById('bookingRoomName').value = room;
+            document.getElementById('bookingRoomLabel').innerText = room;
+            document.getElementById('bookingContainer').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function closeBooking() { document.getElementById('bookingContainer').classList.add('hidden'); }
+
+        async function handleBookingSubmit(e) { 
+            e.preventDefault(); 
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true; submitBtn.innerText = "Mengirim...";
+            const room = document.getElementById('bookingRoomName').value, 
+                  name = document.getElementById('bookingName').value, 
+                  wa = document.getElementById('bookingWA').value, 
+                  unit = document.getElementById('bookingUnit').value, 
+                  date = document.getElementById('bookingDate').value,
+                  agenda = document.getElementById('bookingAgenda').value; 
+            const start = document.getElementById('startHour').value + ":" + document.getElementById('startMinute').value;
+            const end = document.getElementById('endHour').value + ":" + document.getElementById('endMinute').value;
+            try { 
+                const formUrl = "https://docs.google.com/forms/d/e/1FAIpQLSdIZCuT97e75fYmdok39kgU8YwJ7bo7JEV2xkrAqyiZZaiZFQ/formResponse"; 
+                const iframe = document.createElement('iframe');
+                iframe.name = "hidden_iframe";
+                iframe.style.display = "none";
+                document.body.appendChild(iframe);
+
+                const form = document.createElement('form');
+                form.action = formUrl;
+                form.method = "POST";
+                form.target = "hidden_iframe";
+
+                const fields = {
+                    'entry.1461043353': name,
+                    'entry.1698919406': wa,
+                    'entry.396930152': unit,
+                    'entry.1898527006': room,
+                    'entry.971478253': date,
+                    'entry.410139192': start,
+                    'entry.2096536293': end,
+                    'entry.252694942': agenda
+                };
+
+                for (const key in fields) {
+                    const input = document.createElement('input');
+                    input.type = "hidden";
+                    input.name = key;
+                    input.value = fields[key];
+                    form.appendChild(input);
+                }
+
+                document.body.appendChild(form);
+                form.submit();
+
+                await _supabase.from('office_tickets').insert([{ subject: `RESERVASI OPMC: ${room} - ${agenda}`, location: room, status: 'MENUNGGU' }]); 
+                
+                setTimeout(() => {
+                    closeBooking(); 
+                    showSuccessModal();
+                    if (document.body.contains(form)) document.body.removeChild(form);
+                    if (document.body.contains(iframe)) document.body.removeChild(iframe);
+                }, 500);
+            } catch(e) { alert("Terjadi kesalahan: " + e.message); } finally { submitBtn.disabled = false; submitBtn.innerText = "Konfirmasi Reservasi Sekarang"; }
+        }
+
+        function showSuccessModal() {
+            const m = document.getElementById('successModal'), c = document.getElementById('successCard');
+            m.classList.remove('hidden'); m.classList.add('flex');
+            setTimeout(() => { c.classList.remove('scale-95', 'opacity-0'); c.classList.add('scale-100', 'opacity-100'); }, 10);
+        }
+
+        function closeSuccessModal() { 
+            const m = document.getElementById('successModal'), c = document.getElementById('successCard');
+            c.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
+        }
+
+        async function checkAuth() { 
+            const { data: { session } } = await _supabase.auth.getSession(); 
+            if(session) { 
+                document.getElementById('userProfile').classList.remove('hidden'); 
+                const initial = document.getElementById('userInitial');
+                if (initial) initial.innerText = session.user.email.charAt(0).toUpperCase(); 
+            } 
+        }
+        async function handleLogout() { await _supabase.auth.signOut(); window.location.reload(); }
+    </script>
+</body>
+</html>

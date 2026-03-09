@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cockpit Portal Preview - Kimshie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #FDFDFD; color: #0F172A; overflow-x: hidden; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .bento-card:hover {
+            transform: translateY(-5px);
+            border-color: #EE1E24;
+            box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1);
+        }
+        .glow-text-red {
+            background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .quick-action-btn {
+            @apply w-12 h-12 rounded-2xl bg-white shadow-lg flex items-center justify-center text-slate-400 hover:text-[#EE1E24] hover:scale-110 transition-all duration-300;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-12 lg:p-16">
+    <div class="telkom-gradient"></div>
+
+    <!-- Top Utility Bar (Greeting & Time) -->
+    <div class="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-4 bg-white/50 backdrop-blur-md px-6 py-3 rounded-full border border-slate-100 shadow-sm">
+            <span id="greeting" class="text-[10px] font-black uppercase tracking-widest text-[#EE1E24]">Good Evening, Sobat DDP</span>
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <p id="clock" class="text-xl font-black italic tracking-tighter leading-none text-slate-900">02:04 AM</p>
+                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Minggu, 8 Maret 2026</p>
+            </div>
+            <div class="w-12 h-12 rounded-2xl bg-white border border-slate-100 flex items-center justify-center shadow-sm">
+                <i class="fa-solid fa-cloud-moon text-[#EE1E24]"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Section (The New Big Header) -->
+    <header class="max-w-7xl mx-auto mb-20 text-center relative">
+        <h1 class="text-7xl md:text-9xl font-black tracking-tighter leading-[1.2] text-slate-900 mb-0 py-12 px-10">
+            LAPOR&nbsp;&nbsp;&nbsp;&nbsp;<span class="glow-text-red">FM DDP</span>
+        </h1>
+        <p class="text-[11px] md:text-xs font-black uppercase tracking-[0.6em] text-slate-400 italic mb-10">
+            Facility Management <span class="text-[#EE1E24]">•</span> Divisi Digital Product
+        </p>
+
+        <!-- Notification Bar (Suggestion #2) -->
+        <div class="max-w-2xl mx-auto overflow-hidden bg-slate-900 text-white py-2.5 px-6 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <span class="bg-[#EE1E24] text-[8px] font-black px-2 py-1 rounded uppercase flex-shrink-0">Breaking</span>
+            <div class="flex-1 overflow-hidden relative">
+                <p class="text-[10px] font-bold italic animate-marquee">
+                    🚧 Pemeliharaan Lift Gedung OPMC dijadwalkan besok Senin pukul 09:00 WIB. Mohon gunakan tangga darurat atau lift barang. | 📌 Update: Jadwal Rapat Ruang Melati sudah sinkron dengan Google Calendar.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Bento Grid -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-8">
+        
+        <!-- Large Card: Room Booking -->
+        <div class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[400px] flex flex-col justify-between cursor-pointer">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-[1.8rem] bg-emerald-50 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-building-circle-check text-4xl"></i>
+                </div>
+                <div class="px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100">Live Schedule</div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase italic text-slate-900 leading-none">Room <span class="text-emerald-600">Booking</span></h2>
+                <p class="text-xs text-slate-500 font-medium italic mb-8">Reservasi instan ruang rapat Witel OPMC dengan sinkronisasi real-time.</p>
+                <div class="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-emerald-600">Access System <i class="fa-solid fa-arrow-right-long text-xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Large Card: Emergency Hub -->
+        <div class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[400px] flex flex-col justify-between cursor-pointer">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-[1.8rem] bg-red-50 flex items-center justify-center text-[#EE1E24] group-hover:bg-[#EE1E24] group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-headset text-4xl"></i>
+                </div>
+                <div class="px-4 py-1.5 bg-red-50 text-[#EE1E24] rounded-full text-[9px] font-black uppercase tracking-widest border border-red-100">Support 24/7</div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase italic text-slate-900 leading-none">Emergency <span class="text-[#EE1E24]">Hub</span></h2>
+                <p class="text-xs text-slate-500 font-medium italic mb-8">Pusat pelaporan keluhan dan kerusakan fasilitas kantor Telkom DDP.</p>
+                <div class="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-[#EE1E24]">Report Issue <i class="fa-solid fa-bolt text-xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Quick Action Widget (Suggestion #3) -->
+        <div class="md:col-span-4 lg:col-span-2 bento-card p-10 flex flex-col justify-center bg-slate-50 border-none">
+            <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-8 italic text-center">Quick Actions</h3>
+            <div class="flex justify-center gap-6">
+                <div class="flex flex-col items-center gap-3">
+                    <button class="quick-action-btn shadow-md"><i class="fa-brands fa-whatsapp text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Call FM</span>
+                </div>
+                <div class="flex flex-col items-center gap-3">
+                    <button class="quick-action-btn shadow-md"><i class="fa-solid fa-map-location-dot text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Map</span>
+                </div>
+                <div class="flex flex-col items-center gap-3">
+                    <button class="quick-action-btn shadow-md"><i class="fa-solid fa-qrcode text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Scan</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Graph Card -->
+        <div class="md:col-span-4 lg:col-span-4 bento-card p-10 flex items-center justify-between bg-white overflow-hidden">
+            <div class="max-w-[200px]">
+                <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 italic leading-tight">Digital Resolution Performance</h3>
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-2">March 2026 Metrics</p>
+                <div class="mt-6">
+                    <span class="text-4xl font-black italic glow-text-red">98.4%</span>
+                    <p class="text-[8px] font-black text-emerald-500 uppercase mt-1 tracking-widest">+2.1% from last month</p>
+                </div>
+            </div>
+            <div class="flex-1 flex justify-end">
+                <!-- Decorative Icon for Preview -->
+                <i class="fa-solid fa-chart-area text-8xl text-slate-50"></i>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-24 pb-12 text-center">
+        <p class="text-[9px] font-black uppercase tracking-[0.6em] italic text-slate-300">Infinite Productivity Powered by FM DDP</p>
+    </footer>
+
+    <script>
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: true });
+            document.getElementById('clock').innerText = time.toUpperCase();
+            
+            // Auto Greeting Logic
+            const hour = now.getHours();
+            let greet = "Morning";
+            if (hour >= 12 && hour < 17) greet = "Afternoon";
+            else if (hour >= 17 || hour < 4) greet = "Evening";
+            document.getElementById('greeting').innerText = `GOOD ${greet.toUpperCase()}, SOBAT DDP`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>

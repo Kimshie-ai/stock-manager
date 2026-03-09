@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Emergency Cockpit - FM DDP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { dark: { bg: '#050505', card: '#121212', border: '#222222' } } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient { background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .dark .glass-nav { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
+        .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .urgency-badge { @apply px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest border; }
+    </style>
+</head>
+<body class="min-h-screen bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                    <i class="fa-solid fa-house-chimney text-[#EE1E24] text-xs"></i>
+                </a>
+                <h1 class="text-xl font-black italic tracking-tighter uppercase">EMERGENCY <span class="glow-text-red">HUB</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="clock" class="text-xs font-black italic tracking-widest text-slate-400">00:00 WIB</div>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Sidebar Form Preview -->
+            <div class="lg:col-span-1">
+                <div class="bento-card p-10 border-t-4 border-t-[#EE1E24] shadow-2xl sticky top-32">
+                    <h2 class="text-2xl font-black mb-8 tracking-tighter uppercase italic">Buat <span class="glow-text-red">Laporan</span></h2>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest ml-2">Area Lokasi</label>
+                            <div class="w-full px-4 py-4 bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-2xl font-bold text-xs">Pilih Lokasi...</div>
+                        </div>
+                        <button class="w-full bg-[#EE1E24] text-white font-black py-6 rounded-2xl shadow-xl shadow-red-500/20 uppercase tracking-[0.2em] text-[10px] pt-7">Kirim Laporan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ticket List Preview -->
+            <div class="lg:col-span-2 space-y-6">
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-2 gap-6 mb-8">
+                    <div class="bento-card p-6 flex items-center gap-4 border-l-4 border-l-[#EE1E24]">
+                        <div class="w-12 h-12 rounded-xl bg-red-50 dark:bg-red-500/10 text-[#EE1E24] flex items-center justify-center text-xl"><i class="fa-solid fa-hourglass-half"></i></div>
+                        <div><span class="text-[8px] font-black uppercase text-slate-400 block">Menunggu</span><h3 class="text-2xl font-black italic leading-none">12</h3></div>
+                    </div>
+                    <div class="bento-card p-6 flex items-center gap-4 border-l-4 border-l-emerald-500">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 text-emerald-500 flex items-center justify-center text-xl"><i class="fa-solid fa-check-double"></i></div>
+                        <div><span class="text-[8px] font-black uppercase text-slate-400 block">Selesai</span><h3 class="text-2xl font-black italic leading-none">124</h3></div>
+                    </div>
+                </div>
+
+                <!-- Ticket Card Example -->
+                <div class="bento-card p-6 md:p-8 flex flex-col md:flex-row gap-6">
+                    <div class="w-16 h-16 bg-slate-100 dark:bg-white/5 rounded-2xl flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-file-invoice text-2xl opacity-20"></i></div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start mb-4">
+                            <span class="urgency-badge bg-red-50 text-[#EE1E24] border-red-100 dark:bg-red-500/10 dark:border-red-500/20 font-black">MENUNGGU</span>
+                            <span class="text-[9px] font-black text-slate-300 italic uppercase">ID #FMDDP-01</span>
+                        </div>
+                        <h3 class="text-xl font-black mb-2 italic uppercase">AC Mati di Witel Lantai 4</h3>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest italic flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-[#EE1E24]"></i> OPMC Jakarta Selatan • <span class="text-red-500 font-black">🚨 DARURAT</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            const icon = document.getElementById('theme-icon');
+            if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB';
+        }
+        setInterval(updateClock, 1000); updateClock();
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>

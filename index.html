@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAPOR FM DDP - Telkom Indonesia</title>
+    <link rel="icon" type="image/png" href="assets/branding/favicon-k.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: { bg: '#050505', card: '#121212', border: '#222222' }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.5s ease, color 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient {
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%);
+        }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04);
+            border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            cursor: pointer;
+        }
+        .dark .bento-card {
+            background: rgba(18, 18, 18, 0.8);
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        .bento-card:hover {
+            transform: translateY(-5px);
+            border-color: #EE1E24;
+            box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1);
+        }
+        .glow-text-red {
+            background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .quick-action-btn {
+            @apply w-12 h-12 rounded-2xl bg-white dark:bg-white/5 shadow-lg flex items-center justify-center text-slate-400 hover:text-[#EE1E24] hover:scale-110 transition-all duration-300;
+        }
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 20s linear infinite;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-6 md:p-12 lg:p-16 bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+
+    <!-- Top Utility Bar (Greeting & Time) -->
+    <div class="max-w-7xl mx-auto mb-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div class="flex items-center gap-4 bg-white/50 dark:bg-white/5 backdrop-blur-md px-6 py-3 rounded-full border border-slate-100 dark:border-white/5 shadow-sm">
+            <span id="greeting" class="text-[10px] font-black uppercase tracking-widest text-[#EE1E24]">GOOD EVENING, SOBAT DDP</span>
+            <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
+        </div>
+        <div class="flex items-center gap-6">
+            <div class="text-right">
+                <p id="clock" class="text-xl font-black tracking-tighter leading-none">00:00 WIB</p>
+                <p id="date-display" class="text-[9px] font-bold text-slate-400 uppercase tracking-widest mt-1">Minggu, 8 Maret 2026</p>
+            </div>
+            <button onclick="toggleDarkMode()" class="w-12 h-12 rounded-2xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24]"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Header Section -->
+    <header class="max-w-7xl mx-auto mb-20 text-center relative">
+        <h1 class="text-7xl md:text-9xl font-black tracking-tighter leading-[1.2] mb-0 py-12 px-10">
+            LAPOR&nbsp;&nbsp;&nbsp;&nbsp;<span class="glow-text-red">FM DDP</span>
+        </h1>
+        <p class="text-[11px] md:text-xs font-black uppercase tracking-[0.6em] text-slate-400 mb-10">
+            Facility Management <span class="text-[#EE1E24]">•</span> Divisi Digital Product
+        </p>
+
+        <!-- Notification Bar (Dynamic Content) -->
+        <div class="max-w-2xl mx-auto overflow-hidden bg-slate-900 dark:bg-white/5 text-white py-2.5 px-6 rounded-2xl flex items-center gap-4 shadow-2xl">
+            <span class="bg-[#EE1E24] text-[8px] font-black px-2 py-1 rounded uppercase flex-shrink-0">Live Update</span>
+            <div class="flex-1 overflow-hidden relative">
+                <p id="marquee-text" class="text-[10px] font-bold animate-marquee">
+                    Menghubungkan ke pusat data FM DDP... Silakan tunggu sejenak untuk informasi terbaru.
+                </p>
+            </div>
+        </div>
+    </header>
+
+    <!-- Bento Grid -->
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-8">
+        
+        <!-- Large Card: Room Booking -->
+        <div onclick="window.location.href='rooms.html'" class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[400px] flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-[1.8rem] bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-building-circle-check text-4xl"></i>
+                </div>
+                <div class="px-4 py-1.5 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-full text-[9px] font-black uppercase tracking-widest border border-emerald-100 dark:border-emerald-500/20">Live Schedule</div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase leading-none">Room <span class="text-emerald-600">Booking</span></h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-8">Reservasi instan ruang rapat Witel OPMC dengan sinkronisasi real-time.</p>
+                <div class="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-emerald-600">Access System <i class="fa-solid fa-arrow-right-long text-xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Large Card: Emergency Hub -->
+        <div onclick="window.location.href='tickets.html'" class="md:col-span-2 lg:col-span-3 bento-card p-12 group h-[400px] flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div class="w-20 h-20 rounded-[1.8rem] bg-red-50 dark:bg-red-500/10 flex items-center justify-center text-[#EE1E24] group-hover:bg-[#EE1E24] group-hover:text-white transition-all duration-700 shadow-sm">
+                    <i class="fa-solid fa-headset text-4xl"></i>
+                </div>
+                <div class="px-4 py-1.5 bg-red-50 dark:bg-red-500/10 text-[#EE1E24] rounded-full text-[9px] font-black uppercase tracking-widest border border-red-100 dark:border-red-500/20">Support 24/7</div>
+            </div>
+            <div>
+                <h2 class="text-4xl font-black mb-4 tracking-tighter uppercase leading-none">Emergency <span class="text-[#EE1E24]">Hub</span></h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 font-medium mb-8">Pusat pelaporan keluhan dan kerusakan fasilitas kantor Telkom DDP.</p>
+                <div class="flex items-center gap-4 text-xs font-black uppercase tracking-[0.3em] text-[#EE1E24]">Report Issue <i class="fa-solid fa-bolt text-xl"></i></div>
+            </div>
+        </div>
+
+        <!-- Quick Action Widget -->
+        <div class="md:col-span-4 lg:col-span-2 bento-card p-10 flex flex-col justify-center bg-slate-50 dark:bg-white/5 border-none cursor-default">
+            <h3 class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400 mb-8 text-center">Quick Actions</h3>
+            <div class="flex justify-center gap-6">
+                <div class="flex flex-col items-center gap-3">
+                    <button onclick="window.open('https://wa.me/6281295312443', '_blank')" class="quick-action-btn shadow-md"><i class="fa-brands fa-whatsapp text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Call FM</span>
+                </div>
+                <div class="flex flex-col items-center gap-3">
+                    <button onclick="window.open('https://maps.app.goo.gl/c8MVdousWirLcgnQ7', '_blank')" class="quick-action-btn shadow-md"><i class="fa-solid fa-map-location-dot text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Map</span>
+                </div>
+                <div class="flex flex-col items-center gap-3">
+                    <button onclick="window.location.href='assets.html'" class="quick-action-btn shadow-md"><i class="fa-solid fa-boxes-stacked text-xl"></i></button>
+                    <span class="text-[8px] font-black uppercase tracking-widest text-slate-400">Assets</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Performance Graph Card -->
+        <div class="md:col-span-4 lg:col-span-4 bento-card p-10 flex flex-col md:flex-row items-center justify-between bg-white dark:bg-white/5 overflow-hidden">
+            <div class="max-w-[200px]">
+                <h3 class="text-[11px] font-black uppercase tracking-[0.2em] text-slate-800 dark:text-white leading-tight">Digital Resolution Performance</h3>
+                <p class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-2">Real-time Metrics</p>
+                <div class="mt-6">
+                    <span id="resRate" class="text-4xl font-black glow-text-red">98.4%</span>
+                    <p class="text-[8px] font-black text-emerald-500 uppercase mt-1 tracking-widest">+2.1% from last month</p>
+                </div>
+            </div>
+            <div class="flex-1 w-full h-[150px] flex justify-end items-center px-4">
+                <canvas id="miniChart"></canvas>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="max-w-7xl mx-auto mt-24 pb-12 text-center">
+        <p class="text-[9px] font-black uppercase tracking-[0.6em] text-slate-300">Infinite Productivity Powered by FM DDP</p>
+    </footer>
+
+    <script>
+        const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', 
+              SUPABASE_KEY = 'sb_publishable_ADFBXS4OmcbtFjpFfZJ5fg_jlbgBR7W';
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Dark Mode Logic
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            const icon = document.getElementById('theme-icon');
+            if (icon) icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            const icon = document.getElementById('theme-icon');
+            if (icon) {
+                if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+                else icon.classList.replace('fa-sun', 'fa-moon');
+            }
+            updateChartTheme(isDark);
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const time = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
+            document.getElementById('clock').innerText = time + ' WIB';
+            
+            const hour = now.getHours();
+            let greet = "Morning";
+            if (hour >= 12 && hour < 17) greet = "Afternoon";
+            else if (hour >= 17 || hour < 4) greet = "Evening";
+            document.getElementById('greeting').innerText = `GOOD ${greet.toUpperCase()}, SOBAT DDP`;
+
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('date-display').innerText = now.toLocaleDateString('id-ID', options);
+        }
+
+        async function fetchLiveMarquee() {
+            try {
+                // Fetch Latest Tickets
+                const { data: tickets } = await _supabase.from('office_tickets').select('*').order('created_at', { ascending: false }).limit(3);
+                
+                let marqueeContent = "";
+                
+                if (tickets && tickets.length > 0) {
+                    tickets.forEach(t => {
+                        const statusIcon = t.status === 'MENUNGGU' ? '⏳' : t.status === 'DIPROSES' ? '🛠️' : '✅';
+                        const urgIcon = t.urgency === 'DARURAT' ? '🚨' : '📌';
+                        marqueeContent += `${urgIcon} ${t.subject} (${t.location}) - ${statusIcon} ${t.status} | `;
+                    });
+                } else {
+                    marqueeContent = "🚧 Tidak ada laporan aktif saat ini. Fasilitas terpantau aman. | ";
+                }
+
+                marqueeContent += "📌 Gunakan menu Room Booking untuk reservasi ruangan rapat Witel OPMC. | 📢 Hubungi FM DDP via tombol Quick Action untuk bantuan mendesak.";
+                
+                document.getElementById('marquee-text').innerText = marqueeContent;
+            } catch (e) {
+                console.error("Marquee Fetch Error:", e);
+            }
+        }
+
+        async function fetchStats() {
+            try {
+                const { count: total } = await _supabase.from('office_tickets').select('*', { count: 'exact', head: true });
+                const { count: closed } = await _supabase.from('office_tickets').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI');
+                if (total > 0) {
+                    const rate = ((closed / total) * 100).toFixed(1);
+                    document.getElementById('resRate').innerText = rate + '%';
+                }
+            } catch (e) {}
+        }
+
+        setInterval(updateClock, 1000);
+        setInterval(fetchLiveMarquee, 60000); // Refresh marquee every minute
+        updateClock();
+        fetchLiveMarquee();
+        fetchStats();
+
+        // Mini Chart
+        let miniChart;
+        function renderChart(isDark) {
+            const canvas = document.getElementById('miniChart');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            if (miniChart) miniChart.destroy();
+            miniChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00'],
+                    datasets: [{
+                        data: [94, 98, 92, 99, 97, 95, 98],
+                        borderColor: '#EE1E24',
+                        backgroundColor: isDark ? 'rgba(238, 30, 36, 0.1)' : 'rgba(238, 30, 36, 0.03)',
+                        fill: true,
+                        tension: 0.45,
+                        borderWidth: 3,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { display: false }, y: { display: false, min: 80, max: 100 } }
+                }
+            });
+        }
+        
+        function updateChartTheme(isDark) {
+            renderChart(isDark);
+        }
+
+        renderChart(document.documentElement.classList.contains('dark'));
+    </script>
+</body>
+</html>

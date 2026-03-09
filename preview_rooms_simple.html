@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Booking - Office Manager Preview</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: { 
+                        primary: '#0056B3', 
+                        kimshie: '#FFB7C5',
+                        dark: { bg: '#050505', card: '#121212', border: '#222222', text: '#FFFFFF' }
+                    },
+                    borderRadius: { 'premium': '1.5rem', 'super-premium': '2.5rem' }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #050505; color: white; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-card { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .glass-card:hover { background: rgba(255, 255, 255, 0.07); border-color: #0056B3; transform: translateY(-5px); }
+        .hero-gradient { background: radial-gradient(circle at 50% 50%, #0056B3 0%, #050505 70%); opacity: 0.15; position: fixed; width: 100vw; height: 100vh; z-index: -1; }
+    </style>
+</head>
+<body class="min-h-screen p-6">
+    <div class="hero-gradient"></div>
+
+    <nav class="max-w-7xl mx-auto mb-12 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <img src="https://raw.githubusercontent.com/Kimshie-ai/Kimshie/main/office-manager/assets/branding/logo-k-refined.png" alt="Logo" class="h-10 w-auto">
+            <h2 class="text-xl font-black tracking-tight">OFFICE<span class="text-blue-500">MANAGER</span></h2>
+        </div>
+        <a href="#" class="glass px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest text-slate-400">Kembali ke Portal</a>
+    </nav>
+
+    <header class="max-w-7xl mx-auto mb-16">
+        <h1 class="text-5xl font-black tracking-tighter mb-4">Pilih Ruangan</h1>
+        <p class="text-slate-500 text-lg italic">"Pesan ruang rapat secepat kilat tanpa ribet denah." ⚡🏢</p>
+    </header>
+
+    <main class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Room Item 1 -->
+        <div class="glass-card glass p-8 rounded-super-premium flex flex-col group">
+            <div class="h-48 rounded-premium overflow-hidden mb-6 relative">
+                <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVBrW09Yns2HU61cu-3BpFZ-vDfMnrngM6JVJio5agKeNshVS6nSSHXnTaRQAcf2EKzNUnUsEXxNgFOMTUNKlr2JEdhjY2EtWZr7O9R72L-YkYJ_c9QlYEyF3aqFX19IEtJWJlpRkPElsJiDwwLJ5bIYxVj43F-U8dpSvVvNMpG5fox7paNlxiSwEMH7dxVb7sxl95jw8b3af-36=w600?key=nJ46R7ZS1TueXAVPvww5Ig" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute top-4 left-4 bg-blue-600 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">Lantai 7</div>
+            </div>
+            <h3 class="text-xl font-black mb-1">Spark Room 1</h3>
+            <p class="text-slate-500 text-xs mb-6"><i class="fa-solid fa-users mr-2"></i> Kapasitas 20 Orang</p>
+            <button class="mt-auto w-full bg-white/5 hover:bg-blue-600 text-[10px] font-black uppercase py-4 rounded-xl transition-all tracking-widest border border-white/10 hover:border-blue-500">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2"></i></button>
+        </div>
+
+        <!-- Room Item 2 -->
+        <div class="glass-card glass p-8 rounded-super-premium flex flex-col group">
+            <div class="h-48 rounded-premium overflow-hidden mb-6 relative">
+                <img src="https://lh7-rt.googleusercontent.com/formsz/AN7BsVBSn0WwzPD3TL528yA8szsE_tQ2uNsiwKjnbH-N0LWSgzp5G0Cz_TJK78OmpIpQ_-OaTgvAsO_lDhpcHQUvJ9LdVi0Wyd5P8egsa1Z5D26PjHKB5YkLzeze7LnvDyuPlX9IPNYgq2vZB4aqIS0a3ngKy7Lwmw_2V8iHd-Qm7N9v763AeS0b1M7MBITI01Uh5lGAJ0E6VPjYsYrL=w600?key=nJ46R7ZS1TueXAVPvww5Ig" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute top-4 left-4 bg-blue-600 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">Lantai 4</div>
+            </div>
+            <h3 class="text-xl font-black mb-1">Ruang Rapat Besar</h3>
+            <p class="text-slate-500 text-xs mb-6"><i class="fa-solid fa-users mr-2"></i> Kapasitas 40 Orang</p>
+            <button class="mt-auto w-full bg-white/5 hover:bg-blue-600 text-[10px] font-black uppercase py-4 rounded-xl transition-all tracking-widest border border-white/10 hover:border-blue-500">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2"></i></button>
+        </div>
+
+        <!-- Room Item 3 -->
+        <div class="glass-card glass p-8 rounded-super-premium flex flex-col group">
+            <div class="h-48 rounded-premium overflow-hidden mb-6 relative">
+                <div class="w-full h-full bg-slate-800 flex items-center justify-center"><i class="fa-solid fa-building text-4xl text-slate-700"></i></div>
+                <div class="absolute top-4 left-4 bg-blue-600 px-3 py-1 rounded-lg text-[8px] font-black uppercase tracking-widest">Lantai 7</div>
+            </div>
+            <h3 class="text-xl font-black mb-1">Mindspace 2</h3>
+            <p class="text-slate-500 text-xs mb-6"><i class="fa-solid fa-users mr-2"></i> Kapasitas 6 Orang</p>
+            <button class="mt-auto w-full bg-white/5 hover:bg-blue-600 text-[10px] font-black uppercase py-4 rounded-xl transition-all tracking-widest border border-white/10 hover:border-blue-500">Pilih Ruangan <i class="fa-solid fa-arrow-right ml-2"></i></button>
+        </div>
+
+    </main>
+
+    <footer class="mt-24 text-center pb-12">
+        <p class="text-[10px] font-bold text-slate-700 uppercase tracking-[0.4em]">Office Manager Preview • Kimshie AI 2026</p>
+    </footer>
+</body>
+</html>

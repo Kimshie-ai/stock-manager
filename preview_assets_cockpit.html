@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preview Assets Cockpit - FM DDP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: { extend: { colors: { dark: { bg: '#050505', card: '#121212', border: '#222222' } } } }
+        }
+    </script>
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: all 0.5s ease; }
+        .telkom-gradient {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.03) 0%, transparent 70%);
+            z-index: -1;
+        }
+        .dark .telkom-gradient { background: radial-gradient(circle at 50% 50%, rgba(238, 30, 36, 0.08) 0%, transparent 70%); }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.04); }
+        .dark .glass-nav { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card {
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.04); border-radius: 2.5rem;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
+        .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
+        .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        table { @apply w-full text-left border-separate border-spacing-y-4; }
+        th { @apply text-[10px] font-black uppercase tracking-widest text-slate-400 px-6; }
+        td { @apply py-4 px-6 bg-white/50 dark:bg-white/5 border-y border-slate-100 dark:border-white/5 first:border-l first:rounded-l-2xl last:border-r last:rounded-r-2xl text-xs font-bold; }
+    </style>
+</head>
+<body class="min-h-screen bg-[#FDFDFD] text-[#0F172A] dark:bg-[#050505] dark:text-white">
+    <div class="telkom-gradient"></div>
+    
+    <!-- Navigation -->
+    <nav class="glass-nav sticky top-0 z-50 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="index.html" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm hover:scale-110 transition-all">
+                    <i class="fa-solid fa-house-chimney text-[#EE1E24] text-xs"></i>
+                </a>
+                <h1 class="text-xl font-black italic tracking-tighter uppercase">ASSET <span class="glow-text-red">MANAGEMENT</span></h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <div id="clock" class="text-xs font-black italic tracking-widest text-slate-400">00:00 WIB</div>
+                <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
+                    <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto p-6 md:p-12">
+        <header class="mb-16 flex justify-between items-end">
+            <div>
+                <h2 class="text-4xl md:text-6xl font-black tracking-tighter uppercase italic mb-4">Daftar <span class="glow-text-red">Aset</span></h2>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] italic">Inventaris Digital Facility Management</p>
+            </div>
+            <button class="px-8 py-4 bg-slate-900 dark:bg-white text-white dark:text-black font-black text-[10px] uppercase rounded-2xl tracking-widest pt-5 hover:bg-[#EE1E24] transition-all">Tambah Aset</button>
+        </header>
+
+        <div class="bento-card p-10 overflow-x-auto">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Asset Code</th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Condition</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="glow-text-red font-black">AC-OPMC-01</td>
+                        <td class="uppercase italic">AC Split LG 2PK</td>
+                        <td class="text-slate-500 uppercase">Lantai 4 OPMC</td>
+                        <td><span class="px-3 py-1 bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 rounded-full text-[9px] font-black tracking-widest">PERFEK</span></td>
+                    </tr>
+                    <tr>
+                        <td class="glow-text-red font-black">PC-DDP-12</td>
+                        <td class="uppercase italic">Laptop Thinkpad X1</td>
+                        <td class="text-slate-500 uppercase">Lantai 2 Witel</td>
+                        <td><span class="px-3 py-1 bg-amber-50 dark:bg-amber-500/10 text-amber-600 rounded-full text-[9px] font-black tracking-widest">MAINTENANCE</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        function toggleDarkMode() {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.theme = isDark ? 'dark' : 'light';
+            const icon = document.getElementById('theme-icon');
+            if (isDark) icon.classList.replace('fa-moon', 'fa-sun');
+            else icon.classList.replace('fa-sun', 'fa-moon');
+        }
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false }) + ' WIB';
+        }
+        setInterval(updateClock, 1000); updateClock();
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+            document.getElementById('theme-icon')?.classList.replace('fa-moon', 'fa-sun');
+        }
+    </script>
+</body>
+</html>
