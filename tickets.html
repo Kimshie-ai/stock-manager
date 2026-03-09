@@ -327,7 +327,10 @@
                     input.type = "hidden"; input.name = key; input.value = fields[key];
                     form.appendChild(input);
                 }
-                document.body.appendChild(form); form.submit();
+                document.body.appendChild(form);
+                
+                // Submit dengan sedikit delay agar photoUrl benar-benar terisi
+                setTimeout(() => form.submit(), 100);
 
                 // 3. internal DB
                 await _supabase.from('office_tickets').insert([{ 
