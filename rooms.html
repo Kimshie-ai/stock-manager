@@ -70,9 +70,12 @@
                 <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-white dark:bg-white/5 border border-slate-100 dark:border-white/5 flex items-center justify-center shadow-sm">
                     <i id="theme-icon" class="fa-solid fa-moon text-[#EE1E24] text-xs"></i>
                 </button>
-                <div id="userProfile" class="hidden flex items-center gap-2">
-                    <span id="userInitial" class="w-8 h-8 rounded-full bg-[#EE1E24] text-white flex items-center justify-center text-[10px] font-black shadow-lg">A</span>
-                    <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-[10px]"><i class="fa-solid fa-power-off"></i></button>
+                <div id="authSection" class="flex items-center gap-2">
+                    <button id="loginBtn" onclick="toggleAuthModal()" class="px-4 py-2 bg-slate-900 dark:bg-white text-white dark:text-black text-[9px] font-black uppercase tracking-widest rounded-xl hover:bg-[#EE1E24] transition-all">Admin</button>
+                    <div id="userProfile" class="hidden flex items-center gap-2">
+                        <span id="userInitial" class="w-8 h-8 rounded-full bg-[#EE1E24] text-white flex items-center justify-center text-[10px] font-black shadow-lg">A</span>
+                        <button onclick="handleLogout()" class="w-8 h-8 rounded-full bg-slate-100 dark:bg-white/5 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-[10px]"><i class="fa-solid fa-power-off"></i></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -175,6 +178,20 @@
     <footer class="mt-24 text-center pb-12 border-t border-slate-100 dark:border-white/5 pt-12">
         <p class="text-[9px] font-black text-slate-300 uppercase tracking-[0.6em]">Infinite Productivity Powered by FM DDP</p>
     </footer>
+
+    <!-- Admin Login Modal -->
+    <div id="authModal" class="opacity-0 pointer-events-none fixed inset-0 flex items-center justify-center z-[200] transition-all duration-500 p-4">
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md" onclick="toggleAuthModal()"></div>
+        <div class="bento-card w-full max-w-sm p-12 text-center transform scale-95 transition-all relative">
+            <button onclick="toggleAuthModal()" class="absolute top-8 right-8 text-slate-400 hover:text-red-500 transition-colors"><i class="fa-solid fa-circle-xmark text-2xl"></i></button>
+            <h2 class="text-2xl font-black tracking-tighter uppercase italic mb-8">Admin Access</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
+                <input type="email" id="loginEmail" required placeholder="Email" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs outline-none focus:border-[#EE1E24]">
+                <input type="password" id="loginPassword" required placeholder="Password" class="w-full px-6 py-4 bg-slate-100 dark:bg-white/5 border rounded-2xl font-bold text-xs outline-none focus:border-[#EE1E24]">
+                <button type="submit" class="w-full bg-[#EE1E24] text-white font-black py-5 rounded-2xl pt-7">Masuk</button>
+            </form>
+        </div>
+    </div>
 
     <script>
         const SUPABASE_URL = 'https://hzuafwnxsqkioqkgokbf.supabase.co', 
@@ -327,9 +344,29 @@
             c.classList.add('scale-95', 'opacity-0'); setTimeout(() => m.classList.add('hidden'), 300);
         }
 
+        function toggleAuthModal() {
+            const m = document.getElementById('authModal');
+            m.classList.toggle('opacity-0');
+            m.classList.toggle('pointer-events-none');
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            btn.disabled = true; btn.innerText = "Checking...";
+            const { error } = await _supabase.auth.signInWithPassword({
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            });
+            if (error) alert("Login Gagal: " + error.message);
+            else window.location.reload();
+            btn.disabled = false; btn.innerText = "Masuk";
+        }
+
         async function checkAuth() { 
             const { data: { session } } = await _supabase.auth.getSession(); 
             if(session) { 
+                document.getElementById('loginBtn').classList.add('hidden');
                 document.getElementById('userProfile').classList.remove('hidden'); 
                 const initial = document.getElementById('userInitial');
                 if (initial) initial.innerText = session.user.email.charAt(0).toUpperCase(); 
