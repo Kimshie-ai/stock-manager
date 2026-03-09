@@ -41,9 +41,25 @@
         .dark .bento-card { background: rgba(18, 18, 18, 0.8); border-color: rgba(255, 255, 255, 0.05); }
         .bento-card:hover { transform: translateY(-5px); border-color: #EE1E24; box-shadow: 0 25px 50px -12px rgba(238, 30, 36, 0.1); }
         .glow-text-red { background: linear-gradient(135deg, #EE1E24 0%, #B91C1C 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        table { @apply w-full text-left border-separate border-spacing-y-4; }
-        th { @apply text-[10px] font-black uppercase tracking-widest text-slate-400 px-6; }
-        td { @apply py-4 px-6 bg-white/50 dark:bg-white/5 border-y border-slate-100 dark:border-white/5 first:border-l first:rounded-l-2xl last:border-r last:rounded-r-2xl text-xs font-bold; }
+        
+        /* Modern Table Styling */
+        .asset-table-container { @apply overflow-x-auto; }
+        .asset-table { @apply w-full border-separate border-spacing-y-3; }
+        .asset-table th { @apply px-6 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 text-left; }
+        .asset-table tr { @apply transition-all duration-300; }
+        .asset-table td { @apply py-5 px-6 bg-white dark:bg-white/5 border-y border-slate-100 dark:border-white/5 first:border-l first:rounded-l-[1.5rem] last:border-r last:rounded-r-[1.5rem] text-xs font-bold transition-all; }
+        .asset-table tr:hover td { @apply bg-slate-50 dark:bg-white/[0.08] border-slate-200 dark:border-white/10; }
+        .asset-table tr:hover .asset-code { @apply scale-105; }
+        
+        .asset-code { @apply inline-block px-3 py-1 bg-red-50 dark:bg-red-500/10 text-[#EE1E24] rounded-lg font-black italic tracking-tighter transition-transform; }
+        .asset-badge { @apply px-4 py-1.5 rounded-full text-[9px] font-black tracking-widest uppercase italic border; }
+        .badge-perfek { @apply bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:border-emerald-500/20; }
+        .badge-maintenance { @apply bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:border-amber-500/20; }
+        .badge-rusak { @apply bg-red-50 text-red-600 border-red-100 dark:bg-red-500/10 dark:border-red-500/20; }
+        
+        .action-btn { @apply w-8 h-8 rounded-xl flex items-center justify-center transition-all hover:scale-110 active:scale-95; }
+        .btn-delete { @apply bg-red-50 text-red-500 hover:bg-red-500 hover:text-white dark:bg-red-500/10; }
+        
         .admin-blur { filter: blur(8px); pointer-events: none; user-select: none; }
     </style>
 </head>
@@ -122,20 +138,20 @@
         </div>
 
         <!-- Table Card -->
-        <div class="bento-card p-10 overflow-hidden flex flex-col">
-            <div class="flex items-center gap-4 mb-8 bg-slate-100 dark:bg-white/5 p-4 rounded-2xl">
+        <div class="bento-card p-4 md:p-10 flex flex-col shadow-2xl shadow-slate-200/50 dark:shadow-none">
+            <div class="flex items-center gap-4 mb-8 bg-slate-100/50 dark:bg-white/5 p-5 rounded-3xl border border-slate-100 dark:border-white/5">
                 <i class="fa-solid fa-magnifying-glass text-slate-400 ml-2"></i>
-                <input type="text" id="assetSearch" onkeyup="filterAssets()" placeholder="Cari Kode atau Nama Aset..." class="w-full bg-transparent outline-none font-bold text-xs uppercase italic">
+                <input type="text" id="assetSearch" onkeyup="filterAssets()" placeholder="Cari Kode atau Nama Aset..." class="w-full bg-transparent outline-none font-bold text-xs uppercase italic placeholder:text-slate-400">
             </div>
-            <div class="overflow-x-auto">
-                <table id="assetTable">
+            <div class="asset-table-container">
+                <table class="asset-table">
                     <thead>
                         <tr>
-                            <th>Asset Code</th>
-                            <th>Name</th>
+                            <th class="pl-10">Asset Code</th>
+                            <th>Asset Name</th>
                             <th>Location</th>
                             <th>Condition</th>
-                            <th class="admin-only hidden">Action</th>
+                            <th class="admin-only hidden pr-10 text-center">Action</th>
                         </tr>
                     </thead>
                     <tbody id="assetBody"></tbody>
@@ -242,12 +258,35 @@
 
         function renderAssets(assets) {
             document.getElementById('assetBody').innerHTML = assets.map(a => `
-                <tr>
-                    <td class="glow-text-red font-black uppercase italic">${a.code}</td>
-                    <td class="uppercase italic">${a.name}</td>
-                    <td class="text-slate-500 uppercase italic">${a.location}</td>
-                    <td><span class="px-3 py-1 ${a.condition === 'PERFEK' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'} dark:bg-white/5 rounded-full text-[9px] font-black tracking-widest uppercase italic">${a.condition}</span></td>
-                    ${currentUser ? `<td class="admin-only"><button onclick="deleteAsset('${a.id}')" class="text-red-500 hover:text-red-700 transition-colors"><i class="fa-solid fa-trash-can"></i></button></td>` : ''}
+                <tr class="group">
+                    <td class="pl-10">
+                        <span class="asset-code glow-text-red">${a.code}</span>
+                    </td>
+                    <td>
+                        <div class="flex flex-col">
+                            <span class="uppercase italic tracking-tight font-black text-slate-700 dark:text-white/90">${a.name}</span>
+                            <span class="text-[8px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Verified Asset</span>
+                        </div>
+                    </td>
+                    <td class="text-slate-500 uppercase italic font-bold">
+                        <div class="flex items-center gap-2">
+                            <i class="fa-solid fa-location-dot text-slate-300 text-[10px]"></i>
+                            ${a.location}
+                        </div>
+                    </td>
+                    <td>
+                        <span class="asset-badge badge-${a.condition.toLowerCase()}">
+                            ${a.condition}
+                        </span>
+                    </td>
+                    ${currentUser ? `
+                    <td class="admin-only pr-10">
+                        <div class="flex justify-center">
+                            <button onclick="deleteAsset('${a.id}')" class="action-btn btn-delete" title="Hapus Aset">
+                                <i class="fa-solid fa-trash-can text-[10px]"></i>
+                            </button>
+                        </div>
+                    </td>` : ''}
                 </tr>
             `).join('');
         }
